@@ -16,8 +16,6 @@
 
 
 
-
-
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -43,8 +41,7 @@ noinst_PROGRAMS = calculator$(EXEEXT) calculator_test$(EXEEXT) \
 	product_database_test$(EXEEXT) run_tests$(EXEEXT) \
 	$(am__EXEEXT_1)
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
-	$(googleinclude_HEADERS) $(srcdir)/Makefile.am \
+DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
 	$(top_srcdir)/src/config.h.in AUTHORS COPYING ChangeLog \
 	INSTALL NEWS compile config.guess config.sub depcomp \
@@ -68,10 +65,9 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(docdir)" \
-	"$(DESTDIR)$(googleincludedir)"
+am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
-LTLIBRARIES = $(lib_LTLIBRARIES)
+LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libcmockery_la_LIBADD =
 am_libcmockery_la_OBJECTS = libcmockery_la-cmockery.lo
 libcmockery_la_OBJECTS = $(am_libcmockery_la_OBJECTS)
@@ -166,10 +162,6 @@ DIST_SOURCES = $(libcmockery_la_SOURCES) \
 	$(calculator_SOURCES) $(calculator_test_SOURCES) \
 	$(customer_database_test_SOURCES) $(key_value_test_SOURCES) \
 	$(product_database_test_SOURCES) $(run_tests_SOURCES)
-dist_docDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(dist_doc_DATA)
-googleincludeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(googleinclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -266,6 +258,7 @@ build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
+#googleinclude_HEADERS = src/google/cmockery.h
 docdir = $(prefix)/share/doc/$(PACKAGE)-$(VERSION)
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
@@ -307,15 +300,14 @@ ACLOCAL_AMFLAGS = -I m4
 # These are good warnings to turn on by default
 @GCC_TRUE@AM_CXXFLAGS = -Wall -Wwrite-strings -Woverloaded-virtual -Wno-sign-compare
 googleincludedir = $(includedir)/google
-googleinclude_HEADERS = src/google/cmockery.h
-dist_doc_DATA = AUTHORS COPYING ChangeLog INSTALL NEWS README doc/index.html \
-		windows/makefile
-
-lib_LTLIBRARIES = libcmockery.la
+#dist_doc_DATA = AUTHORS COPYING ChangeLog INSTALL NEWS README doc/index.html \
+#		windows/makefile
+lib_LTLIBRARIES = 
 TESTS_ENVIRONMENT = CMOCKERY_ROOTDIR = $(srcdir)
 check_SCRIPTS = 
 # Every time you add a unittest to check_SCRIPTS, add it here too
 noinst_SCRIPTS = 
+noinst_LTLIBRARIES = libcmockery.la
 libcmockery_la_SOURCES = src/config.h src/cmockery.c src/google/cmockery.h
 libcmockery_la_CFLAGS = -I$(srcdir)/src/google
 calculator_SOURCES = src/example/calculator.c src/config.h
@@ -441,8 +433,17 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
+
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
 libcmockery.la: $(libcmockery_la_OBJECTS) $(libcmockery_la_DEPENDENCIES) 
-	$(libcmockery_la_LINK) -rpath $(libdir) $(libcmockery_la_OBJECTS) $(libcmockery_la_LIBADD) $(LIBS)
+	$(libcmockery_la_LINK)  $(libcmockery_la_OBJECTS) $(libcmockery_la_LIBADD) $(LIBS)
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
@@ -729,40 +730,6 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool
-install-dist_docDATA: $(dist_doc_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(docdir)" || $(MKDIR_P) "$(DESTDIR)$(docdir)"
-	@list='$(dist_doc_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(dist_docDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(docdir)/$$f'"; \
-	  $(dist_docDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(docdir)/$$f"; \
-	done
-
-uninstall-dist_docDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_doc_DATA)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(docdir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(docdir)/$$f"; \
-	done
-install-googleincludeHEADERS: $(googleinclude_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(googleincludedir)" || $(MKDIR_P) "$(DESTDIR)$(googleincludedir)"
-	@list='$(googleinclude_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(googleincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(googleincludedir)/$$f'"; \
-	  $(googleincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(googleincludedir)/$$f"; \
-	done
-
-uninstall-googleincludeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(googleinclude_HEADERS)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(googleincludedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(googleincludedir)/$$f"; \
-	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -1014,10 +981,9 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_SCRIPTS)
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA) \
-		$(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(googleincludedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1047,7 +1013,7 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstPROGRAMS mostlyclean-am
+	clean-noinstLTLIBRARIES clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -1066,7 +1032,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_docDATA install-googleincludeHEADERS
+install-data-am:
 
 install-dvi: install-dvi-am
 
@@ -1104,29 +1070,26 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_docDATA uninstall-googleincludeHEADERS \
-	uninstall-libLTLIBRARIES
+uninstall-am: uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am am--refresh check check-TESTS check-am \
 	clean clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstPROGRAMS ctags dist dist-all dist-bzip2 dist-gzip \
-	dist-shar dist-tarZ dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-hdr \
-	distclean-libtool distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am \
-	install-dist_docDATA install-dvi install-dvi-am install-exec \
-	install-exec-am install-googleincludeHEADERS install-html \
-	install-html-am install-info install-info-am \
+	clean-noinstLTLIBRARIES clean-noinstPROGRAMS ctags dist \
+	dist-all dist-bzip2 dist-gzip dist-shar dist-tarZ dist-zip \
+	distcheck distclean distclean-compile distclean-generic \
+	distclean-hdr distclean-libtool distclean-tags distcleancheck \
+	distdir distuninstallcheck dvi dvi-am html html-am info \
+	info-am install install-am install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-dist_docDATA \
-	uninstall-googleincludeHEADERS uninstall-libLTLIBRARIES
+	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
 
 rpm: dist-gzip packages/rpm.sh packages/rpm/rpm.spec

@@ -19,14 +19,14 @@ endif
 googleincludedir = $(includedir)/google
 ## The .h files you want to install (that is, .h files that people
 ## who install this package can include in their own applications.)
-googleinclude_HEADERS = src/google/cmockery.h
+#googleinclude_HEADERS = src/google/cmockery.h
 
 docdir = $(prefix)/share/doc/$(PACKAGE)-$(VERSION)
 ## This is for HTML and other documentation you want to install.
 ## Add your documentation files (in doc/) in addition to these
 ## top-level boilerplate files.  Also add a TODO file if you have one.
-dist_doc_DATA = AUTHORS COPYING ChangeLog INSTALL NEWS README doc/index.html \
-		windows/makefile
+#dist_doc_DATA = AUTHORS COPYING ChangeLog INSTALL NEWS README doc/index.html \
+#		windows/makefile
 
 ## The libraries (.so's) you want to install
 lib_LTLIBRARIES =
@@ -44,7 +44,7 @@ noinst_SCRIPTS =
 
 ## vvvv RULES TO MAKE THE LIBRARIES, BINARIES, AND UNITTESTS
 
-lib_LTLIBRARIES += libcmockery.la
+noinst_LTLIBRARIES = libcmockery.la
 libcmockery_la_SOURCES = src/config.h src/cmockery.c src/google/cmockery.h
 libcmockery_la_CFLAGS = -I$(srcdir)/src/google
 

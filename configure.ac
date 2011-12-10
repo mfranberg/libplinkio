@@ -6,12 +6,13 @@ AC_INIT([plinkio], [0.1], [mattias.franberg@gmail.com])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([src/fam.c])
 #AC_CONFIG_HEADER([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
+AC_CONFIG_MACRO_DIR([m4])
+LT_INIT
 
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
-AC_PROG_RANLIB
 AM_CONDITIONAL(GCC, test "$GCC" = yes)
 
 # Checks for libraries.
