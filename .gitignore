@@ -1,4 +1,6 @@
 *~
 *.log
+*.swp
 autom4te.cache
 config.status
+build
