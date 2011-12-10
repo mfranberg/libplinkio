@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 35
+/svn/!svn/ver/18/trunk/packages/deb
+END
+libcmockery-dev.dirs
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/3/trunk/packages/deb/libcmockery-dev.dirs
+END
+control
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/3/trunk/packages/deb/control
+END
+compat
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/3/trunk/packages/deb/compat
+END
+libcmockery0.dirs
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/3/trunk/packages/deb/libcmockery0.dirs
+END
+libcmockery-dev.install
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/3/trunk/packages/deb/libcmockery-dev.install
+END
+changelog
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/18/trunk/packages/deb/changelog
+END
+copyright
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/3/trunk/packages/deb/copyright
+END
+docs
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/3/trunk/packages/deb/docs
+END
+libcmockery0.install
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/3/trunk/packages/deb/libcmockery0.install
+END
+rules
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/3/trunk/packages/deb/rules
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/3/trunk/packages/deb/README
+END
