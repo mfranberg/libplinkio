@@ -29,5 +29,7 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([bzero memmove memset strdup strtol])
 
+AC_CONFIG_SUBDIRS([libs/cmockery])
+
 AC_OUTPUT
 
