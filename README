@@ -1,0 +1,10 @@
+This is a small C-library for reading PLINK (genotype) files. 
+
+It will reach 1.0 when the following has been implemented:
+* Support for PED files.
+* Support for all features in PLINKs various file formats.
+
+Project rationale:
+* Use C to make it simple to add bindings for other languages.
+* Few external dependencies to make it simple to install.
+* Only support for *nix since I do not have time to support multiple platforms.
