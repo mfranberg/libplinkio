@@ -9,6 +9,11 @@ enum PioStatus
     PIO_OK,
 
     /**
+     * File reached EOF.
+     */
+    PIO_END,
+
+    /**
      * Generic error.
      */
     PIO_ERROR
