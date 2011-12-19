@@ -2,6 +2,18 @@
 #include <utarray.h>
 
 #include <fam.h>
+#include <status.h>
+
+/**
+ * Creates mock versions of IO functions to allow unit testing.
+ */
+#ifdef UNIT_TESTING
+    extern int mock_feof(FILE *stream);
+    extern char *mock_fgets(char *s, int n, FILE *stream);
+
+    #define fgets mock_fgets
+    #define feof mock_feof
+#endif
 
 /**
  * Size of string buffer for parsing phenotype.
@@ -9,23 +21,64 @@
 #define BUFFER_SIZE 1024
 
 /**
- * Reads a line from the given file pointer and parses
- * it as a sample, the parsed data is stored in the given
- * sample pointer.
+ * Properties of the sample array for dtarray.
+ */
+UT_icd SAMPLE_ICD = { sizeof( struct pio_sample_t ), NULL, NULL, NULL };
+
+/**
+ * Reads a single line from the input file and stores it in the given
+ * buffer.
  *
  * @param fp Pointer to a fam file.
- * @param person The parsed data will be stored here.
+ * @param buffer Buffer to store the read line.
+ * @param buffer_length Length of the buffer.
  *
- * @return 1 if the sample could be parsed, 0 otherwise.
+ * @return PIO_OK if the line was read successfully, PIO_END if we are
+ *                at the end of the file, PIO_ERROR otherwise.
  */
-int parse_sample(FILE *fp, struct pio_sample_t *person)
+int
+read_sample(FILE *fp, char *buffer, unsigned int buffer_length)
+{
+    char *result = fgets( buffer, buffer_length, fp );
+    if( result != NULL )
+    {
+        return PIO_OK;
+    }
+    else
+    {
+        if( feof( fp ) != 0 )
+        {
+            return PIO_END;
+        }
+        else
+        {
+            return PIO_ERROR;
+        }
+    }
+}
+
+/**
+ * Takes the given pointer to data and tries to parse
+ * a sample from the beginning.
+ *
+ * Note: If data could not be parsed, the contents of
+ *       locus is undetermined.
+ *
+ * @param data The data to be parsed.
+ * @param locus The parsed data will be stored here.
+ *
+ * @return PIO_OK if the sample could be parsed,
+ *         PIO_ERROR otherwise.
+ */
+int
+parse_sample(const char *sample, struct pio_sample_t *person)
 {
     unsigned int sex;
     char phenotype_as_string[BUFFER_SIZE];
 
-    int num_read_fields = fscanf( fp, "%u %u %u %u %u %s",
+    int num_read_fields = sscanf( sample, "%u %s %u %u %u %s",
                                 &person->fid,
-                                &person->iid,
+                                person->iid,
                                 &person->father_iid,
                                 &person->mother_iid,
                                 &sex,
@@ -33,7 +86,7 @@ int parse_sample(FILE *fp, struct pio_sample_t *person)
 
     if( num_read_fields != 6 )
     {
-        return 0;
+        return PIO_ERROR;
     }
         
     if( sex == 1 )
@@ -57,7 +110,7 @@ int parse_sample(FILE *fp, struct pio_sample_t *person)
         person->phenotype.as_float = phenotype_float;
     }
 
-    return 1;
+    return PIO_OK;
 
 }
 
@@ -70,21 +123,24 @@ int parse_sample(FILE *fp, struct pio_sample_t *person)
  *
  * @return PIO_OK if the samples could be parsed, PIO_ERROR otherwise.
  */
-int parse_samples(struct pio_fam_file_t *fam_file)
+int
+parse_samples(struct pio_fam_file_t *fam_file)
 {
-    UT_icd sample_icd = { sizeof( struct pio_sample_t ), NULL, NULL, NULL }; 
     UT_array *samples;
-    unsigned int pio_id = 0;
+    char read_buffer[BUFFER_SIZE];
     struct pio_sample_t person;
     
-    utarray_new( samples, &sample_icd );
+    utarray_new( samples, &SAMPLE_ICD );
 
-    while( parse_sample( fam_file->fp, &person ) == 1 )
+    while( read_sample( fam_file->fp, read_buffer, BUFFER_SIZE ) != PIO_END )
     {
-        person.pio_id = pio_id;
-        utarray_push_back( samples, &person );
+        if( parse_sample( read_buffer, &person ) != PIO_OK )
+        {
+            continue;
+        }
 
-        pio_id++;
+        person.pio_id = utarray_len( samples );
+        utarray_push_back( samples, &person );
     }
 
     fam_file->num_samples = utarray_len( samples );
