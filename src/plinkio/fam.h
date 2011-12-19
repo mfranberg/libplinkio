@@ -5,6 +5,8 @@
 
 #include <status.h>
 
+#define FAM_IID_MAX_LENGTH 11
+
 /**
  * Sex of a sample.
  */
@@ -41,7 +43,7 @@ struct pio_sample_t
     /**
      * Plink individual identifier.
      */
-    unsigned int iid;
+    char iid[FAM_IID_MAX_LENGTH];
 
     /**
      * Plink individual identifier of father, 0 if none.
