@@ -33,7 +33,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @GCC_TRUE@am__append_1 = -Wall
-TESTS = fam_test$(EXEEXT) bim_test$(EXEEXT)
+TESTS = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT)
 noinst_PROGRAMS = $(am__EXEEXT_1)
 subdir = tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -46,8 +46,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-am__EXEEXT_1 = fam_test$(EXEEXT) bim_test$(EXEEXT)
+am__EXEEXT_1 = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
+am_bed_test_OBJECTS = bed_test.$(OBJEXT)
+bed_test_OBJECTS = $(am_bed_test_OBJECTS)
+bed_test_DEPENDENCIES = ../libs/cmockery/libcmockery.la
 am_bim_test_OBJECTS = bim_test.$(OBJEXT)
 bim_test_OBJECTS = $(am_bim_test_OBJECTS)
 bim_test_DEPENDENCIES = ../libs/cmockery/libcmockery.la
@@ -66,8 +69,9 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(bim_test_SOURCES) $(fam_test_SOURCES)
-DIST_SOURCES = $(bim_test_SOURCES) $(fam_test_SOURCES)
+SOURCES = $(bed_test_SOURCES) $(bim_test_SOURCES) $(fam_test_SOURCES)
+DIST_SOURCES = $(bed_test_SOURCES) $(bim_test_SOURCES) \
+	$(fam_test_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -187,6 +191,8 @@ fam_test_SOURCES = fam_test.c
 fam_test_LDADD = ../libs/cmockery/libcmockery.la
 bim_test_SOURCES = bim_test.c
 bim_test_LDADD = ../libs/cmockery/libcmockery.la
+bed_test_SOURCES = bed_test.c
+bed_test_LDADD = ../libs/cmockery/libcmockery.la
 all: all-am
 
 .SUFFIXES:
@@ -227,6 +233,9 @@ clean-noinstPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+bed_test$(EXEEXT): $(bed_test_OBJECTS) $(bed_test_DEPENDENCIES) 
+	@rm -f bed_test$(EXEEXT)
+	$(LINK) $(bed_test_OBJECTS) $(bed_test_LDADD) $(LIBS)
 bim_test$(EXEEXT): $(bim_test_OBJECTS) $(bim_test_DEPENDENCIES) 
 	@rm -f bim_test$(EXEEXT)
 	$(LINK) $(bim_test_OBJECTS) $(bim_test_LDADD) $(LIBS)
@@ -240,6 +249,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bed_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bim_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fam_test.Po@am__quote@
 

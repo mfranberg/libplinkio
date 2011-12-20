@@ -4,7 +4,7 @@ if GCC
 AM_CFLAGS += -Wall
 endif
 
-TESTS = fam_test bim_test
+TESTS = fam_test bim_test bed_test
 noinst_PROGRAMS = $(TESTS)
 
 fam_test_SOURCES = fam_test.c
@@ -12,3 +12,6 @@ fam_test_LDADD = ../libs/cmockery/libcmockery.la
 
 bim_test_SOURCES = bim_test.c
 bim_test_LDADD = ../libs/cmockery/libcmockery.la
+
+bed_test_SOURCES = bed_test.c
+bed_test_LDADD = ../libs/cmockery/libcmockery.la
