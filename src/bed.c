@@ -4,6 +4,7 @@
 #include <status.h>
 
 #include <bed.h>
+#include <snp_lookup.h>
 
 /**
  * Creates mock versions of IO functions to allow unit testing.
@@ -130,19 +131,22 @@ parse_header(struct pio_bed_file_t *bed_file)
 void
 unpack_snps(const unsigned char *packed_snps, unsigned char *unpacked_snps, int num_cols)
 {
+    /* Write SNPs in pairs of 4. */
+    int32_t *unpacked_snps_p = (int32_t *) unpacked_snps;
     int i;
-    for(i = 0; i < num_cols; i++)
-    {
-        int pack_index = i / SNPS_PER_CHAR;
-        int pack_shift = i % SNPS_PER_CHAR;
-        unsigned char packed_snp = packed_snps[ pack_index ];
-        
-        // Start from the most significant (to the left) bits and go downwards
-        int last_snp_shift = NUM_BITS_IN_CHAR - BITS_PER_SNP;
-        int cur_snp_shift = last_snp_shift - pack_shift * BITS_PER_SNP;
-        unsigned char snp = ( packed_snp >> cur_snp_shift ) & SNP_MASK;
+    int packed_length = num_cols / 4;
+    for(i = 0; i < packed_length; i++)
+    { 
+        *unpacked_snps_p = snp_lookup[ packed_snps[ i ] ].snp_block;
+        unpacked_snps_p += 1;
+    }
 
-        unpacked_snps[ i ] = snp;
+    /* Write the trailing SNPs */
+    int index = packed_length * 4;
+    int packed_left = num_cols % 4;
+    for(i = 0; i < packed_left; i++)
+    {
+        unpacked_snps[ index + i ] = snp_lookup[ packed_snps[ packed_length ] ].snp_array[ i ];
     }
 }
 
