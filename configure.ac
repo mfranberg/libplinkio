@@ -19,7 +19,7 @@ AM_CONDITIONAL(GCC, test "$GCC" = yes)
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stddef.h stdlib.h string.h])
+AC_CHECK_HEADERS([stddef.h stdlib.h string.h endian.h machine/endian.h sys/endian.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

@@ -1,7 +1,13 @@
 #ifndef __SNP_LOOKUP_H__
 #define __SNP_LOOKUP_H__
 
+#if HAVE_ENDIAN_H
+#include <endian.h>
+#elif HAVE_MACHINE_ENDIAN_H
 #include <machine/endian.h>
+#elif HAVE_SYS_ENDIAN_H
+#include <sys/endian.h>
+#endif
 
 /**
  * This files contains a lookup table that maps
