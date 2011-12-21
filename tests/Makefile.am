@@ -4,8 +4,8 @@ if GCC
 AM_CFLAGS += -Wall
 endif
 
-TESTS = fam_test bim_test bed_test plinkio_test
-noinst_PROGRAMS = $(TESTS)
+TESTS = fam_test bim_test bed_test
+noinst_PROGRAMS = $(TESTS) plinkio_test
 
 fam_test_SOURCES = fam_test.c
 fam_test_LDADD = ../libs/cmockery/libcmockery.la

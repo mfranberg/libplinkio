@@ -33,9 +33,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @GCC_TRUE@am__append_1 = -Wall
-TESTS = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT) \
-	plinkio_test$(EXEEXT)
-noinst_PROGRAMS = $(am__EXEEXT_1)
+TESTS = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT)
+noinst_PROGRAMS = $(am__EXEEXT_1) plinkio_test$(EXEEXT)
 subdir = tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -47,8 +46,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-am__EXEEXT_1 = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT) \
-	plinkio_test$(EXEEXT)
+am__EXEEXT_1 = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am_bed_test_OBJECTS = bed_test.$(OBJEXT)
 bed_test_OBJECTS = $(am_bed_test_OBJECTS)
