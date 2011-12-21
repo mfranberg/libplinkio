@@ -131,7 +131,7 @@ parse_header(struct pio_bed_file_t *bed_file)
 void
 unpack_snps(const unsigned char *packed_snps, unsigned char *unpacked_snps, int num_cols)
 {
-    /* Write SNPs in pairs of 4. */
+    /* Unpack SNPs in pairs of 4. */
     int32_t *unpacked_snps_p = (int32_t *) unpacked_snps;
     int i;
     int packed_length = num_cols / 4;
@@ -141,7 +141,7 @@ unpack_snps(const unsigned char *packed_snps, unsigned char *unpacked_snps, int 
         unpacked_snps_p += 1;
     }
 
-    /* Write the trailing SNPs */
+    /* Unpack the trailing SNPs */
     int index = packed_length * 4;
     int packed_left = num_cols % 4;
     for(i = 0; i < packed_left; i++)
