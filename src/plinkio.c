@@ -9,25 +9,27 @@ pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
     size_t path_length = strlen( plink_file_prefix ) + 4 + 1;
     char *path_buffer = (char *) malloc( sizeof( char ) * path_length );
     int error = 0;
+    int num_samples;
+    int num_loci;
     
-    strlcpy( path_buffer, plink_file_prefix, path_length );
-    strlcat( path_buffer, ".fam", path_length );
+    strncpy( path_buffer, plink_file_prefix, path_length );
+    strncat( path_buffer, ".fam", path_length );
     if( fam_open( &plink_file->fam_file, path_buffer ) != PIO_OK )
     {
         error = 1;
     }
 
-    strlcpy( path_buffer, plink_file_prefix, path_length );
-    strlcat( path_buffer, ".bim", path_length );
+    strncpy( path_buffer, plink_file_prefix, path_length );
+    strncat( path_buffer, ".bim", path_length );
     if( bim_open( &plink_file->bim_file, path_buffer ) != PIO_OK )
     {
         error = 1;
     }
 
-    strlcpy( path_buffer, plink_file_prefix, path_length );
-    strlcat( path_buffer, ".bed", path_length );
-    int num_samples = plink_file->fam_file.num_samples;
-    int num_loci = plink_file->bim_file.num_loci;
+    strncpy( path_buffer, plink_file_prefix, path_length );
+    strncat( path_buffer, ".bed", path_length );
+    num_samples = plink_file->fam_file.num_samples;
+    num_loci = plink_file->bim_file.num_loci;
     if( bed_open( &plink_file->bed_file, path_buffer, num_samples, num_loci ) != PIO_OK )
     {
         error = 1;

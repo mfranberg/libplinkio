@@ -26,12 +26,12 @@ struct pio_locus_t
     /**
      * Genetic position of the SNP.
      */
-    long position;
+    unsigned long position;
 
     /**
      * Base pair position of the SNP.
      */
-    long bp_position;
+    unsigned long bp_position;
 
     /**
      * Major allele.

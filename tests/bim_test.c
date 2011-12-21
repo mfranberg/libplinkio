@@ -90,11 +90,12 @@ void test_parse_locus_fail(void **state)
 void
 test_parse_multiple_loci(void **state)
 {
+    struct pio_locus_t locus;
     struct pio_bim_file_t bim_file;
     assert_int_equal( parse_loci( &bim_file ), PIO_OK );
     assert_int_equal( bim_file.num_loci, NUM_LOCI );
 
-    struct pio_locus_t locus = bim_file.locus[0];
+    locus = bim_file.locus[0];
     assert_int_equal( locus.chromosome, 1 ); 
     assert_string_equal( locus.name, "rs1" );
     assert_int_equal( locus.position, 0 );

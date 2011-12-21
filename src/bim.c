@@ -126,9 +126,9 @@ parse_loci(struct pio_bim_file_t *bim_file)
     bim_file->num_loci = utarray_len( loci );
     bim_file->locus = (struct pio_locus_t *) utarray_front( loci );
     
-    // Free the dtarray but keep the underlying array, if
-    // changes are made to the utarray, we need to make sure
-    // that no memory is leaked here
+    /* Free the dtarray but keep the underlying array, if
+       changes are made to the utarray, we need to make sure
+       that no memory is leaked here. */
     free( loci );
 
     return PIO_OK;
@@ -165,6 +165,7 @@ locus_cmp(const void *a, const void *b)
 int
 bim_open(struct pio_bim_file_t *bim_file, const char *path)
 {
+    int status;
     FILE *bim_fp = fopen( path, "r" );
     if( bim_fp == NULL )
     {
@@ -172,9 +173,9 @@ bim_open(struct pio_bim_file_t *bim_file, const char *path)
     }
 
     bim_file->fp = bim_fp;
-    int status = parse_loci( bim_file );
+    status = parse_loci( bim_file );
 
-    // The locus are always sorted.
+    /* The loci are always sorted. */
     qsort( bim_file->locus, bim_file->num_loci, sizeof( struct pio_locus_t ), locus_cmp );
 
     fclose( bim_fp );

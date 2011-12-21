@@ -108,11 +108,12 @@ void test_parse_sample_fail(void **state)
 void
 test_parse_multiple_samples(void **state)
 {
+    struct pio_sample_t person;
     struct pio_fam_file_t fam_file;
     assert_int_equal( parse_samples( &fam_file ), PIO_OK );
     assert_int_equal( fam_file.num_samples, NUM_SAMPLES );
 
-    struct pio_sample_t person = fam_file.sample[0];
+    person = fam_file.sample[0];
     assert_int_equal( person.fid, 0 ); 
     assert_string_equal( person.iid, "P1" );
     assert_int_equal( person.father_iid, 0 );

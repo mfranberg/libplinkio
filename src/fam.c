@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <utarray.h>
 
@@ -75,6 +76,9 @@ parse_sample(const char *sample, struct pio_sample_t *person)
 {
     unsigned int sex;
     char phenotype_as_string[BUFFER_SIZE];
+    char *endptr;
+    long phenotype_int;
+    double phenotype_float;
 
     int num_read_fields = sscanf( sample, "%u %s %u %u %u %s",
                                 &person->fid,
@@ -98,19 +102,23 @@ parse_sample(const char *sample, struct pio_sample_t *person)
         person->sex = FEMALE;
     }
 
-    char *endptr;
-    long phenotype_int = strtol( phenotype_as_string, &endptr, 10 );
-    if( endptr == NULL )
+    errno = 0;
+    phenotype_int = strtol( phenotype_as_string, &endptr, 10 );
+    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
-        person->phenotype.as_int = (int) phenotype_int; 
-    }
-    else
-    {
-        float phenotype_float = strtof( phenotype_as_string, NULL );
-        person->phenotype.as_float = phenotype_float;
+        person->phenotype.as_int = (int) phenotype_int;
+        return PIO_OK;
     }
 
-    return PIO_OK;
+    errno = 0;
+    phenotype_float = strtod( phenotype_as_string, &endptr );
+    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
+    {
+        person->phenotype.as_float = (float) phenotype_float;
+        return PIO_OK;
+    }
+
+    return PIO_ERROR;
 
 }
 
@@ -146,9 +154,9 @@ parse_samples(struct pio_fam_file_t *fam_file)
     fam_file->num_samples = utarray_len( samples );
     fam_file->sample = (struct pio_sample_t *) utarray_front( samples );
     
-    // Free the dtarray but keep the underlying array, if
-    // changes are made to the utarray, we need to make sure
-    // that no memory is leaked here
+    /* Free the dtarray but keep the underlying array, if
+       changes are made to the utarray, we need to make sure
+       that no memory is leaked here. */
     free( samples );
 
     return PIO_OK;
@@ -157,6 +165,7 @@ parse_samples(struct pio_fam_file_t *fam_file)
 int
 fam_open(struct pio_fam_file_t *fam_file, const char *path)
 {
+    int status;
     FILE *fam_fp = fopen( path, "r" );
     if( fam_fp == NULL )
     {
@@ -164,7 +173,7 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
     }
 
     fam_file->fp = fam_fp;
-    int status = parse_samples( fam_file );
+    status = parse_samples( fam_file );
     fclose( fam_fp );
 
     return status;

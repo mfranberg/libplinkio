@@ -12,6 +12,8 @@
 int
 main(int argc, char *argv[])
 {
+    int num_rows;
+    unsigned char *snp_buffer;
     struct pio_file_t plink_file;
 
     if( argc != 2 )
@@ -26,8 +28,8 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    int num_rows = 0;
-    unsigned char *snp_buffer = pio_allocate_row_buffer( &plink_file );
+    num_rows = 0;
+    snp_buffer = pio_allocate_row_buffer( &plink_file );
     while( pio_next_row( &plink_file, snp_buffer ) == PIO_OK )
     {
         num_rows++;

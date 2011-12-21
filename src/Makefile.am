@@ -1,5 +1,5 @@
 if GCC
-AM_CFLAGS = -Wall
+AM_CFLAGS = -Wall -strict -pendantic
 endif
 
 lib_LTLIBRARIES = libplinkio.la
