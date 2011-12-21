@@ -134,6 +134,34 @@ parse_loci(struct pio_bim_file_t *bim_file)
     return PIO_OK;
 }
 
+/**
+ * Comparission function used to sort the loci, it will
+ * first compare the chromosome number and then the base
+ * pair position.
+ *
+ * @param a First loci.
+ * @param b Second loci.
+ *
+ * @return Less than zero if a is before b, equal to zero if
+ *         they are the same and greater than zero otherwise.
+ */
+int
+locus_cmp(const void *a, const void *b)
+{
+    struct pio_locus_t *a_locus = (struct pio_locus_t *) a;
+    struct pio_locus_t *b_locus = (struct pio_locus_t *) b;
+
+    int chromosome_difference = a_locus->chromosome - b_locus->chromosome;
+    if( chromosome_difference != 0 )
+    {
+        return chromosome_difference;
+    }
+    else
+    {
+        return a_locus->bp_position - b_locus->bp_position;
+    }
+}
+
 int
 bim_open(struct pio_bim_file_t *bim_file, const char *path)
 {
@@ -145,6 +173,10 @@ bim_open(struct pio_bim_file_t *bim_file, const char *path)
 
     bim_file->fp = bim_fp;
     int status = parse_loci( bim_file );
+
+    // The locus are always sorted.
+    qsort( bim_file->locus, bim_file->num_loci, sizeof( struct pio_locus_t ), locus_cmp );
+
     fclose( bim_fp );
 
     return status;
