@@ -30,7 +30,6 @@ struct pio_file_t
     struct pio_bed_file_t bed_file;
 };
 
-
 /**
  * Opens the given plink file. Parses the fam and bim files.
  *
@@ -77,14 +76,25 @@ struct pio_locus_t * pio_get_locus(struct pio_file_t *plink_file, unsigned int i
  * @return The id of this row, depending on the storage format this is either
  *         an id for a locus, or an individual.
  */
-unsigned int pio_next_row(struct pio_file_t *plink_file, char *buffer);
+unsigned int pio_next_row(struct pio_file_t *plink_file, unsigned char *buffer);
 
 /**
- * Returns the size of a row.
+ * Returns the size of a row in bytes.
  *
- * @return the size of a row.
+ * @param plink_file Plink file.
+ *
+ * @return the size of a row in bytes.
  */
-size_t pio_row_size();
+size_t pio_row_size(struct pio_file_t *plink_file);
+
+/**
+ * Returns the row order for the SNPs.
+ *
+ * @param plink_file Plink file.
+ *
+ * @return the row order for the SNPs.
+ */
+enum SnpOrder pio_row_order(struct pio_file_t *plink_file);
 
 /**
  * Closes all opened plink files. No changes are made.

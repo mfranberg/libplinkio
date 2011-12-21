@@ -182,7 +182,7 @@ test_bed_open(void **state)
     unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x80 };
 
     mock_init( file_data, 3 );
-    assert_int_equal( bed_open( &bed_file, "", 1 ), PIO_OK );
+    assert_int_equal( bed_open( &bed_file, "", 1, 1 ), PIO_OK );
     assert_int_equal( bed_file.version, VERSION_100 );
     assert_int_equal( bed_file.snp_order, ONE_LOCUS_PER_ROW );
     
@@ -215,7 +215,7 @@ test_bed_read_row(void **state)
     unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x80, 0x1b, 0x1b };
 
     mock_init( file_data, 5 );
-    assert_int_equal( bed_open( &bed_file, "", 4 ), PIO_OK );
+    assert_int_equal( bed_open( &bed_file, "", 4, 2 ), PIO_OK );
 
     for(i = 0; i < 2; i++)
     {

@@ -92,6 +92,16 @@ struct pio_bed_file_t
      * Number of columns.
      */
     int num_cols;
+
+    /**
+     * The number of rows.
+     */
+    int num_rows;
+
+    /**
+     * Index of the current row.
+     */
+    int cur_row;
 };
 
 /**
@@ -100,11 +110,12 @@ struct pio_bed_file_t
  *
  * @param bed_file Bed file.
  * @param path Path to the bed file.
- * @param num_cols The number of columns per row.
+ * @param num_loci The number loci.
+ * @param num_samples The number of samples.
  *
  * @return PIO_OK if the file could be opened, PIO_ERROR otherwise.
  */
-int bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_cols);
+int bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples);
 
 /**
  * Reads a single row from the given bed_file.
@@ -131,6 +142,15 @@ int bed_read_row(struct pio_bed_file_t *bed_file, unsigned char *buffer);
  * the given bed file.
  */
 size_t bed_row_size(struct pio_bed_file_t *bed_file);
+
+/**
+ * Returns the SNP order for the given bed file.
+ *
+ * @param bed_file Bed file.
+ * 
+ * @return the SNP order for the given bed file.
+ */
+enum SnpOrder bed_snp_order(struct pio_bed_file_t *bed_file);
 
 /**
  * Restarts the reading at the first row.

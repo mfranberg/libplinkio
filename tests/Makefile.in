@@ -33,7 +33,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @GCC_TRUE@am__append_1 = -Wall
-TESTS = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT)
+TESTS = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT) \
+	plinkio_test$(EXEEXT)
 noinst_PROGRAMS = $(am__EXEEXT_1)
 subdir = tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -46,7 +47,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-am__EXEEXT_1 = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT)
+am__EXEEXT_1 = fam_test$(EXEEXT) bim_test$(EXEEXT) bed_test$(EXEEXT) \
+	plinkio_test$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am_bed_test_OBJECTS = bed_test.$(OBJEXT)
 bed_test_OBJECTS = $(am_bed_test_OBJECTS)
@@ -57,6 +59,12 @@ bim_test_DEPENDENCIES = ../libs/cmockery/libcmockery.la
 am_fam_test_OBJECTS = fam_test.$(OBJEXT)
 fam_test_OBJECTS = $(am_fam_test_OBJECTS)
 fam_test_DEPENDENCIES = ../libs/cmockery/libcmockery.la
+am_plinkio_test_OBJECTS = plinkio_test.$(OBJEXT)
+plinkio_test_OBJECTS = $(am_plinkio_test_OBJECTS)
+plinkio_test_DEPENDENCIES = ../src/libplinkio.la
+plinkio_test_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(plinkio_test_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -69,9 +77,10 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(bed_test_SOURCES) $(bim_test_SOURCES) $(fam_test_SOURCES)
+SOURCES = $(bed_test_SOURCES) $(bim_test_SOURCES) $(fam_test_SOURCES) \
+	$(plinkio_test_SOURCES)
 DIST_SOURCES = $(bed_test_SOURCES) $(bim_test_SOURCES) \
-	$(fam_test_SOURCES)
+	$(fam_test_SOURCES) $(plinkio_test_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -193,6 +202,9 @@ bim_test_SOURCES = bim_test.c
 bim_test_LDADD = ../libs/cmockery/libcmockery.la
 bed_test_SOURCES = bed_test.c
 bed_test_LDADD = ../libs/cmockery/libcmockery.la
+plinkio_test_SOURCES = plinkio_test.c
+plinkio_test_LDADD = ../src/libplinkio.la
+plinkio_test_LDFLAGS = -static
 all: all-am
 
 .SUFFIXES:
@@ -242,6 +254,9 @@ bim_test$(EXEEXT): $(bim_test_OBJECTS) $(bim_test_DEPENDENCIES)
 fam_test$(EXEEXT): $(fam_test_OBJECTS) $(fam_test_DEPENDENCIES) 
 	@rm -f fam_test$(EXEEXT)
 	$(LINK) $(fam_test_OBJECTS) $(fam_test_LDADD) $(LIBS)
+plinkio_test$(EXEEXT): $(plinkio_test_OBJECTS) $(plinkio_test_DEPENDENCIES) 
+	@rm -f plinkio_test$(EXEEXT)
+	$(plinkio_test_LINK) $(plinkio_test_OBJECTS) $(plinkio_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -252,6 +267,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bed_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bim_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fam_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plinkio_test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

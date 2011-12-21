@@ -110,6 +110,16 @@ struct pio_fam_file_t
 int fam_open(struct pio_fam_file_t *fam_file, const char *path);
 
 /**
+ * Returns the sample with the given pio_id.
+ *
+ * @param fam_file The fam file to get the sample from.
+ * @param pio_id The pio id of the sample.
+ *
+ * @return the sample with the given pio_id.
+ */
+struct pio_sample_t * fam_get_sample(struct pio_fam_file_t *fam_file, unsigned int pio_id);
+
+/**
  * Removes the read samples from memory.
  *
  * @param fam_file Fam file.

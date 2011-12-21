@@ -160,7 +160,7 @@ get_packed_row_size(int num_cols)
 }
 
 int
-bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_cols)
+bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples)
 {
     size_t row_size_bytes;
     FILE *bed_fp = fopen( path, "r" );
@@ -170,13 +170,29 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_cols)
     }
 
     bed_file->fp = bed_fp;
-    bed_file->num_cols = num_cols;
-    // And here
+    if( parse_header( bed_file ) == PIO_OK )
+    {
+        if( bed_file->snp_order == ONE_LOCUS_PER_ROW )
+        {
+            bed_file->num_cols = num_loci;
+            bed_file->num_rows = num_samples;
+        }
+        else
+        {
+            bed_file->num_cols = num_samples;
+            bed_file->num_rows = num_loci;
+        }
     
-    row_size_bytes = get_packed_row_size( bed_file->num_cols ); 
-    bed_file->read_buffer = ( unsigned char * ) malloc( row_size_bytes );
+        row_size_bytes = get_packed_row_size( bed_file->num_cols ); 
+        bed_file->read_buffer = ( unsigned char * ) malloc( row_size_bytes );
+        bed_file->cur_row = 0;
 
-    return parse_header( bed_file );
+        return PIO_OK;
+    }
+    else
+    {
+        return PIO_ERROR;
+    }
 }
 
 int
@@ -185,7 +201,7 @@ bed_read_row(struct pio_bed_file_t *bed_file, unsigned char *buffer)
     size_t row_size_bytes;
     size_t bytes_read;
 
-    if( feof( bed_file->fp ) != 0 )
+    if( feof( bed_file->fp ) != 0 || bed_file->cur_row >= bed_file->num_rows )
     {
         return PIO_END;
     }
@@ -198,17 +214,11 @@ bed_read_row(struct pio_bed_file_t *bed_file, unsigned char *buffer)
 
     if( bytes_read != row_size_bytes )
     {
-        if( feof( bed_file->fp ) != 0 )
-        {
-            return PIO_END;
-        }
-        else
-        {
-            return PIO_ERROR;
-        }
+        return PIO_ERROR;
     }
 
     unpack_snps( bed_file->read_buffer, buffer, bed_file->num_cols );
+    bed_file->cur_row++;
 
     return PIO_OK;
 }
@@ -219,10 +229,17 @@ bed_row_size(struct pio_bed_file_t *bed_file)
     return sizeof( unsigned char ) * bed_file->num_cols;
 }
 
+enum SnpOrder
+bed_snp_order(struct pio_bed_file_t *bed_file)
+{
+    return bed_file->snp_order;
+}
+
 void
 bed_row_reset(struct pio_bed_file_t *bed_file)
 {
     fseek( bed_file->fp, get_data_offset( bed_file->version ), SEEK_SET );
+    bed_file->cur_row = 0;
 }
 
 void

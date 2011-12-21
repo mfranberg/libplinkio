@@ -92,7 +92,7 @@ test_parse_multiple_loci(void **state)
 {
     struct pio_bim_file_t bim_file;
     assert_int_equal( parse_loci( &bim_file ), PIO_OK );
-    assert_int_equal( bim_file.num_locus, NUM_LOCI );
+    assert_int_equal( bim_file.num_loci, NUM_LOCI );
 
     struct pio_locus_t locus = bim_file.locus[0];
     assert_int_equal( locus.chromosome, 1 ); 

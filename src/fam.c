@@ -163,10 +163,24 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
         return PIO_ERROR;
     }
 
+    fam_file->fp = fam_fp;
     int status = parse_samples( fam_file );
     fclose( fam_fp );
 
     return status;
+}
+
+struct pio_sample_t *
+fam_get_sample(struct pio_fam_file_t *fam_file, unsigned int pio_id)
+{
+    if( pio_id < fam_file->num_samples )
+    {
+        return &fam_file->sample[ pio_id ];
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 void

@@ -123,7 +123,7 @@ parse_loci(struct pio_bim_file_t *bim_file)
         utarray_push_back( loci, &locus );
     }
 
-    bim_file->num_locus = utarray_len( loci );
+    bim_file->num_loci = utarray_len( loci );
     bim_file->locus = (struct pio_locus_t *) utarray_front( loci );
     
     // Free the dtarray but keep the underlying array, if
@@ -143,10 +143,24 @@ bim_open(struct pio_bim_file_t *bim_file, const char *path)
         return PIO_ERROR;
     }
 
+    bim_file->fp = bim_fp;
     int status = parse_loci( bim_file );
     fclose( bim_fp );
 
     return status;
+}
+
+struct pio_locus_t *
+bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int pio_id)
+{
+    if( pio_id < bim_file->num_loci )
+    {
+        return &bim_file->locus[ pio_id ];
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 void
@@ -154,6 +168,6 @@ bim_close(struct pio_bim_file_t *bim_file)
 {
     free( bim_file->locus );
     bim_file->locus = NULL;
-    bim_file->num_locus = 0;
+    bim_file->num_loci = 0;
     bim_file->fp = NULL;
 }

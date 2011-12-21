@@ -59,12 +59,40 @@ struct pio_bim_file_t
     /**
      * The number of loci contained in the file.
      */
-    unsigned int num_locus;
+    unsigned int num_loci;
 
     /**
      * List of all locus in the file.
      */
     struct pio_locus_t *locus;
 };
+
+/**
+ * Opens the bim file at the given path and reads all loci
+ * into memory, and closes the file.
+ *
+ * @param bim_file Bim file.
+ * @param path The location of the bim file.
+ * 
+ * @return Returns PIO_OK if the file could be read, PIO_ERROR otherwise.
+ */
+int bim_open(struct pio_bim_file_t *bim_file, const char *path);
+
+/**
+ * Returns the locus with the given pio_id.
+ *
+ * @param bim_file The bim file to get the locus from.
+ * @param pio_id The pio id of the locus.
+ *
+ * @return the locus with the given pio_id.
+ */
+struct pio_locus_t * bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int pio_id);
+
+/**
+ * Removes the read loci from memory.
+ *
+ * @param bim_file Bim file.
+ */
+void bim_close(struct pio_bim_file_t *bim_file);
 
 #endif /* End of __BIM_H__ */
