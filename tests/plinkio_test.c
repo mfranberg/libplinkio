@@ -4,6 +4,11 @@
 
 #include <plinkio.h>
 
+/**
+ * A small test program that reads the given plink file
+ * and asserts that the number of rows is correct, depending
+ * on how the genotypes are stored.
+ */
 int
 main(int argc, char *argv[])
 {
@@ -22,7 +27,7 @@ main(int argc, char *argv[])
     }
 
     int num_rows = 0;
-    unsigned char *snp_buffer = (unsigned char *) malloc( pio_row_size( &plink_file ) );
+    unsigned char *snp_buffer = pio_allocate_row_buffer( &plink_file );
     while( pio_next_row( &plink_file, snp_buffer ) == PIO_OK )
     {
         num_rows++;

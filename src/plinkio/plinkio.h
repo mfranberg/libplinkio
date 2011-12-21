@@ -73,10 +73,28 @@ struct pio_locus_t * pio_get_locus(struct pio_file_t *plink_file, unsigned int i
  * @param buffer The row will be stored here. Must be able to hold at
  *               least pio_row_size bytes.
  *
- * @return The id of this row, depending on the storage format this is either
- *         an id for a locus, or an individual.
+ * @return PIO_OK if the row could be read, PIO_END if we are at the
+ *         end of file, PIO_ERROR otherwise.
  */
 unsigned int pio_next_row(struct pio_file_t *plink_file, unsigned char *buffer);
+
+/**
+ * Allocates a row buffer big enough to contain one row. This is a
+ * convenience function, you can malloc the memory yourself by using
+ * pio_row_size and malloc.
+ * 
+ * @param plink_file Plink file.
+ * 
+ * @return A pointer to the buffer.
+ */
+unsigned char *pio_allocate_row_buffer(struct pio_file_t *plink_file);
+
+/**
+ * Frees the given row buffer.
+ *
+ * @param buffer A buffer previously allocated by pio_allocate_row_buffer.
+ */
+void pio_free_row_buffer(unsigned char *buffer);
 
 /**
  * Returns the size of a row in bytes.

@@ -68,6 +68,17 @@ pio_row_size(struct pio_file_t *plink_file)
     return bed_row_size( &plink_file->bed_file );
 }
 
+unsigned char *
+pio_allocate_row_buffer(struct pio_file_t *plink_file)
+{
+    return (unsigned char *) malloc( pio_row_size( plink_file ) );
+}
+
+void pio_free_row_buffer(unsigned char *buffer)
+{
+    free( buffer );
+}
+
 enum SnpOrder
 pio_row_order(struct pio_file_t *plink_file)
 {
