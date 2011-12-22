@@ -1,3 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src libs/cmockery/ tests
+if WITH_TESTS
+TEST_DIRS = libs/cmockery/ tests
+endif
+
+SUBDIRS = src $(TEST_DIRS)

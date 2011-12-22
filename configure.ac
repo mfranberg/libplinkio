@@ -2,13 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([plinkio], [0.1], [mattias.franberg@gmail.com])
+AC_INIT([libplinkio], [0.1], [mattias.franberg@googlemail.com])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([src/fam.c])
-#AC_CONFIG_HEADER([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
 AC_CONFIG_MACRO_DIR([m4])
-LT_INIT
 
 # Checks for programs.
 AC_PROG_CC
@@ -16,6 +13,7 @@ AM_PROG_CC_C_O
 AM_CONDITIONAL(GCC, test "$GCC" = yes)
 
 # Checks for libraries.
+LT_INIT
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -28,9 +26,23 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([bzero memmove memset strdup strtol])
+AC_CHECK_FUNCS([bzero memmove memset strdup strtol strtod])
 
-AC_CONFIG_SUBDIRS([libs/cmockery])
+# Optionally enable tests
+AC_ARG_ENABLE(tests, 
+              [AC_HELP_STRING([--enable-tests], [Build unit tests (default is yes)])],
+              [case "${enableval}" in
+                    yes | no ) WITH_TESTS="${enableval}" ;;
+                    *) AC_MSG_ERROR(bad value ${enableval} for --enable-tests) ;;
+                    esac],
+              [WITH_TESTS="yes"])
+AM_CONDITIONAL(WITH_TESTS, test x$WITH_TESTS = xyes)
+
+if test "$WITH_TESTS" = "yes"; then
+    AC_CONFIG_SUBDIRS([libs/cmockery])
+fi
+
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
 
 AC_OUTPUT
 
