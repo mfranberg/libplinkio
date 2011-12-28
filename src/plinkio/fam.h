@@ -63,7 +63,7 @@ struct pio_sample_t
     /**
      * Type of outcome, continuous or case/control.
      */
-    enum OutcomeType outcomeType;
+    enum OutcomeType outcome_type;
 
     /**
      * The phenotype of the individual.
@@ -118,6 +118,15 @@ int fam_open(struct pio_fam_file_t *fam_file, const char *path);
  * @return the sample with the given pio_id.
  */
 struct pio_sample_t * fam_get_sample(struct pio_fam_file_t *fam_file, unsigned int pio_id);
+
+/**
+ * Returns the number of samples that are stored in the given fam file.
+ *
+ * @param fam_file Fam file.
+ * 
+ * @return the number of samples that are stored in the fam file.
+ */
+unsigned int fam_num_samples(struct pio_fam_file_t *fam_file);
 
 /**
  * Removes the read samples from memory.

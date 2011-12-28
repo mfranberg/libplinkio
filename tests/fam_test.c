@@ -40,7 +40,7 @@ mock_feof(FILE *stream)
 char *
 mock_fgets(char *s, int n, FILE *stream)
 {
-    const char *sample_list[NUM_SAMPLES] = { "0 P1 0 0 0 0", "0 P2 0 0 0 0" };
+    const char *sample_list[NUM_SAMPLES] = { "0 P1 0 0 0 1", "0 P2 0 0 0 1" };
 
     if( g_sample_index < NUM_SAMPLES )
     {
@@ -60,7 +60,7 @@ mock_fgets(char *s, int n, FILE *stream)
 void
 test_parse_sample(void **state)
 {
-    const char *TEST_STRING = "1 P1 0 0 1 0";
+    const char *TEST_STRING = "1 P1 0 0 1 1";
     
     struct pio_sample_t person;
     assert_int_equal( parse_sample( TEST_STRING, &person ), PIO_OK );

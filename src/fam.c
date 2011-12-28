@@ -106,7 +106,16 @@ parse_sample(const char *sample, struct pio_sample_t *person)
     phenotype_int = strtol( phenotype_as_string, &endptr, 10 );
     if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
-        person->phenotype.as_int = (int) phenotype_int;
+        if( phenotype_int == 1L || phenotype_int == 2L )
+        {
+            person->phenotype.as_int = (int) phenotype_int - 1;
+        }
+        else
+        {
+            person->phenotype.as_int = -9;
+        }
+
+        person->outcome_type = DISCRETE;
         return PIO_OK;
     }
 
@@ -115,6 +124,7 @@ parse_sample(const char *sample, struct pio_sample_t *person)
     if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
         person->phenotype.as_float = (float) phenotype_float;
+        person->outcome_type = CONTINUOUS;
         return PIO_OK;
     }
 
@@ -190,6 +200,12 @@ fam_get_sample(struct pio_fam_file_t *fam_file, unsigned int pio_id)
     {
         return NULL;
     }
+}
+
+unsigned int
+fam_num_samples(struct pio_fam_file_t *fam_file)
+{
+    return fam_file->num_samples;
 }
 
 void
