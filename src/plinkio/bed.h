@@ -118,7 +118,12 @@ struct pio_bed_file_t
 int bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples);
 
 /**
- * Reads a single row from the given bed_file.
+ * Reads a single row from the given bed_file. Each element in the buffer
+ * will contain a SNP. The SNP will be encoded as follows:
+ * 0 - Homozygous major
+ * 1 - Hetrozygous
+ * 2 - Homozygous minor
+ * 3 - Missing value
  *
  * @param bed_file Bed file.
  * @param buffer The buffer to read into. It is asssumed that it

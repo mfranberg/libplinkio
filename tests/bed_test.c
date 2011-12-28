@@ -194,7 +194,7 @@ test_unpack_snps(void **state)
 {
     int i;
     /* packed_snps = [0, 1, 2, 3] */
-    unsigned char packed_snps[] = { 0x1b };
+    unsigned char packed_snps[] = { 0x4b };
     unsigned char unpacked_snps[4];
     unpack_snps( packed_snps, unpacked_snps, 4 );
     
@@ -210,12 +210,13 @@ test_bed_read_row(void **state)
     int i, j;
     struct pio_bed_file_t bed_file;
     /**
-     * v 1.00 file containing only a header, and two snp rows = [0, 1, 2, 3].
+     * v 1.00 file containing only a header, and two snp rows = 
+     * [0, 1, 2, 3] = 01001011 = 0x4b.
      */
-    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x80, 0x1b, 0x1b };
+    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x80, 0x4b, 0x4b };
 
     mock_init( file_data, 5 );
-    assert_int_equal( bed_open( &bed_file, "", 4, 2 ), PIO_OK );
+    assert_int_equal( bed_open( &bed_file, "", 2, 4 ), PIO_OK );
 
     for(i = 0; i < 2; i++)
     {

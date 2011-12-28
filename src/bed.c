@@ -122,7 +122,21 @@ parse_header(struct pio_bed_file_t *bed_file)
 
 /**
  * Take an unpacked array of SNPs where each SNP is packed in 2 bits,
- * and unpack into a byte array.
+ * and unpack into a byte array. This function assumes that the bits
+ * are packed in the following manner:
+ * - Each byte contains 4 SNPs
+ * - The SNPs are read from right to left in each byte.
+ * - The packed SNPs encoded as follows:
+ *   * 00 is homozygous major 
+ *   * 01 is missing value
+ *   * 10 is hetrozygous
+ *   * 11 is homozygous minor
+ *
+ * - The unpacked SNPs are encoded as follows:
+ *   * 0 is homozygous major
+ *   * 1 is hetrozygous 
+ *   * 2 is homozygous minor
+ *   * 3 is missing value
  *
  * @param packed_snps The packed SNPs.
  * @param unpacked_snps The unpacked SNPs.
@@ -181,13 +195,13 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int nu
     {
         if( bed_file->snp_order == ONE_LOCUS_PER_ROW )
         {
-            bed_file->num_cols = num_loci;
-            bed_file->num_rows = num_samples;
+            bed_file->num_cols = num_samples;
+            bed_file->num_rows = num_loci;
         }
         else
         {
-            bed_file->num_cols = num_samples;
-            bed_file->num_rows = num_loci;
+            bed_file->num_cols = num_loci;
+            bed_file->num_rows = num_samples;
         }
     
         row_size_bytes = get_packed_row_size( bed_file->num_cols ); 
