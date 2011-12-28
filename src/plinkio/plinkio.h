@@ -53,6 +53,15 @@ int pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix);
 struct pio_sample_t * pio_get_sample(struct pio_file_t *plink_file, unsigned int id);
 
 /**
+ * Returns the number of samples that are stored in the given plink file.
+ *
+ * @param plink_file Plink file.
+ * 
+ * @return the number of samples that are stored in the plink file.
+ */
+unsigned int pio_num_samples(struct pio_file_t *plink_file);
+
+/**
  * Returns a struct that contains information about the locus associated
  * with the given id. Note, any changes to this struct will be reflected if
  * you call pio_close with the save argument.
@@ -65,9 +74,24 @@ struct pio_sample_t * pio_get_sample(struct pio_file_t *plink_file, unsigned int
 struct pio_locus_t * pio_get_locus(struct pio_file_t *plink_file, unsigned int id);
 
 /**
+ * Returns the number of loci that are stored in the given plink file.
+ *
+ * @param plink_file Plink file.
+ * 
+ * @return the number of loci that are stored in the plink file.
+ */
+unsigned int pio_num_loci(struct pio_file_t *plink_file);
+
+/**
  * Reads the next row from the bed file. Depending on the storage format,
  * this will return either a single SNP for all individuals, or all SNPs
  * for a single individual.
+ *
+ * The SNPs will be encoded as follows:
+ * 0 - Homozygous major
+ * 1 - Hetrozygous
+ * 2 - Homozygous minor
+ * 3 - Missing value
  *
  * @param plink_file Plink file.
  * @param buffer The row will be stored here. Must be able to hold at
@@ -77,24 +101,6 @@ struct pio_locus_t * pio_get_locus(struct pio_file_t *plink_file, unsigned int i
  *         end of file, PIO_ERROR otherwise.
  */
 unsigned int pio_next_row(struct pio_file_t *plink_file, unsigned char *buffer);
-
-/**
- * Allocates a row buffer big enough to contain one row. This is a
- * convenience function, you can malloc the memory yourself by using
- * pio_row_size and malloc.
- * 
- * @param plink_file Plink file.
- * 
- * @return A pointer to the buffer.
- */
-unsigned char *pio_allocate_row_buffer(struct pio_file_t *plink_file);
-
-/**
- * Frees the given row buffer.
- *
- * @param buffer A buffer previously allocated by pio_allocate_row_buffer.
- */
-void pio_free_row_buffer(unsigned char *buffer);
 
 /**
  * Returns the size of a row in bytes.

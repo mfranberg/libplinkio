@@ -52,10 +52,22 @@ pio_get_sample(struct pio_file_t *plink_file, unsigned int pio_id)
     return fam_get_sample( &plink_file->fam_file, pio_id );
 }
 
+unsigned int
+pio_num_samples(struct pio_file_t *plink_file)
+{
+    return fam_num_samples( &plink_file->fam_file );
+}
+
 struct pio_locus_t *
 pio_get_locus(struct pio_file_t *plink_file, unsigned int pio_id)
 {
     return bim_get_locus( &plink_file->bim_file, pio_id ); 
+}
+
+unsigned int
+pio_num_loci(struct pio_file_t *plink_file)
+{
+    return bim_num_loci( &plink_file->bim_file );
 }
 
 unsigned int
@@ -68,17 +80,6 @@ size_t
 pio_row_size(struct pio_file_t *plink_file)
 {
     return bed_row_size( &plink_file->bed_file );
-}
-
-unsigned char *
-pio_allocate_row_buffer(struct pio_file_t *plink_file)
-{
-    return (unsigned char *) malloc( pio_row_size( plink_file ) );
-}
-
-void pio_free_row_buffer(unsigned char *buffer)
-{
-    free( buffer );
 }
 
 enum SnpOrder

@@ -196,6 +196,12 @@ bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int pio_id)
     }
 }
 
+unsigned int
+bim_num_loci(struct pio_bim_file_t *bim_file)
+{
+    return bim_file->num_loci;
+}
+
 void
 bim_close(struct pio_bim_file_t *bim_file)
 {

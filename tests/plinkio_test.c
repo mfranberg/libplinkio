@@ -29,7 +29,7 @@ main(int argc, char *argv[])
     }
 
     num_rows = 0;
-    snp_buffer = pio_allocate_row_buffer( &plink_file );
+    snp_buffer = (unsigned char *) malloc( pio_row_size( &plink_file ) );
     while( pio_next_row( &plink_file, snp_buffer ) == PIO_OK )
     {
         num_rows++;

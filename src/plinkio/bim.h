@@ -89,6 +89,15 @@ int bim_open(struct pio_bim_file_t *bim_file, const char *path);
 struct pio_locus_t * bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int pio_id);
 
 /**
+ * Returns the number of loci that are stored in the given bim file.
+ *
+ * @param bim_file Bim file.
+ * 
+ * @return the number of loci that are stored in the bim file.
+ */
+unsigned int bim_num_loci(struct pio_bim_file_t *bim_file);
+
+/**
  * Removes the read loci from memory.
  *
  * @param bim_file Bim file.
