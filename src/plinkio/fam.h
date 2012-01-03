@@ -10,19 +10,21 @@
 /**
  * Sex of a sample.
  */
-enum Sex
+enum sex_t
 {
-    MALE,
-    FEMALE
+    PIO_MALE,
+    PIO_FEMALE
 };
 
 /**
- * Outcome type.
+ * Affection status.
  */
-enum OutcomeType
+enum affection_t
 {
-    DISCRETE,
-    CONTINUOUS
+    PIO_CONTROL = 0,
+    PIO_CASE = 1,
+    PIO_MISSING,
+    PIO_CONTINUOUS 
 };
 
 /**
@@ -58,21 +60,18 @@ struct pio_sample_t
     /**
      * The sex of the individual.
      */
-    enum Sex sex;
+    enum sex_t sex;
 
     /**
-     * Type of outcome, continuous or case/control.
+     * Affection of the individuals, case, control or unkown. Control
+     * is always 0 and case always 1.
      */
-    enum OutcomeType outcome_type;
+    enum affection_t affection;
 
     /**
-     * The phenotype of the individual.
+     * A continuous phenotype of the individual.
      */
-    union
-    {
-        float as_float;
-        int as_int;
-    } phenotype;
+    float phenotype;
 };
 
 /**

@@ -95,27 +95,30 @@ parse_sample(const char *sample, struct pio_sample_t *person)
         
     if( sex == 1 )
     {
-        person->sex = MALE;
+        person->sex = PIO_MALE;
     }
     else
     {
-        person->sex = FEMALE;
+        person->sex = PIO_FEMALE;
     }
 
     errno = 0;
     phenotype_int = strtol( phenotype_as_string, &endptr, 10 );
     if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
-        if( phenotype_int == 1L || phenotype_int == 2L )
+        switch( phenotype_int )
         {
-            person->phenotype.as_int = (int) phenotype_int - 1;
-        }
-        else
-        {
-            person->phenotype.as_int = -9;
+            case 1L:
+                person->affection = PIO_CONTROL;
+                break;
+            case 2L:
+                person->affection = PIO_CASE;
+                break;
+            default:
+                person->affection = PIO_MISSING;
+                break;
         }
 
-        person->outcome_type = DISCRETE;
         return PIO_OK;
     }
 
@@ -123,8 +126,8 @@ parse_sample(const char *sample, struct pio_sample_t *person)
     phenotype_float = strtod( phenotype_as_string, &endptr );
     if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
-        person->phenotype.as_float = (float) phenotype_float;
-        person->outcome_type = CONTINUOUS;
+        person->phenotype = (float) phenotype_float;
+        person->affection = PIO_CONTINUOUS;
         return PIO_OK;
     }
 

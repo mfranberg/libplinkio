@@ -68,8 +68,8 @@ test_parse_sample(void **state)
     assert_string_equal( person.iid, "P1" );
     assert_int_equal( person.father_iid, 0 );
     assert_int_equal( person.mother_iid, 0 );
-    assert_int_equal( person.sex, MALE );
-    assert_int_equal( person.phenotype.as_int, 0 );
+    assert_int_equal( person.sex, PIO_MALE );
+    assert_int_equal( person.affection, PIO_CONTROL );
 }
 
 /**
@@ -86,8 +86,9 @@ void test_parse_sample_double(void **state)
     assert_string_equal( person.iid, "P1" );
     assert_int_equal( person.father_iid, 0 );
     assert_int_equal( person.mother_iid, 0 );
-    assert_int_equal( person.sex, MALE );
-    assert_true( fabs( person.phenotype.as_float - 4.5 ) <= 1e-6 );
+    assert_int_equal( person.sex, PIO_MALE );
+    assert_int_equal( person.affection, PIO_CONTINUOUS );
+    assert_true( fabs( person.phenotype - 4.5 ) <= 1e-6 );
 }
 
 /**
@@ -118,16 +119,16 @@ test_parse_multiple_samples(void **state)
     assert_string_equal( person.iid, "P1" );
     assert_int_equal( person.father_iid, 0 );
     assert_int_equal( person.mother_iid, 0 );
-    assert_int_equal( person.sex, FEMALE );
-    assert_int_equal( person.phenotype.as_int, 0 );
+    assert_int_equal( person.sex, PIO_FEMALE );
+    assert_int_equal( person.affection, PIO_CONTROL );
 
     person = fam_file.sample[1];
     assert_int_equal( person.fid, 0 ); 
     assert_string_equal( person.iid, "P2" );
     assert_int_equal( person.father_iid, 0 );
     assert_int_equal( person.mother_iid, 0 );
-    assert_int_equal( person.sex, FEMALE );
-    assert_int_equal( person.phenotype.as_int, 0 );
+    assert_int_equal( person.sex, PIO_FEMALE );
+    assert_int_equal( person.affection, PIO_CONTROL );
 }
 
 int main(int argc, char* argv[])
