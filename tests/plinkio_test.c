@@ -13,7 +13,7 @@ int
 main(int argc, char *argv[])
 {
     int num_rows;
-    unsigned char *snp_buffer;
+    snp_t *snp_buffer;
     struct pio_file_t plink_file;
 
     if( argc != 2 )
@@ -29,13 +29,13 @@ main(int argc, char *argv[])
     }
 
     num_rows = 0;
-    snp_buffer = (unsigned char *) malloc( pio_row_size( &plink_file ) );
+    snp_buffer = (snp_t *) malloc( pio_row_size( &plink_file ) );
     while( pio_next_row( &plink_file, snp_buffer ) == PIO_OK )
     {
         num_rows++;
     }
 
-    if( pio_row_order( &plink_file ) == ONE_LOCUS_PER_ROW )
+    if( pio_row_order( &plink_file ) == PIO_ONE_LOCUS_PER_ROW )
     {
         assert( num_rows == plink_file.bim_file.num_loci );
     }

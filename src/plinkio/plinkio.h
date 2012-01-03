@@ -100,7 +100,7 @@ unsigned int pio_num_loci(struct pio_file_t *plink_file);
  * @return PIO_OK if the row could be read, PIO_END if we are at the
  *         end of file, PIO_ERROR otherwise.
  */
-unsigned int pio_next_row(struct pio_file_t *plink_file, unsigned char *buffer);
+unsigned int pio_next_row(struct pio_file_t *plink_file, snp_t *buffer);
 
 /**
  * Returns the size of a row in bytes.

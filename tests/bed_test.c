@@ -131,8 +131,8 @@ test_parse_header_v100(void **state)
 
     mock_init( file_data, 3 );
     assert_int_equal( parse_header( &bed_file ), PIO_OK );
-    assert_int_equal( bed_file.version, VERSION_100 );
-    assert_int_equal( bed_file.snp_order, ONE_LOCUS_PER_ROW );
+    assert_int_equal( bed_file.version, PIO_VERSION_100 );
+    assert_int_equal( bed_file.snp_order, PIO_ONE_LOCUS_PER_ROW );
 }
 
 /**
@@ -149,8 +149,8 @@ test_parse_header_v099(void **state)
 
     mock_init( file_data, 3 );
     assert_int_equal( parse_header( &bed_file ), PIO_OK );
-    assert_int_equal( bed_file.version, VERSION_099 );
-    assert_int_equal( bed_file.snp_order, ONE_SAMPLE_PER_ROW );
+    assert_int_equal( bed_file.version, PIO_VERSION_099 );
+    assert_int_equal( bed_file.snp_order, PIO_ONE_SAMPLE_PER_ROW );
 }
 
 /**
@@ -183,8 +183,8 @@ test_bed_open(void **state)
 
     mock_init( file_data, 3 );
     assert_int_equal( bed_open( &bed_file, "", 1, 1 ), PIO_OK );
-    assert_int_equal( bed_file.version, VERSION_100 );
-    assert_int_equal( bed_file.snp_order, ONE_LOCUS_PER_ROW );
+    assert_int_equal( bed_file.version, PIO_VERSION_100 );
+    assert_int_equal( bed_file.snp_order, PIO_ONE_LOCUS_PER_ROW );
     
     bed_close( &bed_file );
 }
@@ -195,7 +195,7 @@ test_unpack_snps(void **state)
     int i;
     /* packed_snps = [0, 1, 2, 3] */
     unsigned char packed_snps[] = { 0x4b };
-    unsigned char unpacked_snps[4];
+    snp_t unpacked_snps[4];
     unpack_snps( packed_snps, unpacked_snps, 4 );
     
     for(i = 0; i < 4; i++)
@@ -220,7 +220,7 @@ test_bed_read_row(void **state)
 
     for(i = 0; i < 2; i++)
     {
-        unsigned char snps[4];
+        snp_t snps[4];
         assert_int_equal( bed_read_row( &bed_file, snps ), PIO_OK );
 
         for(j = 0; j < 4; j++)

@@ -71,7 +71,7 @@ pio_num_loci(struct pio_file_t *plink_file)
 }
 
 unsigned int
-pio_next_row(struct pio_file_t *plink_file, unsigned char *buffer)
+pio_next_row(struct pio_file_t *plink_file, snp_t *buffer)
 {
     return bed_read_row( &plink_file->bed_file, buffer ); 
 }

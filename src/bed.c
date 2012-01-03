@@ -24,6 +24,38 @@
 #endif
 
 /**
+ * Magic constants for v 1.00 format.
+ */
+#define BED_V100_MAGIC1 0x6c
+#define BED_V100_MAGIC2 0x1b
+
+/**
+ * Mask for SNP order. 
+ */
+#define BED_SNP_ORDER_BIT 0x80
+
+/**
+ * Number of bits used for each SNP, must be divisor
+ * of 8.
+ */
+#define BED_BITS_PER_SNP 2
+
+/**
+ * Masks out a SNP.
+ */
+#define BED_SNP_MASK ( ( 1 << BED_BITS_PER_SNP ) - 1 )
+
+/**
+ * Number of bits in a char.
+ */
+#define BED_NUM_BITS_IN_CHAR ( sizeof( unsigned char ) * 8 )
+
+/**
+ * Number of SNPs packed in each char.
+ */
+#define BED_SNPS_PER_CHAR ( BED_NUM_BITS_IN_CHAR / BED_BITS_PER_SNP )
+
+/**
  * Returns the SNP order encoded in
  * a byte.
  *
@@ -35,17 +67,17 @@
 int
 get_snp_order(unsigned char order)
 {
-    if( order == SNP_ORDER_BIT )
+    if( order == BED_SNP_ORDER_BIT )
     {
-        return ONE_LOCUS_PER_ROW;
+        return PIO_ONE_LOCUS_PER_ROW;
     }
     else if( order == 0 )
     {
-        return ONE_SAMPLE_PER_ROW;
+        return PIO_ONE_SAMPLE_PER_ROW;
     }
     else
     {
-        return ONE_SAMPLE_PER_ROW;
+        return PIO_ONE_SAMPLE_PER_ROW;
     }
 }
 
@@ -60,11 +92,11 @@ get_snp_order(unsigned char order)
 int
 get_data_offset(enum BedVersion version)
 {
-    if( version == VERSION_100 )
+    if( version == PIO_VERSION_100 )
     {
         return 3;
     }
-    else if( version == VERSION_099 )
+    else if( version == PIO_VERSION_099 )
     {
         return 1;
     }
@@ -98,21 +130,21 @@ parse_header(struct pio_bed_file_t *bed_file)
     if( header[ 0 ] == BED_V100_MAGIC1 && header[ 1 ] == BED_V100_MAGIC2 )
     {
         /* Version 1.00 */
-        bed_file->version = VERSION_100;
+        bed_file->version = PIO_VERSION_100;
         bed_file->snp_order = get_snp_order( header[ 2 ] );
 
     }
-    else if( ( header[ 0 ] & ~SNP_ORDER_BIT ) == 0 )
+    else if( ( header[ 0 ] & ~BED_SNP_ORDER_BIT ) == 0 )
     {
         /* Version 0.99 (hopefully) */
-        bed_file->version = VERSION_099;
+        bed_file->version = PIO_VERSION_099;
         bed_file->snp_order = get_snp_order( header[ 1 ] );
     }
     else
     {
         /* Version < 0.99 */
-        bed_file->version = VERSION_PRE_099;
-        bed_file->snp_order = ONE_SAMPLE_PER_ROW;
+        bed_file->version = PIO_VERSION_PRE_099;
+        bed_file->snp_order = PIO_ONE_SAMPLE_PER_ROW;
     }
 
     fseek( bed_file->fp,get_data_offset( bed_file->version ), SEEK_SET );
@@ -143,7 +175,7 @@ parse_header(struct pio_bed_file_t *bed_file)
  * @param num_cols The number of SNPs. 
  */
 void
-unpack_snps(const unsigned char *packed_snps, unsigned char *unpacked_snps, int num_cols)
+unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, int num_cols)
 {
     int index;
     int packed_left;
@@ -177,7 +209,7 @@ unpack_snps(const unsigned char *packed_snps, unsigned char *unpacked_snps, int 
 size_t
 get_packed_row_size(int num_cols)
 {
-    return ( num_cols * BITS_PER_SNP + NUM_BITS_IN_CHAR - 1 ) / NUM_BITS_IN_CHAR;
+    return ( num_cols * BED_BITS_PER_SNP + BED_NUM_BITS_IN_CHAR - 1 ) / BED_NUM_BITS_IN_CHAR;
 }
 
 int
@@ -191,33 +223,31 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int nu
     }
 
     bed_file->fp = bed_fp;
-    if( parse_header( bed_file ) == PIO_OK )
-    {
-        if( bed_file->snp_order == ONE_LOCUS_PER_ROW )
-        {
-            bed_file->num_cols = num_samples;
-            bed_file->num_rows = num_loci;
-        }
-        else
-        {
-            bed_file->num_cols = num_loci;
-            bed_file->num_rows = num_samples;
-        }
-    
-        row_size_bytes = get_packed_row_size( bed_file->num_cols ); 
-        bed_file->read_buffer = ( unsigned char * ) malloc( row_size_bytes );
-        bed_file->cur_row = 0;
-
-        return PIO_OK;
-    }
-    else
+    if( parse_header( bed_file ) != PIO_OK )
     {
         return PIO_ERROR;
     }
+    
+    if( bed_file->snp_order == PIO_ONE_LOCUS_PER_ROW )
+    {
+        bed_file->num_cols = num_samples;
+        bed_file->num_rows = num_loci;
+    }
+    else
+    {
+        bed_file->num_cols = num_loci;
+        bed_file->num_rows = num_samples;
+    }
+
+    row_size_bytes = get_packed_row_size( bed_file->num_cols ); 
+    bed_file->read_buffer = ( snp_t * ) malloc( row_size_bytes );
+    bed_file->cur_row = 0;
+
+    return PIO_OK;
 }
 
 int
-bed_read_row(struct pio_bed_file_t *bed_file, unsigned char *buffer)
+bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer)
 {
     size_t row_size_bytes;
     size_t bytes_read;
@@ -247,7 +277,7 @@ bed_read_row(struct pio_bed_file_t *bed_file, unsigned char *buffer)
 size_t
 bed_row_size(struct pio_bed_file_t *bed_file)
 {
-    return sizeof( unsigned char ) * bed_file->num_cols;
+    return sizeof( snp_t ) * bed_file->num_cols;
 }
 
 enum SnpOrder

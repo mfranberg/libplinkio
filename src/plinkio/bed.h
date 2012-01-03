@@ -3,64 +3,48 @@
 
 #include <stdio.h>
 
+/**
+ * Integral type used for storing a single SNP.
+ */
+typedef unsigned char snp_t;
+
 enum SnpOrder 
 {
     /**
      * Means that when reading one row, you get one SNP for all
      * individuals (common).
      */
-    ONE_LOCUS_PER_ROW,
+    PIO_ONE_LOCUS_PER_ROW,
 
     /**
      * Means that when reading one row, you get all SNPs for
      * one individual.
      */
-    ONE_SAMPLE_PER_ROW,
+    PIO_ONE_SAMPLE_PER_ROW,
 
     /**
      * Unknown order.
      */
-    UNKNOWN
+    PIO_UNKNOWN_ORDER
 };
 
 enum BedVersion
 {
-    VERSION_PRE_099,
-    VERSION_099,
-    VERSION_100
+    /**
+     * Old version, reading of these files might not work.
+     */
+    PIO_VERSION_PRE_099,
+
+    /**
+     * Version v0.99, no magic header but snp order in first byte.
+     */
+    PIO_VERSION_099,
+
+    /**
+     * Version v1.00, 16 bit magic header.
+     */
+    PIO_VERSION_100
 };
-
-/**
- * Magic constants for v 1.00 format.
- */
-#define BED_V100_MAGIC1 0x6c
-#define BED_V100_MAGIC2 0x1b
-
-/**
- * Mask for SNP order. 
- */
-#define SNP_ORDER_BIT 0x80
-
-/**
- * Number of bits used for each SNP, must be divisor
- * of 8.
- */
-#define BITS_PER_SNP 2
-
-/**
- * Masks out a SNP.
- */
-#define SNP_MASK ( ( 1 << BITS_PER_SNP ) - 1 )
-
-/**
- * Number of bits in a char.
- */
-#define NUM_BITS_IN_CHAR ( sizeof( unsigned char ) * 8 )
-
-/**
- * Number of SNPs packed in each char.
- */
-#define SNPS_PER_CHAR ( NUM_BITS_IN_CHAR / BITS_PER_SNP )
 
 /**
  * Contains the information about a bed file. On opening the file
@@ -135,7 +119,7 @@ int bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, in
  *         PIO_END if there are no more rows,
  *         PIO_ERROR otherwise.
  */
-int bed_read_row(struct pio_bed_file_t *bed_file, unsigned char *buffer);
+int bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
 
 /**
  * Returns the number of bytes required to store a row from
