@@ -74,7 +74,7 @@ int
 parse_locus(const char *data, struct pio_locus_t *locus)
 {
     unsigned int chromosome;
-    int num_read_fields = sscanf( data, "%u %s %lu %lu %c %c",
+    int num_read_fields = sscanf( data, "%u %" TO_STRING( BIM_MAX_LOCUS_NAME )  "s %lu %lu %c %c",
                                 &chromosome,
                                 locus->name,
                                 &locus->position,

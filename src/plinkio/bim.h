@@ -1,6 +1,38 @@
 #ifndef __BIM_H__
 #define __BIM_H__
 
+/**
+ * Converts a preprocessor constant to a string.
+ *
+ * Helper function of TO_STRING to convert the actual value of 
+ * the constant and not the name. For example
+ *
+ * #define LENGTH 10
+ * puts( STRINGIFY( LENGTH ) )
+ *
+ * would print "LENGTH". But adding a layer of indirection
+ * through TO_STRING the preprocessor will convert
+ *
+ * TO_STRING( LENGTH ) to STRINGIFY( 10 )
+ *
+ * in the first pass, and finally resolve it to "10" in a second
+ * pass.
+ *
+ * @param x A preprocessor constant.
+ *
+ * @return The constant as a string.
+ */
+#define STRINGIFY(x) #x
+
+/**
+ * Converts the value of preprocessor constant to a string.
+ *
+ * @param x A Preprocessor constant.
+ * 
+ * @return the constants value as a string.
+ */
+#define TO_STRING(x) STRINGIFY(x)
+
 #define BIM_MAX_LOCUS_NAME 32
 
 /**

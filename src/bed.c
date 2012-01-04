@@ -122,7 +122,7 @@ parse_header(struct pio_bed_file_t *bed_file)
 {
     unsigned char header[3];
 
-    if( fread( &header, 1, 3, bed_file->fp ) != 3 )
+    if( fread( header, 1, 3, bed_file->fp ) != 3 )
     {
         return PIO_ERROR;
     }
