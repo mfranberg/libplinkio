@@ -37,7 +37,7 @@ UT_icd LOCUS_ICD = { sizeof( struct pio_locus_t ), NULL, NULL, NULL };
  *                at the end of the file, PIO_ERROR otherwise.
  */
 pio_status_t
-read_locus(FILE *fp, char *buffer, unsigned int buffer_length)
+read_locus(FILE *fp, char *buffer, size_t buffer_length)
 {
     char *result = fgets( buffer, buffer_length, fp );
     if( result != NULL )
@@ -184,7 +184,7 @@ bim_open(struct pio_bim_file_t *bim_file, const char *path)
 }
 
 struct pio_locus_t *
-bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int pio_id)
+bim_get_locus(struct pio_bim_file_t *bim_file, size_t pio_id)
 {
     if( pio_id < bim_file->num_loci )
     {
@@ -196,7 +196,7 @@ bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int pio_id)
     }
 }
 
-unsigned int
+size_t
 bim_num_loci(struct pio_bim_file_t *bim_file)
 {
     return bim_file->num_loci;

@@ -175,7 +175,7 @@ parse_header(struct pio_bed_file_t *bed_file)
  * @param num_cols The number of SNPs. 
  */
 void
-unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, int num_cols)
+unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, size_t num_cols)
 {
     int index;
     int packed_left;
@@ -207,13 +207,13 @@ unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, int num_cols
  * @return the row size in bytes of a packed row.
  */
 size_t
-get_packed_row_size(int num_cols)
+get_packed_row_size(size_t num_cols)
 {
     return ( num_cols * BED_BITS_PER_SNP + BED_NUM_BITS_IN_CHAR - 1 ) / BED_NUM_BITS_IN_CHAR;
 }
 
 pio_status_t
-bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples)
+bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, size_t num_samples)
 {
     size_t row_size_bytes;
     FILE *bed_fp = fopen( path, "r" );

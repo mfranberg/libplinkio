@@ -38,7 +38,7 @@ UT_icd SAMPLE_ICD = { sizeof( struct pio_sample_t ), NULL, NULL, NULL };
  *                at the end of the file, PIO_ERROR otherwise.
  */
 pio_status_t
-read_sample(FILE *fp, char *buffer, unsigned int buffer_length)
+read_sample(FILE *fp, char *buffer, size_t buffer_length)
 {
     char *result = fgets( buffer, buffer_length, fp );
     if( result != NULL )
@@ -178,7 +178,7 @@ parse_samples(struct pio_fam_file_t *fam_file)
 pio_status_t
 fam_open(struct pio_fam_file_t *fam_file, const char *path)
 {
-    int status;
+    pio_status_t status;
     FILE *fam_fp = fopen( path, "r" );
     if( fam_fp == NULL )
     {
@@ -193,7 +193,7 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
 }
 
 struct pio_sample_t *
-fam_get_sample(struct pio_fam_file_t *fam_file, unsigned int pio_id)
+fam_get_sample(struct pio_fam_file_t *fam_file, size_t pio_id)
 {
     if( pio_id < fam_file->num_samples )
     {
@@ -205,7 +205,7 @@ fam_get_sample(struct pio_fam_file_t *fam_file, unsigned int pio_id)
     }
 }
 
-unsigned int
+size_t
 fam_num_samples(struct pio_fam_file_t *fam_file)
 {
     return fam_file->num_samples;

@@ -45,7 +45,7 @@ struct pio_locus_t
     /**
      * An internal reference id, so that we can read them in order.
      */
-    unsigned int pio_id;
+    size_t pio_id;
 
     /**
      * Chromosome number starting from 1.
@@ -93,7 +93,7 @@ struct pio_bim_file_t
     /**
      * The number of loci contained in the file.
      */
-    unsigned int num_loci;
+    size_t num_loci;
 
     /**
      * List of all locus in the file.
@@ -120,7 +120,7 @@ pio_status_t bim_open(struct pio_bim_file_t *bim_file, const char *path);
  *
  * @return the locus with the given pio_id.
  */
-struct pio_locus_t * bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int pio_id);
+struct pio_locus_t * bim_get_locus(struct pio_bim_file_t *bim_file, size_t pio_id);
 
 /**
  * Returns the number of loci that are stored in the given bim file.
@@ -129,7 +129,7 @@ struct pio_locus_t * bim_get_locus(struct pio_bim_file_t *bim_file, unsigned int
  * 
  * @return the number of loci that are stored in the bim file.
  */
-unsigned int bim_num_loci(struct pio_bim_file_t *bim_file);
+size_t bim_num_loci(struct pio_bim_file_t *bim_file);
 
 /**
  * Removes the read loci from memory.

@@ -46,11 +46,11 @@ pio_status_t pio_open(struct pio_file_t *plink_file, const char *plink_file_pref
  * you call pio_close with the save argument.
  *
  * @param plink_file Plink file.
- * @param id Id of the sample, as returned by pio_next_row. This is not the same as
- *           iid.
+ * @param pio_id Pio id of the sample. This is not the same as iid.
+ *
  * @return The struct with the given id, or NULL if it does not exist.
  */
-struct pio_sample_t * pio_get_sample(struct pio_file_t *plink_file, unsigned int id);
+struct pio_sample_t * pio_get_sample(struct pio_file_t *plink_file, size_t pio_id);
 
 /**
  * Returns the number of samples that are stored in the given plink file.
@@ -59,7 +59,7 @@ struct pio_sample_t * pio_get_sample(struct pio_file_t *plink_file, unsigned int
  * 
  * @return the number of samples that are stored in the plink file.
  */
-unsigned int pio_num_samples(struct pio_file_t *plink_file);
+size_t pio_num_samples(struct pio_file_t *plink_file);
 
 /**
  * Returns a struct that contains information about the locus associated
@@ -71,7 +71,7 @@ unsigned int pio_num_samples(struct pio_file_t *plink_file);
  *
  * @return The struct with the given id, or NULL if it does not exist.
  */
-struct pio_locus_t * pio_get_locus(struct pio_file_t *plink_file, unsigned int id);
+struct pio_locus_t * pio_get_locus(struct pio_file_t *plink_file, size_t pio_id);
 
 /**
  * Returns the number of loci that are stored in the given plink file.
@@ -80,7 +80,7 @@ struct pio_locus_t * pio_get_locus(struct pio_file_t *plink_file, unsigned int i
  * 
  * @return the number of loci that are stored in the plink file.
  */
-unsigned int pio_num_loci(struct pio_file_t *plink_file);
+size_t pio_num_loci(struct pio_file_t *plink_file);
 
 /**
  * Reads the next row from the bed file. Depending on the storage format,

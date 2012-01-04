@@ -47,24 +47,24 @@ pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
 }
 
 struct pio_sample_t *
-pio_get_sample(struct pio_file_t *plink_file, unsigned int pio_id)
+pio_get_sample(struct pio_file_t *plink_file, size_t pio_id)
 {
     return fam_get_sample( &plink_file->fam_file, pio_id );
 }
 
-unsigned int
+size_t
 pio_num_samples(struct pio_file_t *plink_file)
 {
     return fam_num_samples( &plink_file->fam_file );
 }
 
 struct pio_locus_t *
-pio_get_locus(struct pio_file_t *plink_file, unsigned int pio_id)
+pio_get_locus(struct pio_file_t *plink_file, size_t pio_id)
 {
     return bim_get_locus( &plink_file->bim_file, pio_id ); 
 }
 
-unsigned int
+size_t
 pio_num_loci(struct pio_file_t *plink_file)
 {
     return bim_num_loci( &plink_file->bim_file );

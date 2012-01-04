@@ -35,7 +35,7 @@ struct pio_sample_t
     /**
      * An internal reference id, so that we can read them in order.
      */
-    unsigned int pio_id;
+    size_t pio_id;
 
     /**
      * Family identifier.
@@ -89,7 +89,7 @@ struct pio_fam_file_t
     /**
      * The number of samples.
      */
-    unsigned int num_samples;
+    size_t num_samples;
 
     /**
      * List of additional information for each sample.
@@ -116,7 +116,7 @@ pio_status_t fam_open(struct pio_fam_file_t *fam_file, const char *path);
  *
  * @return the sample with the given pio_id.
  */
-struct pio_sample_t * fam_get_sample(struct pio_fam_file_t *fam_file, unsigned int pio_id);
+struct pio_sample_t * fam_get_sample(struct pio_fam_file_t *fam_file, size_t pio_id);
 
 /**
  * Returns the number of samples that are stored in the given fam file.
@@ -125,7 +125,7 @@ struct pio_sample_t * fam_get_sample(struct pio_fam_file_t *fam_file, unsigned i
  * 
  * @return the number of samples that are stored in the fam file.
  */
-unsigned int fam_num_samples(struct pio_fam_file_t *fam_file);
+size_t fam_num_samples(struct pio_fam_file_t *fam_file);
 
 /**
  * Removes the read samples from memory.

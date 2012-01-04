@@ -77,17 +77,17 @@ struct pio_bed_file_t
     /**
      * Number of columns.
      */
-    int num_cols;
+    size_t num_cols;
 
     /**
      * The number of rows.
      */
-    int num_rows;
+    size_t num_rows;
 
     /**
      * Index of the current row.
      */
-    int cur_row;
+    size_t cur_row;
 };
 
 /**
@@ -101,7 +101,7 @@ struct pio_bed_file_t
  *
  * @return PIO_OK if the file could be opened, PIO_ERROR otherwise.
  */
-pio_status_t bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples);
+pio_status_t bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, size_t num_samples);
 
 /**
  * Reads a single row from the given bed_file. Each element in the buffer
