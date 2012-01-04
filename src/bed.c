@@ -32,7 +32,7 @@
 /**
  * Mask for SNP order. 
  */
-#define BED_SNP_ORDER_BIT 0x80
+#define BED_SNP_ORDER_BIT 0x01
 
 /**
  * Number of bits used for each SNP, must be divisor
@@ -69,15 +69,15 @@ get_snp_order(unsigned char order)
 {
     if( order == BED_SNP_ORDER_BIT )
     {
-        return PIO_ONE_LOCUS_PER_ROW;
+        return BED_ONE_LOCUS_PER_ROW;
     }
     else if( order == 0 )
     {
-        return PIO_ONE_SAMPLE_PER_ROW;
+        return BED_ONE_SAMPLE_PER_ROW;
     }
     else
     {
-        return PIO_ONE_SAMPLE_PER_ROW;
+        return BED_ONE_SAMPLE_PER_ROW;
     }
 }
 
@@ -144,7 +144,7 @@ parse_header(struct pio_bed_file_t *bed_file)
     {
         /* Version < 0.99 */
         bed_file->version = PIO_VERSION_PRE_099;
-        bed_file->snp_order = PIO_ONE_SAMPLE_PER_ROW;
+        bed_file->snp_order = BED_ONE_SAMPLE_PER_ROW;
     }
 
     fseek( bed_file->fp,get_data_offset( bed_file->version ), SEEK_SET );
@@ -228,7 +228,7 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, siz
         return PIO_ERROR;
     }
     
-    if( bed_file->snp_order == PIO_ONE_LOCUS_PER_ROW )
+    if( bed_file->snp_order == BED_ONE_LOCUS_PER_ROW )
     {
         bed_file->num_cols = num_samples;
         bed_file->num_rows = num_loci;

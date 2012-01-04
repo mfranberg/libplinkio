@@ -30,7 +30,7 @@ pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
     strncat( path_buffer, ".bed", path_length );
     num_samples = plink_file->fam_file.num_samples;
     num_loci = plink_file->bim_file.num_loci;
-    if( bed_open( &plink_file->bed_file, path_buffer, num_samples, num_loci ) != PIO_OK )
+    if( bed_open( &plink_file->bed_file, path_buffer, num_loci, num_samples ) != PIO_OK )
     {
         error = 1;
     }
@@ -82,10 +82,10 @@ pio_row_size(struct pio_file_t *plink_file)
     return bed_row_size( &plink_file->bed_file );
 }
 
-enum SnpOrder
-pio_row_order(struct pio_file_t *plink_file)
+int
+pio_one_locus_per_row(struct pio_file_t *plink_file)
 {
-    return bed_snp_order( &plink_file->bed_file );
+    return bed_snp_order( &plink_file->bed_file) == BED_ONE_LOCUS_PER_ROW;
 }
 
 void

@@ -127,12 +127,12 @@ test_parse_header_v100(void **state)
     /**
      * v 1.00 file containing only a header.
      */
-    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x80 };
+    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x01 };
 
     mock_init( file_data, 3 );
     assert_int_equal( parse_header( &bed_file ), PIO_OK );
     assert_int_equal( bed_file.version, PIO_VERSION_100 );
-    assert_int_equal( bed_file.snp_order, PIO_ONE_LOCUS_PER_ROW );
+    assert_int_equal( bed_file.snp_order, BED_ONE_LOCUS_PER_ROW );
 }
 
 /**
@@ -150,7 +150,7 @@ test_parse_header_v099(void **state)
     mock_init( file_data, 3 );
     assert_int_equal( parse_header( &bed_file ), PIO_OK );
     assert_int_equal( bed_file.version, PIO_VERSION_099 );
-    assert_int_equal( bed_file.snp_order, PIO_ONE_SAMPLE_PER_ROW );
+    assert_int_equal( bed_file.snp_order, BED_ONE_SAMPLE_PER_ROW );
 }
 
 /**
@@ -179,12 +179,36 @@ test_bed_open(void **state)
     /**
      * v 1.00 file containing only a header.
      */
-    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x80 };
+    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x01 };
 
     mock_init( file_data, 3 );
-    assert_int_equal( bed_open( &bed_file, "", 1, 1 ), PIO_OK );
+    assert_int_equal( bed_open( &bed_file, "", 1, 2 ), PIO_OK );
     assert_int_equal( bed_file.version, PIO_VERSION_100 );
-    assert_int_equal( bed_file.snp_order, PIO_ONE_LOCUS_PER_ROW );
+    assert_int_equal( bed_file.snp_order, BED_ONE_LOCUS_PER_ROW );
+    assert_int_equal( bed_file.num_rows, 1 );
+    assert_int_equal( bed_file.num_cols, 2 );
+    
+    bed_close( &bed_file );
+}
+
+/**
+ * Tests that open and close works.
+ */
+void
+test_bed_open2(void **state)
+{
+    struct pio_bed_file_t bed_file;
+    /**
+     * v 1.00 file containing only a header.
+     */
+    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x00 };
+
+    mock_init( file_data, 3 );
+    assert_int_equal( bed_open( &bed_file, "", 1, 2 ), PIO_OK );
+    assert_int_equal( bed_file.version, PIO_VERSION_100 );
+    assert_int_equal( bed_file.snp_order, BED_ONE_SAMPLE_PER_ROW );
+    assert_int_equal( bed_file.num_rows, 2 );
+    assert_int_equal( bed_file.num_cols, 1 );
     
     bed_close( &bed_file );
 }
@@ -213,7 +237,7 @@ test_bed_read_row(void **state)
      * v 1.00 file containing only a header, and two snp rows = 
      * [0, 1, 2, 3] = 01001011 = 0x4b.
      */
-    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x80, 0x4b, 0x4b };
+    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x01, 0x4b, 0x4b };
 
     mock_init( file_data, 5 );
     assert_int_equal( bed_open( &bed_file, "", 2, 4 ), PIO_OK );
@@ -240,6 +264,7 @@ int main(int argc, char* argv[])
         unit_test( test_parse_header_v099 ),
         unit_test( test_parse_header_bad ),
         unit_test( test_bed_open ),
+        unit_test( test_bed_open2 ),
         unit_test( test_unpack_snps ),
         unit_test( test_bed_read_row ),
     };

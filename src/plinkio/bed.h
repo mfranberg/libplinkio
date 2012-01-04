@@ -16,18 +16,18 @@ enum SnpOrder
      * Means that when reading one row, you get one SNP for all
      * individuals (common).
      */
-    PIO_ONE_LOCUS_PER_ROW,
+    BED_ONE_LOCUS_PER_ROW,
 
     /**
      * Means that when reading one row, you get all SNPs for
      * one individual.
      */
-    PIO_ONE_SAMPLE_PER_ROW,
+    BED_ONE_SAMPLE_PER_ROW,
 
     /**
      * Unknown order.
      */
-    PIO_UNKNOWN_ORDER
+    BED_UNKNOWN_ORDER
 };
 
 enum BedVersion

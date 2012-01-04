@@ -112,13 +112,15 @@ pio_status_t pio_next_row(struct pio_file_t *plink_file, snp_t *buffer);
 size_t pio_row_size(struct pio_file_t *plink_file);
 
 /**
- * Returns the row order for the SNPs.
+ * Determines whether a row represents one loci for
+ * all individuals, or all loci for one individual.
  *
  * @param plink_file Plink file.
  *
- * @return the row order for the SNPs.
+ * @return 1 if one row contains one loci for
+ *         all individuals, 0 otherwise.
  */
-enum SnpOrder pio_row_order(struct pio_file_t *plink_file);
+int pio_one_locus_per_row(struct pio_file_t *plink_file);
 
 /**
  * Closes all opened plink files. No changes are made.

@@ -35,7 +35,7 @@ main(int argc, char *argv[])
         num_rows++;
     }
 
-    if( pio_row_order( &plink_file ) == PIO_ONE_LOCUS_PER_ROW )
+    if( pio_one_locus_per_row( &plink_file ) )
     {
         assert( num_rows == plink_file.bim_file.num_loci );
     }
