@@ -106,7 +106,7 @@ struct pio_fam_file_t
  * 
  * @return Returns PIO_OK if the file could be read, PIO_ERROR otherwise.
  */
-int fam_open(struct pio_fam_file_t *fam_file, const char *path);
+pio_status_t fam_open(struct pio_fam_file_t *fam_file, const char *path);
 
 /**
  * Returns the sample with the given pio_id.

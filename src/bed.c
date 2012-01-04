@@ -117,7 +117,7 @@ get_data_offset(enum BedVersion version)
  * @return PIO_OK if the header could be read,
  *         PIO_ERROR otherwise.
  */
-int
+pio_status_t
 parse_header(struct pio_bed_file_t *bed_file)
 {
     unsigned char header[3];
@@ -212,7 +212,7 @@ get_packed_row_size(int num_cols)
     return ( num_cols * BED_BITS_PER_SNP + BED_NUM_BITS_IN_CHAR - 1 ) / BED_NUM_BITS_IN_CHAR;
 }
 
-int
+pio_status_t
 bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples)
 {
     size_t row_size_bytes;
@@ -246,7 +246,7 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int nu
     return PIO_OK;
 }
 
-int
+pio_status_t
 bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer)
 {
     size_t row_size_bytes;

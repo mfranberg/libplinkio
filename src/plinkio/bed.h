@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include <status.h>
+
 /**
  * Integral type used for storing a single SNP.
  */
@@ -99,7 +101,7 @@ struct pio_bed_file_t
  *
  * @return PIO_OK if the file could be opened, PIO_ERROR otherwise.
  */
-int bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples);
+pio_status_t bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, int num_samples);
 
 /**
  * Reads a single row from the given bed_file. Each element in the buffer
@@ -119,7 +121,7 @@ int bed_open(struct pio_bed_file_t *bed_file, const char *path, int num_loci, in
  *         PIO_END if there are no more rows,
  *         PIO_ERROR otherwise.
  */
-int bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
+pio_status_t bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
 
 /**
  * Returns the number of bytes required to store a row from

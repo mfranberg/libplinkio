@@ -36,7 +36,7 @@ UT_icd LOCUS_ICD = { sizeof( struct pio_locus_t ), NULL, NULL, NULL };
  * @return PIO_OK if the line was read successfully, PIO_END if we are
  *                at the end of the file, PIO_ERROR otherwise.
  */
-int
+pio_status_t
 read_locus(FILE *fp, char *buffer, unsigned int buffer_length)
 {
     char *result = fgets( buffer, buffer_length, fp );
@@ -70,7 +70,7 @@ read_locus(FILE *fp, char *buffer, unsigned int buffer_length)
  * @return PIO_OK if the locus could be parsed,
  *         PIO_ERROR otherwise.
  */
-int
+pio_status_t
 parse_locus(const char *data, struct pio_locus_t *locus)
 {
     unsigned int chromosome;
@@ -103,7 +103,7 @@ parse_locus(const char *data, struct pio_locus_t *locus)
  *
  * @return PIO_OK if the loci could be parsed, PIO_ERROR otherwise.
  */
-int
+pio_status_t
 parse_loci(struct pio_bim_file_t *bim_file)
 {
     UT_array *loci;
@@ -162,7 +162,7 @@ locus_cmp(const void *a, const void *b)
     }
 }
 
-int
+pio_status_t
 bim_open(struct pio_bim_file_t *bim_file, const char *path)
 {
     int status;

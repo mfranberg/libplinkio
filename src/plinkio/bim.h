@@ -1,6 +1,8 @@
 #ifndef __BIM_H__
 #define __BIM_H__
 
+#include <status.h>
+
 /**
  * Converts a preprocessor constant to a string.
  *
@@ -108,7 +110,7 @@ struct pio_bim_file_t
  * 
  * @return Returns PIO_OK if the file could be read, PIO_ERROR otherwise.
  */
-int bim_open(struct pio_bim_file_t *bim_file, const char *path);
+pio_status_t bim_open(struct pio_bim_file_t *bim_file, const char *path);
 
 /**
  * Returns the locus with the given pio_id.

@@ -38,7 +38,7 @@ struct pio_file_t
  *
  * @return PIO_OK, if all files existed and could be read. PIO_ERROR otherwise.
  */
-int pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix);
+pio_status_t pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix);
 
 /**
  * Returns a struct that contains information about the sample associated
@@ -100,7 +100,7 @@ unsigned int pio_num_loci(struct pio_file_t *plink_file);
  * @return PIO_OK if the row could be read, PIO_END if we are at the
  *         end of file, PIO_ERROR otherwise.
  */
-unsigned int pio_next_row(struct pio_file_t *plink_file, snp_t *buffer);
+pio_status_t pio_next_row(struct pio_file_t *plink_file, snp_t *buffer);
 
 /**
  * Returns the size of a row in bytes.

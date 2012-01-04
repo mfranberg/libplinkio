@@ -1,7 +1,7 @@
 #ifndef __STATUS_H__
 #define __STATUS_H__
 
-enum PioStatus
+enum pio_status_e
 {
     /**
      * Function successful.
@@ -18,5 +18,7 @@ enum PioStatus
      */
     PIO_ERROR
 };
+
+typedef enum pio_status_e pio_status_t;
 
 #endif /* End of __STATUS_H__ */

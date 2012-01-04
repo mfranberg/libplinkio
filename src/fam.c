@@ -37,7 +37,7 @@ UT_icd SAMPLE_ICD = { sizeof( struct pio_sample_t ), NULL, NULL, NULL };
  * @return PIO_OK if the line was read successfully, PIO_END if we are
  *                at the end of the file, PIO_ERROR otherwise.
  */
-int
+pio_status_t
 read_sample(FILE *fp, char *buffer, unsigned int buffer_length)
 {
     char *result = fgets( buffer, buffer_length, fp );
@@ -71,7 +71,7 @@ read_sample(FILE *fp, char *buffer, unsigned int buffer_length)
  * @return PIO_OK if the sample could be parsed,
  *         PIO_ERROR otherwise.
  */
-int
+pio_status_t
 parse_sample(const char *sample, struct pio_sample_t *person)
 {
     unsigned int sex;
@@ -144,7 +144,7 @@ parse_sample(const char *sample, struct pio_sample_t *person)
  *
  * @return PIO_OK if the samples could be parsed, PIO_ERROR otherwise.
  */
-int
+pio_status_t
 parse_samples(struct pio_fam_file_t *fam_file)
 {
     UT_array *samples;
@@ -175,7 +175,7 @@ parse_samples(struct pio_fam_file_t *fam_file)
     return PIO_OK;
 }
 
-int
+pio_status_t
 fam_open(struct pio_fam_file_t *fam_file, const char *path)
 {
     int status;

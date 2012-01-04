@@ -3,7 +3,7 @@
 
 #include <plinkio.h>
 
-int
+pio_status_t
 pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
 {
     size_t path_length = strlen( plink_file_prefix ) + 4 + 1;
@@ -70,7 +70,7 @@ pio_num_loci(struct pio_file_t *plink_file)
     return bim_num_loci( &plink_file->bim_file );
 }
 
-unsigned int
+pio_status_t
 pio_next_row(struct pio_file_t *plink_file, snp_t *buffer)
 {
     return bed_read_row( &plink_file->bed_file, buffer ); 
