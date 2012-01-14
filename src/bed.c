@@ -287,7 +287,7 @@ bed_snp_order(struct pio_bed_file_t *bed_file)
 }
 
 void
-bed_row_reset(struct pio_bed_file_t *bed_file)
+bed_reset_row(struct pio_bed_file_t *bed_file)
 {
     fseek( bed_file->fp, get_data_offset( bed_file->version ), SEEK_SET );
     bed_file->cur_row = 0;

@@ -4,4 +4,4 @@ if WITH_TESTS
 TEST_DIRS = libs/cmockery/ tests
 endif
 
-SUBDIRS = src $(TEST_DIRS)
+SUBDIRS = src $(TEST_DIRS) py-plinkio

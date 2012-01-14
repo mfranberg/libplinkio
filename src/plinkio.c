@@ -76,6 +76,12 @@ pio_next_row(struct pio_file_t *plink_file, snp_t *buffer)
     return bed_read_row( &plink_file->bed_file, buffer ); 
 }
 
+void
+pio_reset_row(struct pio_file_t *plink_file)
+{
+    bed_reset_row( &plink_file->bed_file );
+}
+
 size_t
 pio_row_size(struct pio_file_t *plink_file)
 {
