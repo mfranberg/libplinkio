@@ -1,1 +1,1 @@
-__all__ = [ "Sample", "Locus", "PlinkFile", "open" ]
+__all__ = [ "plinkfile" ]

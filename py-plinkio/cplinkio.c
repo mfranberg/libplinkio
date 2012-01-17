@@ -26,6 +26,37 @@ typedef struct
     size_t row_length;
 } cPlinkFile;
 
+#if PY_MAJOR_VERSION >= 3
+
+/**
+ * Python type of the above.
+ */
+static PyTypeObject cPlinkFileType = {
+    PyVarObject_HEAD_INIT( NULL, 0 )
+    "plinkio.cPlinkFile",       /* tp_name */
+    sizeof( cPlinkFile ),       /* tp_basicsize */
+    0,                          /* tp_itemsize */
+    0,                          /* tp_dealloc */
+    0,                          /* tp_print */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    0,                          /* tp_compare */
+    0,                          /* tp_repr */
+    0,                          /* tp_as_number */
+    0,                          /* tp_as_sequence */
+    0,                          /* tp_as_mapping */
+    0,                          /* tp_hash */
+    0,                          /* tp_call */
+    0,                          /* tp_str */
+    0,                          /* tp_getattro */
+    0,                          /* tp_setattro */
+    0,                          /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,         /* tp_flags */
+    "Contains the pio_file_t struct for interfacing libplinkio.",           /* tp_doc */
+};
+
+#else
+
 /**
  * Python type of the above.
  */
@@ -53,6 +84,8 @@ static PyTypeObject cPlinkFileType = {
     Py_TPFLAGS_DEFAULT,         /* tp_flags */
     "Contains the pio_file_t struct for interfacing libplinkio.",           /* tp_doc */
 };
+
+#endif
 
 /**
  * Opens a plink file and returns a handle to it.
@@ -132,7 +165,11 @@ plinkio_next_row(PyObject *self, PyObject *args)
     PyObject *row_list = PyList_New( c_plink_file->row_length );
     for(i = 0; i < c_plink_file->row_length; i++)
     {
+#if PY_MAJOR_VERSION >= 3
+        PyObject *snp = PyLong_FromLong( (long) row[ i ] );
+#else
         PyObject *snp = PyInt_FromLong( (long) row[ i ] );
+#endif
         PyList_SetItem( row_list, i, snp );
     }
 
@@ -324,6 +361,45 @@ static PyMethodDef plinkio_methods[] = {
 #define PyMODINIT_FUNC void
 #endif
 
+#if PY_MAJOR_VERSION  >= 3
+
+static PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "cplinkio",
+    "Wrapper module for the libplinkio c functions.",
+    -1,
+    plinkio_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+PyMODINIT_FUNC
+PyInit_cplinkio(void)
+{
+    PyObject *module;
+
+    cPlinkFileType.tp_new = PyType_GenericNew;
+    if( PyType_Ready( &cPlinkFileType ) < 0 )
+    {
+        return NULL;
+    }
+
+    module = PyModule_Create( &moduledef );
+    if( module == NULL )
+    {
+        return NULL;
+    }
+
+    Py_INCREF( &cPlinkFileType );
+    PyModule_AddObject( module, "cPlinkFile", (PyObject *) &cPlinkFileType );
+
+    return module;
+}
+
+#else
+
 PyMODINIT_FUNC
 initcplinkio(void)
 {
@@ -340,3 +416,5 @@ initcplinkio(void)
     Py_INCREF( &cPlinkFileType );
     PyModule_AddObject( m, "cPlinkFile", (PyObject *) &cPlinkFileType );
 }
+
+#endif
