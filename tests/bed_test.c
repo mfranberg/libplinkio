@@ -10,7 +10,9 @@
 #include <cmockery.h>
 
 #include <bed.h>
+#include <bed_header.c>
 #include <bed.c>
+#include <file.c>
 
 /**
  * Mock functions.
@@ -131,8 +133,8 @@ test_parse_header_v100(void **state)
 
     mock_init( file_data, 3 );
     assert_int_equal( parse_header( &bed_file ), PIO_OK );
-    assert_int_equal( bed_file.version, PIO_VERSION_100 );
-    assert_int_equal( bed_file.snp_order, BED_ONE_LOCUS_PER_ROW );
+    assert_int_equal( bed_file.header.version, PIO_VERSION_100 );
+    assert_int_equal( bed_file.header.snp_order, BED_ONE_LOCUS_PER_ROW );
 }
 
 /**
@@ -149,8 +151,8 @@ test_parse_header_v099(void **state)
 
     mock_init( file_data, 3 );
     assert_int_equal( parse_header( &bed_file ), PIO_OK );
-    assert_int_equal( bed_file.version, PIO_VERSION_099 );
-    assert_int_equal( bed_file.snp_order, BED_ONE_SAMPLE_PER_ROW );
+    assert_int_equal( bed_file.header.version, PIO_VERSION_099 );
+    assert_int_equal( bed_file.header.snp_order, BED_ONE_SAMPLE_PER_ROW );
 }
 
 /**
@@ -183,10 +185,10 @@ test_bed_open(void **state)
 
     mock_init( file_data, 3 );
     assert_int_equal( bed_open( &bed_file, "", 1, 2 ), PIO_OK );
-    assert_int_equal( bed_file.version, PIO_VERSION_100 );
-    assert_int_equal( bed_file.snp_order, BED_ONE_LOCUS_PER_ROW );
-    assert_int_equal( bed_file.num_rows, 1 );
-    assert_int_equal( bed_file.num_cols, 2 );
+    assert_int_equal( bed_file.header.version, PIO_VERSION_100 );
+    assert_int_equal( bed_file.header.snp_order, BED_ONE_LOCUS_PER_ROW );
+    assert_int_equal( bed_header_num_rows( &bed_file.header ), 1 );
+    assert_int_equal( bed_header_num_cols( &bed_file.header ), 2 );
     
     bed_close( &bed_file );
 }
@@ -205,10 +207,10 @@ test_bed_open2(void **state)
 
     mock_init( file_data, 3 );
     assert_int_equal( bed_open( &bed_file, "", 1, 2 ), PIO_OK );
-    assert_int_equal( bed_file.version, PIO_VERSION_100 );
-    assert_int_equal( bed_file.snp_order, BED_ONE_SAMPLE_PER_ROW );
-    assert_int_equal( bed_file.num_rows, 2 );
-    assert_int_equal( bed_file.num_cols, 1 );
+    assert_int_equal( bed_file.header.version, PIO_VERSION_100 );
+    assert_int_equal( bed_file.header.snp_order, BED_ONE_SAMPLE_PER_ROW );
+    assert_int_equal( bed_header_num_rows( &bed_file.header ), 2 );
+    assert_int_equal( bed_header_num_cols( &bed_file.header ), 1 );
     
     bed_close( &bed_file );
 }
@@ -226,6 +228,22 @@ test_unpack_snps(void **state)
     {
         assert_int_equal( unpacked_snps[ i ], i );
     } 
+}
+
+void
+test_bed_row_size(void **state)
+{
+    struct pio_bed_file_t bed_file;
+    bed_file.header.snp_order = BED_ONE_LOCUS_PER_ROW;
+    bed_file.header.num_loci = 1;
+    bed_file.header.num_samples = 7;
+
+    assert_int_equal( bed_row_size( &bed_file ), 2 );
+
+    bed_file.header.num_loci = 1;
+    bed_file.header.num_samples = 1;
+    
+    assert_int_equal( bed_row_size( &bed_file ), 1 );
 }
 
 void

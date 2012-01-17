@@ -4,49 +4,12 @@
 #include <stdio.h>
 
 #include <status.h>
+#include <bed_header.h>
 
 /**
  * Integral type used for storing a single SNP.
  */
 typedef unsigned char snp_t;
-
-enum SnpOrder 
-{
-    /**
-     * Means that when reading one row, you get one SNP for all
-     * individuals (common).
-     */
-    BED_ONE_LOCUS_PER_ROW,
-
-    /**
-     * Means that when reading one row, you get all SNPs for
-     * one individual.
-     */
-    BED_ONE_SAMPLE_PER_ROW,
-
-    /**
-     * Unknown order.
-     */
-    BED_UNKNOWN_ORDER
-};
-
-enum BedVersion
-{
-    /**
-     * Old version, reading of these files might not work.
-     */
-    PIO_VERSION_PRE_099,
-
-    /**
-     * Version v0.99, no magic header but snp order in first byte.
-     */
-    PIO_VERSION_099,
-
-    /**
-     * Version v1.00, 16 bit magic header.
-     */
-    PIO_VERSION_100
-};
 
 /**
  * Contains the information about a bed file. On opening the file
@@ -60,29 +23,14 @@ struct pio_bed_file_t
     FILE *fp;
 
     /**
-     * Order of the SNPs in the file.
+     * Header of the bed file.
      */
-    enum SnpOrder snp_order;
-
-    /**
-     * Version of the file.
-     */
-    enum BedVersion version;
+    struct bed_header_t header;
 
     /**
      * Temporary buffer for each row.
      */
     unsigned char *read_buffer;
-
-    /**
-     * Number of columns.
-     */
-    size_t num_cols;
-
-    /**
-     * The number of rows.
-     */
-    size_t num_rows;
 
     /**
      * Index of the current row.
@@ -135,6 +83,16 @@ pio_status_t bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
 size_t bed_row_size(struct pio_bed_file_t *bed_file);
 
 /**
+ * Returns the number of snps stored in a row for the
+ * given bed file.
+ *
+ * @param bed_file Bed file. 
+ *
+ * @return The number of snps stroed in a row.
+ */
+size_t bed_num_snps_per_row(struct pio_bed_file_t *bed_file);
+
+/**
  * Returns the SNP order for the given bed file.
  *
  * @param bed_file Bed file.
@@ -156,5 +114,17 @@ void bed_row_reset(struct pio_bed_file_t *bed_file);
  * @param bed_file Bed file.
  */
 void bed_close(struct pio_bed_file_t *bed_file);
+
+/**
+ * Transposes the given file to the given output file.
+ *
+ * @param original_path The file to transpose.
+ * @param transposed_path The file where the transposed data
+ *        will be stored.
+ * @param num_loci The number of loci.
+ * @param num_samples The number of samples.
+ *
+ */
+pio_status_t bed_transpose(const char *original_path, const char *transposed_path, size_t num_loci, size_t num_samples);
 
 #endif /* End of __BED_H__ */

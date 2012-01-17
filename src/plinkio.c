@@ -3,39 +3,59 @@
 
 #include <plinkio.h>
 
+/**
+ * Concatenates the given strings and returns the concatenated
+ * string a + b.
+ *
+ * Note: User is responsible for calling free on the returned
+ * string.
+ *
+ * @param a First string.
+ * @param b Second string.
+ *
+ * @return pointer to the concatenated string.
+ */
+char *
+concatenate(const char *a, const char *b)
+{
+    size_t total_length = strlen( a ) + strlen( b ) + 1;
+    char *buffer = (char *) malloc( total_length );
+    strncpy( buffer, a, total_length );
+    strncat( buffer, b, total_length );
+
+    return buffer;
+}
+
 pio_status_t
 pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
 {
-    size_t path_length = strlen( plink_file_prefix ) + 4 + 1;
-    char *path_buffer = (char *) malloc( sizeof( char ) * path_length );
     int error = 0;
     int num_samples;
     int num_loci;
     
-    strncpy( path_buffer, plink_file_prefix, path_length );
-    strncat( path_buffer, ".fam", path_length );
-    if( fam_open( &plink_file->fam_file, path_buffer ) != PIO_OK )
+    char *fam_path = concatenate( plink_file_prefix, ".fam" );
+    if( fam_open( &plink_file->fam_file, fam_path ) != PIO_OK )
     {
         error = 1;
     }
 
-    strncpy( path_buffer, plink_file_prefix, path_length );
-    strncat( path_buffer, ".bim", path_length );
-    if( bim_open( &plink_file->bim_file, path_buffer ) != PIO_OK )
+    char *bim_path = concatenate( plink_file_prefix, ".bim" );
+    if( bim_open( &plink_file->bim_file, bim_path ) != PIO_OK )
     {
         error = 1;
     }
 
-    strncpy( path_buffer, plink_file_prefix, path_length );
-    strncat( path_buffer, ".bed", path_length );
+    char *bed_path = concatenate( plink_file_prefix, ".bed" );
     num_samples = plink_file->fam_file.num_samples;
     num_loci = plink_file->bim_file.num_loci;
-    if( bed_open( &plink_file->bed_file, path_buffer, num_loci, num_samples ) != PIO_OK )
+    if( bed_open( &plink_file->bed_file, bed_path, num_loci, num_samples ) != PIO_OK )
     {
         error = 1;
     }
 
-    free( path_buffer );
+    free( fam_path );
+    free( bim_path );
+    free( bed_path );
     if( error == 0 )
     {
         return PIO_OK;
@@ -70,6 +90,12 @@ pio_num_loci(struct pio_file_t *plink_file)
     return bim_num_loci( &plink_file->bim_file );
 }
 
+void
+pio_reset_row(struct pio_file_t *plink_file)
+{
+    bed_row_reset( &plink_file->bed_file );
+}
+
 pio_status_t
 pio_next_row(struct pio_file_t *plink_file, snp_t *buffer)
 {
@@ -94,4 +120,40 @@ pio_close(struct pio_file_t *plink_file)
     bed_close( &plink_file->bed_file );
     bim_close( &plink_file->bim_file );
     fam_close( &plink_file->fam_file );
+}
+
+pio_status_t
+pio_transpose(const char *plink_file_prefix, const char *transposed_file_prefix)
+{
+    struct pio_file_t plink_file;
+    if( pio_open( &plink_file, plink_file_prefix ) != PIO_OK )
+    {
+        return PIO_ERROR;
+    }
+
+    char *bed_path = concatenate( plink_file_prefix, ".bed" );
+    char *transposed_bed_path = concatenate( transposed_file_prefix, ".bed" );
+
+    pio_status_t status = bed_transpose( bed_path, transposed_bed_path, pio_num_loci( &plink_file ), pio_num_samples( &plink_file ) );
+    if( status == PIO_OK )
+    {
+        char *fam_path = concatenate( plink_file_prefix, ".fam" );
+        char *transposed_fam_path = concatenate( transposed_file_prefix, ".fam" );
+        file_copy( fam_path, transposed_fam_path );
+        free( fam_path );
+        free( transposed_fam_path );
+        
+        char *bim_path = concatenate( plink_file_prefix, ".bim" );
+        char *transposed_bim_path = concatenate( transposed_file_prefix, ".bim" );
+        file_copy( bim_path, transposed_bim_path );
+        free( bim_path );
+        free( transposed_bim_path );
+    }
+
+    pio_close( &plink_file );
+
+    free( bed_path );
+    free( transposed_bed_path );
+
+    return status;
 }

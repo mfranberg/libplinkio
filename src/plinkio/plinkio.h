@@ -103,6 +103,13 @@ size_t pio_num_loci(struct pio_file_t *plink_file);
 pio_status_t pio_next_row(struct pio_file_t *plink_file, snp_t *buffer);
 
 /**
+ * Resets row reading to the first row.
+ *
+ * @param plink_file Plink file.
+ */
+void pio_reset_row(struct pio_file_t *plink_file);
+
+/**
  * Returns the size of a row in bytes.
  *
  * @param plink_file Plink file.
@@ -121,6 +128,17 @@ size_t pio_row_size(struct pio_file_t *plink_file);
  *         all individuals, 0 otherwise.
  */
 int pio_one_locus_per_row(struct pio_file_t *plink_file);
+
+/**
+ * Transposes the given file and writes it to another file.
+ * 
+ * @param plink_file_prefix Path to the plink files, without the extension.
+ * @param transposed_file_prefix The transposed plink files will be stored at this path.
+ *                               The .bim and .fam files will be copied.
+ *
+ * @return PIO_OK if the file could be transposed, PIO_ERROR otherwise.
+ */
+pio_status_t pio_transpose(const char *plink_file_prefix, const char *transposed_file_prefix);
 
 /**
  * Closes all opened plink files. No changes are made.

@@ -1,6 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <strings.h>
+#include <assert.h>
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+
+#include <bed_header.h>
 #include <status.h>
 
 #include <bed.h>
@@ -24,89 +32,6 @@
 #endif
 
 /**
- * Magic constants for v 1.00 format.
- */
-#define BED_V100_MAGIC1 0x6c
-#define BED_V100_MAGIC2 0x1b
-
-/**
- * Mask for SNP order. 
- */
-#define BED_SNP_ORDER_BIT 0x01
-
-/**
- * Number of bits used for each SNP, must be divisor
- * of 8.
- */
-#define BED_BITS_PER_SNP 2
-
-/**
- * Masks out a SNP.
- */
-#define BED_SNP_MASK ( ( 1 << BED_BITS_PER_SNP ) - 1 )
-
-/**
- * Number of bits in a char.
- */
-#define BED_NUM_BITS_IN_CHAR ( sizeof( unsigned char ) * 8 )
-
-/**
- * Number of SNPs packed in each char.
- */
-#define BED_SNPS_PER_CHAR ( BED_NUM_BITS_IN_CHAR / BED_BITS_PER_SNP )
-
-/**
- * Returns the SNP order encoded in
- * a byte.
- *
- * @param order SNP order encoded in a byte.
- *
- * @return ONE_LOCUS_PER_ROW if highest bit in order is set,
- *         ONE_SAMPLE_PER_ROW otherwise.
- */
-int
-get_snp_order(unsigned char order)
-{
-    if( order == BED_SNP_ORDER_BIT )
-    {
-        return BED_ONE_LOCUS_PER_ROW;
-    }
-    else if( order == 0 )
-    {
-        return BED_ONE_SAMPLE_PER_ROW;
-    }
-    else
-    {
-        return BED_ONE_SAMPLE_PER_ROW;
-    }
-}
-
-/**
- * Returns the file offset to the data for the 
- * given version.
- *
- * @param version Version of the bed file.
- *
- * @return File offset to the data section.
- */
-int
-get_data_offset(enum BedVersion version)
-{
-    if( version == PIO_VERSION_100 )
-    {
-        return 3;
-    }
-    else if( version == PIO_VERSION_099 )
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-/**
  * Parses the header of a bed file and sets the file pointer
  * to the beginning of the data section.
  *
@@ -120,34 +45,15 @@ get_data_offset(enum BedVersion version)
 pio_status_t
 parse_header(struct pio_bed_file_t *bed_file)
 {
-    unsigned char header[3];
-
-    if( fread( header, 1, 3, bed_file->fp ) != 3 )
+    unsigned char header[ BED_HEADER_MAX_SIZE ];
+    if( fread( header, 1, BED_HEADER_MAX_SIZE, bed_file->fp ) != BED_HEADER_MAX_SIZE )
     {
         return PIO_ERROR;
     }
     
-    if( header[ 0 ] == BED_V100_MAGIC1 && header[ 1 ] == BED_V100_MAGIC2 )
-    {
-        /* Version 1.00 */
-        bed_file->version = PIO_VERSION_100;
-        bed_file->snp_order = get_snp_order( header[ 2 ] );
+    bed_header_from_bytes( &bed_file->header, header );
 
-    }
-    else if( ( header[ 0 ] & ~BED_SNP_ORDER_BIT ) == 0 )
-    {
-        /* Version 0.99 (hopefully) */
-        bed_file->version = PIO_VERSION_099;
-        bed_file->snp_order = get_snp_order( header[ 1 ] );
-    }
-    else
-    {
-        /* Version < 0.99 */
-        bed_file->version = PIO_VERSION_PRE_099;
-        bed_file->snp_order = BED_ONE_SAMPLE_PER_ROW;
-    }
-
-    fseek( bed_file->fp,get_data_offset( bed_file->version ), SEEK_SET );
+    fseek( bed_file->fp, bed_header_data_offset( &bed_file->header ), SEEK_SET );
 
     return PIO_OK;
 }
@@ -200,16 +106,95 @@ unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, size_t num_c
 }
 
 /**
- * Returns the row size in bytes of a packed row.
+ * Transposes the given memory mapped file in place.
  *
- * @param num_cols The number of columns.
- *
- * @return the row size in bytes of a packed row.
+ * @param rows Rows of the file.
+ * @param num_rows The number of loci of the file to be transposed.
+ * @param num_cols The number of samples of the file to be transposed.
  */
-size_t
-get_packed_row_size(size_t num_cols)
+void
+transpose_rows(const unsigned char *rows, size_t num_rows, size_t num_cols, FILE *output_file)
 {
-    return ( num_cols * BED_BITS_PER_SNP + BED_NUM_BITS_IN_CHAR - 1 ) / BED_NUM_BITS_IN_CHAR;
+    int i, j;
+
+    int num_bytes_per_row = ( num_cols + 3 ) / 4;
+    int num_bytes_per_col = ( num_rows + 3 ) / 4;
+    unsigned char *row_buffer = (unsigned char *) malloc( num_bytes_per_col );
+    for(j = 0; j < num_cols; j++)
+    {
+        bzero( row_buffer, num_bytes_per_col );
+        for(i = 0; i < num_rows; i++)
+        {
+            /* Index in the byte array */
+            int from_index = i * num_bytes_per_row + j / 4;
+            int to_index   =   i / 4;
+
+            /* Index in the byte */
+            int from_shift = ( j % 4 ) * 2;
+            int to_shift = ( i % 4 ) * 2;
+
+            /* Values to swap */
+            int from_value = ( rows[ from_index ] >> from_shift ) & 0x3;
+            
+            row_buffer[ to_index ] |= ( from_value << to_shift );
+        }
+
+        fwrite( row_buffer, 1, num_bytes_per_col, output_file );
+    }
+
+    free( row_buffer );
+}
+
+/**
+ * Transposes the given memory mapped file.
+ *
+ * @param mapped_file A memory mapped file.
+ * @param num_loci The number of loci.
+ * @param num_samples The number of samples.
+ * @param output_path The transposed file will be stored here.
+ *
+ * @return Returns PIO_OK if the file could be transposed, PIO_ERROR otherwise.
+ */
+pio_status_t
+transpose_file(const unsigned char *mapped_file, size_t num_loci, size_t num_samples, const char *output_path)
+{
+    struct bed_header_t header = bed_header_init2( num_loci, num_samples, mapped_file );
+    size_t original_num_rows = bed_header_num_rows( &header );
+    size_t original_num_cols = bed_header_num_cols( &header );
+   
+    FILE *output_file = fopen( output_path, "w" );
+    if( output_file == NULL )
+    {
+        return PIO_ERROR;
+    }
+    
+    /* Clear size of file, otherwise we might have trailing bytes */
+    if( ftruncate( fileno( output_file ), 0 ) == - 1)
+    {
+        return PIO_ERROR;
+    }
+    
+    /* Transpose and write header */
+    unsigned char byte_header[ BED_HEADER_MAX_SIZE ];
+    int byte_header_length = 0;
+    bed_header_transpose( &header );
+    bed_header_to_bytes( &header, byte_header, &byte_header_length );
+    
+    if( fwrite( byte_header, sizeof( unsigned char ), byte_header_length, output_file ) != byte_header_length )
+    {
+        fclose( output_file );
+        return PIO_ERROR;
+    }
+    
+    /* Transpose data */
+    transpose_rows( mapped_file + bed_header_data_offset( &header ),
+                    original_num_rows,
+                    original_num_cols,
+                    output_file );
+
+    fclose( output_file );
+
+    return PIO_OK;
 }
 
 pio_status_t
@@ -223,23 +208,13 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, siz
     }
 
     bed_file->fp = bed_fp;
+    bed_file->header = bed_header_init( num_loci, num_samples );
     if( parse_header( bed_file ) != PIO_OK )
     {
         return PIO_ERROR;
     }
-    
-    if( bed_file->snp_order == BED_ONE_LOCUS_PER_ROW )
-    {
-        bed_file->num_cols = num_samples;
-        bed_file->num_rows = num_loci;
-    }
-    else
-    {
-        bed_file->num_cols = num_loci;
-        bed_file->num_rows = num_samples;
-    }
-
-    row_size_bytes = get_packed_row_size( bed_file->num_cols ); 
+ 
+    row_size_bytes = bed_header_row_size( &bed_file->header ); 
     bed_file->read_buffer = ( snp_t * ) malloc( row_size_bytes );
     bed_file->cur_row = 0;
 
@@ -252,23 +227,24 @@ bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer)
     size_t row_size_bytes;
     size_t bytes_read;
 
-    if( feof( bed_file->fp ) != 0 || bed_file->cur_row >= bed_file->num_rows )
+    if( feof( bed_file->fp ) != 0 || bed_file->cur_row >= bed_header_num_rows( &bed_file->header ) )
     {
         return PIO_END;
     }
 
-    row_size_bytes = get_packed_row_size( bed_file->num_cols );
+    row_size_bytes = bed_header_row_size( &bed_file->header );
     bytes_read = fread( bed_file->read_buffer, 
                         1,
                         row_size_bytes,
                         bed_file->fp );
+    assert( bytes_read == row_size_bytes );
 
     if( bytes_read != row_size_bytes )
     {
         return PIO_ERROR;
     }
 
-    unpack_snps( bed_file->read_buffer, buffer, bed_file->num_cols );
+    unpack_snps( bed_file->read_buffer, buffer, bed_header_num_cols( &bed_file->header ) );
     bed_file->cur_row++;
 
     return PIO_OK;
@@ -277,19 +253,25 @@ bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer)
 size_t
 bed_row_size(struct pio_bed_file_t *bed_file)
 {
-    return sizeof( snp_t ) * bed_file->num_cols;
+    return sizeof( snp_t ) * bed_header_num_cols( &bed_file->header );
+}
+
+size_t
+bed_num_snps_per_row(struct pio_bed_file_t *bed_file)
+{
+    return bed_header_num_cols( &bed_file->header );
 }
 
 enum SnpOrder
 bed_snp_order(struct pio_bed_file_t *bed_file)
 {
-    return bed_file->snp_order;
+    return bed_header_snp_order( &bed_file->header );
 }
 
 void
 bed_row_reset(struct pio_bed_file_t *bed_file)
 {
-    fseek( bed_file->fp, get_data_offset( bed_file->version ), SEEK_SET );
+    fseek( bed_file->fp, bed_header_data_offset( &bed_file->header ), SEEK_SET );
     bed_file->cur_row = 0;
 }
 
@@ -298,4 +280,42 @@ bed_close(struct pio_bed_file_t *bed_file)
 {
     free( bed_file->read_buffer );
     fclose( bed_file->fp );
+}
+
+pio_status_t
+bed_transpose(const char *original_path, const char *transposed_path, size_t num_loci, size_t num_samples)
+{
+    /* Open original for mmap */ 
+    int original_fd = open( original_path, O_RDONLY );
+    if( original_fd == -1 )
+    {
+        return PIO_ERROR;
+    }
+
+    struct stat file_stats;
+    if( fstat( original_fd, &file_stats ) == -1 )
+    {
+        return PIO_ERROR;
+    }
+   
+    void *mapped_file = mmap( NULL,
+                              file_stats.st_size,
+                              PROT_READ,
+                              MAP_FILE | MAP_PRIVATE,
+                              original_fd,
+                              0 );
+
+    if( mapped_file == MAP_FAILED )
+    {
+        return PIO_ERROR;
+    }
+
+    /* Transpose */
+    pio_status_t status = transpose_file( mapped_file, num_loci, num_samples, transposed_path );
+
+    /* Release alloacted resources */
+    munmap( mapped_file, file_stats.st_size );
+    close( original_fd );
+    
+    return status;
 }
