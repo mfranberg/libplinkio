@@ -35,9 +35,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = src
-DIST_COMMON = $(libplinkio_la_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+subdir = py-plinkio
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -69,17 +68,16 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)" \
-	"$(DESTDIR)$(libplinkio_ladir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
-libplinkio_la_LIBADD =
-am_libplinkio_la_OBJECTS = libplinkio_la-fam.lo libplinkio_la-bim.lo \
-	libplinkio_la-bed.lo libplinkio_la-plinkio.lo \
-	libplinkio_la-file.lo libplinkio_la-bed_header.lo
-libplinkio_la_OBJECTS = $(am_libplinkio_la_OBJECTS)
-libplinkio_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libplinkio_la_CFLAGS) \
-	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am__installdirs = "$(DESTDIR)$(pkgpythondir)" \
+	"$(DESTDIR)$(pkgpythondir)"
+LTLIBRARIES = $(pkgpython_LTLIBRARIES)
+cplinkio_la_DEPENDENCIES = ../src/libplinkio.la
+am_cplinkio_la_OBJECTS = cplinkio.lo
+cplinkio_la_OBJECTS = $(am_cplinkio_la_OBJECTS)
+cplinkio_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(cplinkio_la_LDFLAGS) $(LDFLAGS) -o $@
+SCRIPTS = $(pkgpython_SCRIPTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -93,9 +91,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libplinkio_la_SOURCES)
-DIST_SOURCES = $(libplinkio_la_SOURCES)
-HEADERS = $(libplinkio_la_HEADERS)
+SOURCES = $(cplinkio_la_SOURCES)
+DIST_SOURCES = $(cplinkio_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -208,8 +205,8 @@ mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
 pdfdir = @pdfdir@
-pkgpyexecdir = @pkgpyexecdir@
-pkgpythondir = @pkgpythondir@
+pkgpyexecdir = $(pyexecdir)/plinkio
+pkgpythondir = $(pythondir)/plinkio
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
@@ -224,12 +221,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-@GCC_TRUE@AM_CFLAGS = -Wall -strict -pendantic
-lib_LTLIBRARIES = libplinkio.la
-libplinkio_la_HEADERS = $(top_srcdir)/src/plinkio/*.h
-libplinkio_la_SOURCES = fam.c bim.c bed.c plinkio.c file.c bed_header.c
-libplinkio_ladir = $(includedir)/plinkio
-libplinkio_la_CFLAGS = -I$(top_srcdir)/src/plinkio
+AM_CFLAGS = $(PYTHON_INCLUDE) -I$(srcdir)/../src/plinkio -I$(srcdir)/../src/
+pkgpython_SCRIPTS = wrapper/__init__.py wrapper/plinkfile.py
+pkgpython_LTLIBRARIES = cplinkio.la
+cplinkio_la_SOURCES = cplinkio.c
+cplinkio_la_LIBADD = ../src/libplinkio.la
+cplinkio_la_LDFLAGS = -avoid-version -module
+EXTRA_DIST = wrapper/__init__.py wrapper/plinkfile.py
 all: all-am
 
 .SUFFIXES:
@@ -243,9 +241,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign py-plinkio/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/Makefile
+	  $(AUTOMAKE) --foreign py-plinkio/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -264,39 +262,73 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+install-pkgpythonLTLIBRARIES: $(pkgpython_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
-	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	test -z "$(pkgpythondir)" || $(MKDIR_P) "$(DESTDIR)$(pkgpythondir)"
+	@list='$(pkgpython_LTLIBRARIES)'; test -n "$(pkgpythondir)" || list=; \
 	list2=; for p in $$list; do \
 	  if test -f $$p; then \
 	    list2="$$list2 $$p"; \
 	  else :; fi; \
 	done; \
 	test -z "$$list2" || { \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(pkgpythondir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(pkgpythondir)"; \
 	}
 
-uninstall-libLTLIBRARIES:
+uninstall-pkgpythonLTLIBRARIES:
 	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	@list='$(pkgpython_LTLIBRARIES)'; test -n "$(pkgpythondir)" || list=; \
 	for p in $$list; do \
 	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pkgpythondir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pkgpythondir)/$$f"; \
 	done
 
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+clean-pkgpythonLTLIBRARIES:
+	-test -z "$(pkgpython_LTLIBRARIES)" || rm -f $(pkgpython_LTLIBRARIES)
+	@list='$(pkgpython_LTLIBRARIES)'; for p in $$list; do \
 	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
 	  test "$$dir" != "$$p" || dir=.; \
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libplinkio.la: $(libplinkio_la_OBJECTS) $(libplinkio_la_DEPENDENCIES) 
-	$(libplinkio_la_LINK) -rpath $(libdir) $(libplinkio_la_OBJECTS) $(libplinkio_la_LIBADD) $(LIBS)
+cplinkio.la: $(cplinkio_la_OBJECTS) $(cplinkio_la_DEPENDENCIES) 
+	$(cplinkio_la_LINK) -rpath $(pkgpythondir) $(cplinkio_la_OBJECTS) $(cplinkio_la_LIBADD) $(LIBS)
+install-pkgpythonSCRIPTS: $(pkgpython_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkgpythondir)" || $(MKDIR_P) "$(DESTDIR)$(pkgpythondir)"
+	@list='$(pkgpython_SCRIPTS)'; test -n "$(pkgpythondir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n' \
+	    -e 'h;s|.*|.|' \
+	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
+	      if (++n[d] == $(am__install_max)) { \
+		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
+	    else { print "f", d "/" $$4, $$1 } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	     test -z "$$files" || { \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(pkgpythondir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(pkgpythondir)$$dir" || exit $$?; \
+	     } \
+	; done
+
+uninstall-pkgpythonSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkgpython_SCRIPTS)'; test -n "$(pkgpythondir)" || exit 0; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	       sed -e 's,.*/,,;$(transform)'`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(pkgpythondir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(pkgpythondir)" && rm -f $$files
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -304,12 +336,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-bed.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-bed_header.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-bim.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-fam.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-file.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-plinkio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cplinkio.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -332,73 +359,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-libplinkio_la-fam.lo: fam.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-fam.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-fam.Tpo -c -o libplinkio_la-fam.lo `test -f 'fam.c' || echo '$(srcdir)/'`fam.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libplinkio_la-fam.Tpo $(DEPDIR)/libplinkio_la-fam.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='fam.c' object='libplinkio_la-fam.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-fam.lo `test -f 'fam.c' || echo '$(srcdir)/'`fam.c
-
-libplinkio_la-bim.lo: bim.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-bim.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-bim.Tpo -c -o libplinkio_la-bim.lo `test -f 'bim.c' || echo '$(srcdir)/'`bim.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libplinkio_la-bim.Tpo $(DEPDIR)/libplinkio_la-bim.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bim.c' object='libplinkio_la-bim.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-bim.lo `test -f 'bim.c' || echo '$(srcdir)/'`bim.c
-
-libplinkio_la-bed.lo: bed.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-bed.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-bed.Tpo -c -o libplinkio_la-bed.lo `test -f 'bed.c' || echo '$(srcdir)/'`bed.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libplinkio_la-bed.Tpo $(DEPDIR)/libplinkio_la-bed.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bed.c' object='libplinkio_la-bed.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-bed.lo `test -f 'bed.c' || echo '$(srcdir)/'`bed.c
-
-libplinkio_la-plinkio.lo: plinkio.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-plinkio.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-plinkio.Tpo -c -o libplinkio_la-plinkio.lo `test -f 'plinkio.c' || echo '$(srcdir)/'`plinkio.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libplinkio_la-plinkio.Tpo $(DEPDIR)/libplinkio_la-plinkio.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='plinkio.c' object='libplinkio_la-plinkio.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-plinkio.lo `test -f 'plinkio.c' || echo '$(srcdir)/'`plinkio.c
-
-libplinkio_la-file.lo: file.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-file.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-file.Tpo -c -o libplinkio_la-file.lo `test -f 'file.c' || echo '$(srcdir)/'`file.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libplinkio_la-file.Tpo $(DEPDIR)/libplinkio_la-file.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='file.c' object='libplinkio_la-file.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-file.lo `test -f 'file.c' || echo '$(srcdir)/'`file.c
-
-libplinkio_la-bed_header.lo: bed_header.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-bed_header.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-bed_header.Tpo -c -o libplinkio_la-bed_header.lo `test -f 'bed_header.c' || echo '$(srcdir)/'`bed_header.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libplinkio_la-bed_header.Tpo $(DEPDIR)/libplinkio_la-bed_header.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bed_header.c' object='libplinkio_la-bed_header.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-bed_header.lo `test -f 'bed_header.c' || echo '$(srcdir)/'`bed_header.c
-
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-libplinkio_laHEADERS: $(libplinkio_la_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(libplinkio_ladir)" || $(MKDIR_P) "$(DESTDIR)$(libplinkio_ladir)"
-	@list='$(libplinkio_la_HEADERS)'; test -n "$(libplinkio_ladir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libplinkio_ladir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libplinkio_ladir)" || exit $$?; \
-	done
-
-uninstall-libplinkio_laHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libplinkio_la_HEADERS)'; test -n "$(libplinkio_ladir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(libplinkio_ladir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(libplinkio_ladir)" && rm -f $$files
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -484,9 +449,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(SCRIPTS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libplinkio_ladir)"; do \
+	for dir in "$(DESTDIR)$(pkgpythondir)" "$(DESTDIR)$(pkgpythondir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -516,7 +481,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
+clean-am: clean-generic clean-libtool clean-pkgpythonLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -537,13 +502,13 @@ info: info-am
 
 info-am:
 
-install-data-am: install-libplinkio_laHEADERS
+install-data-am: install-pkgpythonLTLIBRARIES install-pkgpythonSCRIPTS
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am:
 
 install-html: install-html-am
 
@@ -583,25 +548,25 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES uninstall-libplinkio_laHEADERS
+uninstall-am: uninstall-pkgpythonLTLIBRARIES \
+	uninstall-pkgpythonSCRIPTS
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool ctags distclean \
+	clean-libtool clean-pkgpythonLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-libplinkio_laHEADERS \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-libLTLIBRARIES \
-	uninstall-libplinkio_laHEADERS
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-pkgpythonLTLIBRARIES \
+	install-pkgpythonSCRIPTS install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-pkgpythonLTLIBRARIES uninstall-pkgpythonSCRIPTS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

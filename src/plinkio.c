@@ -90,16 +90,16 @@ pio_num_loci(struct pio_file_t *plink_file)
     return bim_num_loci( &plink_file->bim_file );
 }
 
-void
-pio_reset_row(struct pio_file_t *plink_file)
-{
-    bed_row_reset( &plink_file->bed_file );
-}
-
 pio_status_t
 pio_next_row(struct pio_file_t *plink_file, snp_t *buffer)
 {
     return bed_read_row( &plink_file->bed_file, buffer ); 
+}
+
+void
+pio_reset_row(struct pio_file_t *plink_file)
+{
+    bed_reset_row( &plink_file->bed_file );
 }
 
 size_t

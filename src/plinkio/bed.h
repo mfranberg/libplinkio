@@ -106,7 +106,7 @@ enum SnpOrder bed_snp_order(struct pio_bed_file_t *bed_file);
  *
  * @param bed_file Bed file.
  */
-void bed_row_reset(struct pio_bed_file_t *bed_file);
+void bed_reset_row(struct pio_bed_file_t *bed_file);
 
 /**
  * Closes the bed file.

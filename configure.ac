@@ -15,6 +15,24 @@ AM_CONDITIONAL(GCC, test "$GCC" = yes)
 # Checks for libraries.
 LT_INIT
 
+# Python 
+AM_PATH_PYTHON([2.7])
+AC_ARG_VAR([PYTHON_INCLUDE], [Include flags for python, bypassing python-config])
+AC_ARG_VAR([PYTHON_CONFIG], [Path to python-config])
+AS_IF([test -z "$PYTHON_INCLUDE"], [
+    AS_IF([test -z "$PYTHON_CONFIG"], [
+        AC_PATH_PROGS([PYTHON_CONFIG],
+                      [python$PYTHON_VERSION-config python-config],
+                      [no],
+                      [`dirname $PYTHON`])
+        AS_IF([test "$PYTHON_CONFIG" = no], [AC_MSG_ERROR([cannot find python-config for $PYTHON.])])
+    ])
+    AC_MSG_CHECKING([python include flags])
+    PYTHON_INCLUDE=`$PYTHON_CONFIG --includes`
+    AC_MSG_RESULT([$PYTHON_INCLUDE])
+])
+
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stddef.h stdlib.h string.h endian.h machine/endian.h sys/endian.h])
@@ -42,7 +60,7 @@ if test "$WITH_TESTS" = "yes"; then
     AC_CONFIG_SUBDIRS([libs/cmockery])
 fi
 
-AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile py-plinkio/Makefile])
 
 AC_OUTPUT
 

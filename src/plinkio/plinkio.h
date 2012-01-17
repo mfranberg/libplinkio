@@ -103,7 +103,8 @@ size_t pio_num_loci(struct pio_file_t *plink_file);
 pio_status_t pio_next_row(struct pio_file_t *plink_file, snp_t *buffer);
 
 /**
- * Resets row reading to the first row.
+ * Moves to the beginning of the file, so that the next call
+ * of pio_next_row will return the first row.
  *
  * @param plink_file Plink file.
  */
