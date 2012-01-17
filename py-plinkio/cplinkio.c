@@ -224,8 +224,17 @@ plinkio_get_loci(PyObject *self, PyObject *args)
 
     c_plink_file = (cPlinkFile *) plink_file;
 
-    PyObject *module = PyImport_ImportModule( "plinkio" );
+    PyObject *module = PyImport_ImportModule( "plinkio.plinkfile" );
+    if( module == NULL )
+    {
+        return NULL;
+    }
+
     PyObject *locusClass = PyObject_GetAttrString( module, "Locus" );
+    if( locusClass == NULL )
+    {
+        return NULL;
+    }
 
     PyObject *loci_list = PyList_New( pio_num_loci( &c_plink_file->file ) );
     for(i = 0; i < pio_num_loci( &c_plink_file->file ); i++)
@@ -270,8 +279,17 @@ plinkio_get_samples(PyObject *self, PyObject *args)
 
     c_plink_file = (cPlinkFile *) plink_file;
 
-    PyObject *module = PyImport_ImportModule( "plinkio" );
+    PyObject *module = PyImport_ImportModule( "plinkio.plinkfile" );
+    if( module == NULL )
+    {
+        return NULL;
+    }
+
     PyObject *sampleClass = PyObject_GetAttrString( module, "Sample" );
+    if( sampleClass == NULL )
+    {
+        return NULL;
+    }
 
     PyObject *sample_list = PyList_New( pio_num_samples( &c_plink_file->file ) );
     for(i = 0; i < pio_num_samples( &c_plink_file->file ); i++)
