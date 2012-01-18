@@ -60,6 +60,12 @@ class PlinkFile:
         return row
 
     ##
+    # For python 3.x.
+    #
+    def __next__(self):
+        return self.next()
+
+    ##
     # Closes the file.
     #
     def close(self):
