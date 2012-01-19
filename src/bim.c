@@ -79,8 +79,8 @@ parse_locus(const char *data, struct pio_locus_t *locus)
                                 locus->name,
                                 &locus->position,
                                 &locus->bp_position,
-                                &locus->major,
-                                &locus->minor
+                                &locus->minor,
+                                &locus->major
                                 );
     locus->chromosome = (unsigned char) chromosome;
 
