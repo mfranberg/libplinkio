@@ -1,4 +1,4 @@
-This is a small C-library for reading PLINK (genotype) files. 
+This is a small C and Python library for reading Plink genotype files. 
 
 Currently it can:
 * Read and parse BED, BIM and FAM files.
@@ -16,4 +16,4 @@ Project rationales:
 * Focus only on IO-functionality.
 * Few external dependencies to make it easy to use.
 
-See wiki for information on how to install and use it.
+See bitbucket wiki for information on how to install and use it.
