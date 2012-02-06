@@ -1,13 +1,12 @@
 This is a small C-library for reading PLINK (genotype) files. 
 
-It will reach 1.0 when the following has been implemented:
-* Reading of the non-binary PED files.
-* Writing of BED files.
-* Support for all features in PLINKs various file formats.
-* Full support for windows.
+It will reach 1.0 when the following is implemented:
+* Reading PED files (i.e. non-binary bed-files).
+* Writing BED files.
+* Add a class that wraps python rows, to make the interface simpler.
 
-Project rationale:
-* Use C to make it simple to add bindings for other languages,
-  so that you can rapidly prototype new GWAS methods.
-* Focus on IO-functionality and speed.
+Project rationales:
+* Use C to make it as simple as possible to add bindings
+  for other languages.
+* Focus only on IO-functionality and speed.
 * Few external dependencies to make it easy to use.
