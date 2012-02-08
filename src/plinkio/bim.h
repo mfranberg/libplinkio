@@ -1,7 +1,7 @@
 #ifndef __BIM_H__
 #define __BIM_H__
 
-#include <status.h>
+#include "status.h"
 
 /**
  * Converts a preprocessor constant to a string.

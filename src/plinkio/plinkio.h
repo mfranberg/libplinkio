@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-#include <bed.h>
-#include <bim.h>
-#include <fam.h>
+#include "bed.h"
+#include "bim.h"
+#include "fam.h"
 
 /**
  * Abstract structure for all the files that
