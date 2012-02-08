@@ -80,11 +80,11 @@ parse_sample(const char *sample, struct pio_sample_t *person)
     long phenotype_int;
     double phenotype_float;
 
-    int num_read_fields = sscanf( sample, "%u %s %u %u %u %s",
-                                &person->fid,
+    int num_read_fields = sscanf( sample, "%s %s %s %s %u %s",
+                                person->fid,
                                 person->iid,
-                                &person->father_iid,
-                                &person->mother_iid,
+                                person->father_iid,
+                                person->mother_iid,
                                 &sex,
                                 phenotype_as_string );
 

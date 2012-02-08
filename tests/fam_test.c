@@ -40,7 +40,7 @@ mock_feof(FILE *stream)
 char *
 mock_fgets(char *s, int n, FILE *stream)
 {
-    const char *sample_list[NUM_SAMPLES] = { "0 P1 0 0 0 1", "0 P2 0 0 0 1" };
+    const char *sample_list[NUM_SAMPLES] = { "F1 P1 0 0 0 1", "F1 P2 0 0 0 1" };
 
     if( g_sample_index < NUM_SAMPLES )
     {
@@ -60,14 +60,14 @@ mock_fgets(char *s, int n, FILE *stream)
 void
 test_parse_sample(void **state)
 {
-    const char *TEST_STRING = "1 P1 0 0 1 1";
+    const char *TEST_STRING = "F1 P1 0 0 1 1";
     
     struct pio_sample_t person;
     assert_int_equal( parse_sample( TEST_STRING, &person ), PIO_OK );
-    assert_int_equal( person.fid, 1 ); 
+    assert_string_equal( person.fid, "F1" );
     assert_string_equal( person.iid, "P1" );
-    assert_int_equal( person.father_iid, 0 );
-    assert_int_equal( person.mother_iid, 0 );
+    assert_string_equal( person.father_iid, "0" );
+    assert_string_equal( person.mother_iid, "0" );
     assert_int_equal( person.sex, PIO_MALE );
     assert_int_equal( person.affection, PIO_CONTROL );
 }
@@ -78,14 +78,14 @@ test_parse_sample(void **state)
  */
 void test_parse_sample_double(void **state)
 {
-    const char *TEST_STRING = "1 P1 0 0 1 4.5";
+    const char *TEST_STRING = "F1 P1 0 0 1 4.5";
     
     struct pio_sample_t person;
     assert_int_equal( parse_sample( TEST_STRING, &person ), PIO_OK );
-    assert_int_equal( person.fid, 1 ); 
+    assert_string_equal( person.fid, "F1" );
     assert_string_equal( person.iid, "P1" );
-    assert_int_equal( person.father_iid, 0 );
-    assert_int_equal( person.mother_iid, 0 );
+    assert_string_equal( person.father_iid, "0" );
+    assert_string_equal( person.mother_iid, "0" );
     assert_int_equal( person.sex, PIO_MALE );
     assert_int_equal( person.affection, PIO_CONTINUOUS );
     assert_true( fabs( person.phenotype - 4.5 ) <= 1e-6 );
@@ -96,7 +96,7 @@ void test_parse_sample_double(void **state)
  */
 void test_parse_sample_fail(void **state)
 {
-    const char *TEST_STRING = "1 P1 0 0 1";
+    const char *TEST_STRING = "F1 P1 0 0 1";
     
     struct pio_sample_t person;
     assert_int_equal( parse_sample( TEST_STRING, &person ), PIO_ERROR );
@@ -115,18 +115,18 @@ test_parse_multiple_samples(void **state)
     assert_int_equal( fam_file.num_samples, NUM_SAMPLES );
 
     person = fam_file.sample[0];
-    assert_int_equal( person.fid, 0 ); 
+    assert_string_equal( person.fid, "F1" );
     assert_string_equal( person.iid, "P1" );
-    assert_int_equal( person.father_iid, 0 );
-    assert_int_equal( person.mother_iid, 0 );
+    assert_string_equal( person.father_iid, "0" );
+    assert_string_equal( person.mother_iid, "0" );
     assert_int_equal( person.sex, PIO_FEMALE );
     assert_int_equal( person.affection, PIO_CONTROL );
 
     person = fam_file.sample[1];
-    assert_int_equal( person.fid, 0 ); 
+    assert_string_equal( person.fid, "F1" );
     assert_string_equal( person.iid, "P2" );
-    assert_int_equal( person.father_iid, 0 );
-    assert_int_equal( person.mother_iid, 0 );
+    assert_string_equal( person.father_iid, "0" );
+    assert_string_equal( person.mother_iid, "0" );
     assert_int_equal( person.sex, PIO_FEMALE );
     assert_int_equal( person.affection, PIO_CONTROL );
 }

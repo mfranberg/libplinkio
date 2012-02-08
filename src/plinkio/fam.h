@@ -5,6 +5,10 @@
 
 #include "status.h"
 
+/**
+ * Max lengths for FIDs and IIDs.
+ */
+#define FAM_FID_MAX_LENGTH 11
 #define FAM_IID_MAX_LENGTH 11
 
 /**
@@ -40,7 +44,7 @@ struct pio_sample_t
     /**
      * Family identifier.
      */
-    unsigned int fid;
+    char fid[FAM_FID_MAX_LENGTH];
 
     /**
      * Plink individual identifier.
@@ -50,12 +54,12 @@ struct pio_sample_t
     /**
      * Plink individual identifier of father, 0 if none.
      */
-    unsigned int father_iid;
+    char father_iid[FAM_IID_MAX_LENGTH];
 
     /**
      * Plink individual identifier of mother, 0 if none.
      */
-    unsigned int mother_iid;
+    char mother_iid[FAM_IID_MAX_LENGTH];
 
     /**
      * The sex of the individual.

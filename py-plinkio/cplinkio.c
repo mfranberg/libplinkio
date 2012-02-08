@@ -296,7 +296,7 @@ plinkio_get_samples(PyObject *self, PyObject *args)
     {
         struct pio_sample_t *sample = pio_get_sample( &c_plink_file->file, i );
 
-        PyObject *args = Py_BuildValue( "IsIIiif",
+        PyObject *args = Py_BuildValue( "ssssiif",
                                         sample->fid,
                                         sample->iid,
                                         sample->father_iid,
