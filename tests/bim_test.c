@@ -68,8 +68,8 @@ test_parse_locus(void **state)
     assert_string_equal( locus.name, "rs1" );
     assert_int_equal( locus.position, 0 );
     assert_int_equal( locus.bp_position, 1234567 );
-    assert_int_equal( locus.major, 'A' );
-    assert_int_equal( locus.minor, 'C' );
+    assert_int_equal( locus.major, 'C' );
+    assert_int_equal( locus.minor, 'A' );
 }
 
 /**
@@ -100,16 +100,16 @@ test_parse_multiple_loci(void **state)
     assert_string_equal( locus.name, "rs1" );
     assert_int_equal( locus.position, 0 );
     assert_int_equal( locus.bp_position, 1234567 );
-    assert_int_equal( locus.major, 'A' );
-    assert_int_equal( locus.minor, 'C' );
+    assert_int_equal( locus.major, 'C' );
+    assert_int_equal( locus.minor, 'A' );
 
     locus = bim_file.locus[1];
     assert_int_equal( locus.chromosome, 1 ); 
     assert_string_equal( locus.name, "rs2" );
     assert_int_equal( locus.position, 0 );
     assert_int_equal( locus.bp_position, 7654321 );
-    assert_int_equal( locus.major, 'G' );
-    assert_int_equal( locus.minor, 'T' );
+    assert_int_equal( locus.major, 'T' );
+    assert_int_equal( locus.minor, 'G' );
 }
 
 int main(int argc, char* argv[])
