@@ -24,12 +24,6 @@ class PlinkFile:
         return self
 
     ##
-    # Clean-up.
-    #
-    def __del__(self):
-        self.close( )
-
-    ##
     # Returns a list of the samples.
     #
     def get_samples(self):
@@ -63,7 +57,7 @@ class PlinkFile:
     # For python 3.x.
     #
     def __next__(self):
-        return self.next()
+        return self.next( )
 
     ##
     # Closes the file.

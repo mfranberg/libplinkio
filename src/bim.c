@@ -205,6 +205,11 @@ bim_num_loci(struct pio_bim_file_t *bim_file)
 void
 bim_close(struct pio_bim_file_t *bim_file)
 {
+    if( bim_file->locus == NULL )
+    {
+        return;
+    }
+
     free( bim_file->locus );
     bim_file->locus = NULL;
     bim_file->num_loci = 0;

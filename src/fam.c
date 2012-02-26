@@ -214,6 +214,11 @@ fam_num_samples(struct pio_fam_file_t *fam_file)
 void
 fam_close(struct pio_fam_file_t *fam_file)
 {
+    if( fam_file->sample == NULL )
+    {
+        return;
+    }
+
     free( fam_file->sample );
     fam_file->sample = NULL;
     fam_file->num_samples = 0;

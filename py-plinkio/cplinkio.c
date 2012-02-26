@@ -2,6 +2,8 @@
 
 #include <plinkio/plinkio.h>
 
+#include "snparray.h"
+
 /**
  * Wrapper object for a plink file. In python it will
  * act as a handle to the file.
@@ -24,19 +26,39 @@ typedef struct
      * Length of the row.
      */
     size_t row_length;
-} cPlinkFile;
+} c_plink_file_t;
+
+/**
+ * Deallocates a Python CPlinkFile object.
+ * 
+ * @param self Pointer to a c_plink_file_t.
+ */
+void
+cplinkfile_dealloc(c_plink_file_t *self)
+{
+    if( self->row != NULL )
+    {
+        pio_close( &self->file );
+        free( self->row );
+        self->row_length = 0;
+        self->ob_type->tp_free( ( PyObject * ) self );
+
+        printf( "DEL!\n" );
+    }
+}
 
 #if PY_MAJOR_VERSION >= 3
 
 /**
  * Python type of the above.
  */
-static PyTypeObject cPlinkFileType = {
+static PyTypeObject c_plink_file_prototype =
+{
     PyVarObject_HEAD_INIT( NULL, 0 )
-    "plinkio.cPlinkFile",       /* tp_name */
-    sizeof( cPlinkFile ),       /* tp_basicsize */
+    "plinkio.CPlinkFile",       /* tp_name */
+    sizeof( c_plink_file_t ),       /* tp_basicsize */
     0,                          /* tp_itemsize */
-    0,                          /* tp_dealloc */
+    (destructor) cplinkfile_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
@@ -60,13 +82,14 @@ static PyTypeObject cPlinkFileType = {
 /**
  * Python type of the above.
  */
-static PyTypeObject cPlinkFileType = {
+static PyTypeObject c_plink_file_prototype =
+{
     PyObject_HEAD_INIT( NULL )
     0,
-    "plinkio.cPlinkFile",       /* tp_name */
-    sizeof( cPlinkFile ),       /* tp_basicsize */
+    "plinkio.CPlinkFile",       /* tp_name */
+    sizeof( c_plink_file_t ),       /* tp_basicsize */
     0,                          /* tp_itemsize */
-    0,                          /* tp_dealloc */
+    (destructor) cplinkfile_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
@@ -100,7 +123,7 @@ plinkio_open(PyObject *self, PyObject *args)
 {
     const char *path;
     struct pio_file_t plink_file = { 0 };
-    cPlinkFile *c_plink_file;
+    c_plink_file_t *c_plink_file;
     
     if( !PyArg_ParseTuple( args, "s", &path ) )
     {
@@ -113,7 +136,7 @@ plinkio_open(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    c_plink_file = (cPlinkFile *) cPlinkFileType.tp_alloc( &cPlinkFileType, 0 );
+    c_plink_file = (c_plink_file_t *) c_plink_file_prototype.tp_alloc( &c_plink_file_prototype, 0 );
     c_plink_file->file = plink_file;
     c_plink_file->row  = (snp_t *) malloc( pio_row_size( &plink_file ) );
     c_plink_file->row_length = pio_num_samples( &plink_file );
@@ -141,15 +164,15 @@ static PyObject *
 plinkio_next_row(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
-    cPlinkFile *c_plink_file;
+    c_plink_file_t *c_plink_file;
     int i;
     
-    if( !PyArg_ParseTuple( args, "O!", &cPlinkFileType, &plink_file ) )
+    if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
         return NULL;
     }
 
-    c_plink_file = (cPlinkFile *) plink_file;
+    c_plink_file = (c_plink_file_t *) plink_file;
     snp_t *row = c_plink_file->row;
     int status = pio_next_row( &c_plink_file->file, row );
     if( status == PIO_END )
@@ -162,18 +185,7 @@ plinkio_next_row(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    PyObject *row_list = PyList_New( c_plink_file->row_length );
-    for(i = 0; i < c_plink_file->row_length; i++)
-    {
-#if PY_MAJOR_VERSION >= 3
-        PyObject *snp = PyLong_FromLong( (long) row[ i ] );
-#else
-        PyObject *snp = PyInt_FromLong( (long) row[ i ] );
-#endif
-        PyList_SetItem( row_list, i, snp );
-    }
-
-    return row_list;
+    return (PyObject *) snparray_from_array( &py_snp_array_prototype, row, c_plink_file->row_length );
 }
 
 /**
@@ -187,14 +199,14 @@ static PyObject *
 plinkio_reset_row(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
-    cPlinkFile *c_plink_file;
+    c_plink_file_t *c_plink_file;
     
-    if( !PyArg_ParseTuple( args, "O!", &cPlinkFileType, &plink_file ) )
+    if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
         return NULL;
     }
 
-    c_plink_file = (cPlinkFile *) plink_file;
+    c_plink_file = (c_plink_file_t *) plink_file;
     
     pio_reset_row( &c_plink_file->file );
     
@@ -214,15 +226,15 @@ static PyObject *
 plinkio_get_loci(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
-    cPlinkFile *c_plink_file;
+    c_plink_file_t *c_plink_file;
     int i;
     
-    if( !PyArg_ParseTuple( args, "O!", &cPlinkFileType, &plink_file ) )
+    if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
         return NULL;
     }
 
-    c_plink_file = (cPlinkFile *) plink_file;
+    c_plink_file = (c_plink_file_t *) plink_file;
 
     PyObject *module = PyImport_ImportModule( "plinkio.plinkfile" );
     if( module == NULL )
@@ -269,15 +281,15 @@ static PyObject *
 plinkio_get_samples(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
-    cPlinkFile *c_plink_file;
+    c_plink_file_t *c_plink_file;
     int i;
     
-    if( !PyArg_ParseTuple( args, "O!", &cPlinkFileType, &plink_file ) )
+    if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
         return NULL;
     }
 
-    c_plink_file = (cPlinkFile *) plink_file;
+    c_plink_file = (c_plink_file_t *) plink_file;
 
     PyObject *module = PyImport_ImportModule( "plinkio.plinkfile" );
     if( module == NULL )
@@ -324,14 +336,14 @@ static PyObject *
 plinkio_one_locus_per_row(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
-    cPlinkFile *c_plink_file;
+    c_plink_file_t *c_plink_file;
     
-    if( !PyArg_ParseTuple( args, "O!", &cPlinkFileType, &plink_file ) )
+    if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
         return NULL;
     }
 
-    c_plink_file = (cPlinkFile *) plink_file;
+    c_plink_file = (c_plink_file_t *) plink_file;
  
     return PyBool_FromLong( (long) pio_one_locus_per_row( &c_plink_file->file ) );
 }
@@ -348,23 +360,22 @@ static PyObject *
 plinkio_close(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
-    cPlinkFile *c_plink_file;
+    c_plink_file_t *c_plink_file;
     
-    if( !PyArg_ParseTuple( args, "O!", &cPlinkFileType, &plink_file ) )
+    if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
         return NULL;
     }
 
-    c_plink_file = (cPlinkFile *) plink_file;
+    c_plink_file = (c_plink_file_t *) plink_file;
 
     pio_close( &c_plink_file->file );
-    free( c_plink_file->row );
-    bzero( &c_plink_file->file, sizeof( c_plink_file->file ) );
     
     Py_RETURN_NONE;    
 }
 
-static PyMethodDef plinkio_methods[] = {
+static PyMethodDef plinkio_methods[] =
+{
     { "open", plinkio_open, METH_VARARGS, "Opens a plink file." },
     { "next_row", plinkio_next_row, METH_VARARGS, "Reads the next row of a plink file." },
     { "reset_row", plinkio_reset_row, METH_VARARGS, "Resets reading of the plink file to the first row." },
@@ -398,10 +409,16 @@ PyInit_cplinkio(void)
 {
     PyObject *module;
 
-    cPlinkFileType.tp_new = PyType_GenericNew;
-    if( PyType_Ready( &cPlinkFileType ) < 0 )
+    c_plink_file_prototype.tp_new = PyType_GenericNew;
+    if( PyType_Ready( &c_plink_file_prototype ) < 0 )
     {
         return NULL;
+    }
+
+    py_snp_array_prototype.tp_new = PyType_GenericNew;
+    if( PyType_Ready( &py_snp_array_prototype ) < 0 )
+    {
+        return;
     }
 
     module = PyModule_Create( &moduledef );
@@ -410,8 +427,11 @@ PyInit_cplinkio(void)
         return NULL;
     }
 
-    Py_INCREF( &cPlinkFileType );
-    PyModule_AddObject( module, "cPlinkFile", (PyObject *) &cPlinkFileType );
+    Py_INCREF( &c_plink_file_prototype );
+    PyModule_AddObject( module, "CPlinkFile", (PyObject *) &c_plink_file_prototype );
+
+    Py_INCREF( &py_snp_array_prototype );
+    PyModule_AddObject( m, "SnpArray", (PyObject *) &py_snp_array_prototype );
 
     return module;
 }
@@ -423,16 +443,25 @@ initcplinkio(void)
 {
     PyObject *m;
 
-    cPlinkFileType.tp_new = PyType_GenericNew;
-    if( PyType_Ready( &cPlinkFileType ) < 0 )
+    c_plink_file_prototype.tp_new = PyType_GenericNew;
+    if( PyType_Ready( &c_plink_file_prototype ) < 0 )
+    {
+        return;
+    }
+
+    py_snp_array_prototype.tp_new = PyType_GenericNew;
+    if( PyType_Ready( &py_snp_array_prototype ) < 0 )
     {
         return;
     }
 
     m = Py_InitModule3( "cplinkio", plinkio_methods, "Wrapper module for the libplinkio c functions." );
 
-    Py_INCREF( &cPlinkFileType );
-    PyModule_AddObject( m, "cPlinkFile", (PyObject *) &cPlinkFileType );
+    Py_INCREF( &c_plink_file_prototype );
+    PyModule_AddObject( m, "CPlinkFile", (PyObject *) &c_plink_file_prototype );
+
+    Py_INCREF( &py_snp_array_prototype );
+    PyModule_AddObject( m, "SnpArray", (PyObject *) &py_snp_array_prototype );
 }
 
 #endif

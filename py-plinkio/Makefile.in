@@ -72,7 +72,7 @@ am__installdirs = "$(DESTDIR)$(pkgpythondir)" \
 	"$(DESTDIR)$(pkgpythondir)"
 LTLIBRARIES = $(pkgpython_LTLIBRARIES)
 cplinkio_la_DEPENDENCIES = ../src/libplinkio.la
-am_cplinkio_la_OBJECTS = cplinkio.lo
+am_cplinkio_la_OBJECTS = cplinkio.lo snparray.lo
 cplinkio_la_OBJECTS = $(am_cplinkio_la_OBJECTS)
 cplinkio_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -224,7 +224,7 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = $(PYTHON_INCLUDE) -I$(srcdir)/../src/plinkio -I$(srcdir)/../src/
 pkgpython_SCRIPTS = wrapper/__init__.py wrapper/plinkfile.py
 pkgpython_LTLIBRARIES = cplinkio.la
-cplinkio_la_SOURCES = cplinkio.c
+cplinkio_la_SOURCES = cplinkio.c snparray.c
 cplinkio_la_LIBADD = ../src/libplinkio.la
 cplinkio_la_LDFLAGS = -avoid-version -module
 EXTRA_DIST = wrapper/__init__.py wrapper/plinkfile.py
@@ -337,6 +337,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cplinkio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/snparray.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

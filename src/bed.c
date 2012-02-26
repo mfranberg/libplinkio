@@ -278,8 +278,15 @@ bed_reset_row(struct pio_bed_file_t *bed_file)
 void
 bed_close(struct pio_bed_file_t *bed_file)
 {
-    free( bed_file->read_buffer );
+    if( bed_file->fp == NULL )
+    {
+        return;
+    }
+
     fclose( bed_file->fp );
+    free( bed_file->read_buffer );
+    bed_file->fp = NULL;
+    bed_file->read_buffer = NULL;
 }
 
 pio_status_t

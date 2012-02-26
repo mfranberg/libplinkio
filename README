@@ -7,8 +7,6 @@ Currently it can:
 Libplinkio will reach 1.0 when it can:
 * Read PED files (i.e. non-binary bed-files).
 * Write BED, BIM and FAM files.
-* Reading SNPs from Python is almost as fast as directly
-  from C (requires using something like array instead of lists).
 
 Project rationales:
 * Use C to make it as simple as possible to add bindings
