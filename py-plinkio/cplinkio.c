@@ -42,8 +42,6 @@ cplinkfile_dealloc(c_plink_file_t *self)
         free( self->row );
         self->row_length = 0;
         self->ob_type->tp_free( ( PyObject * ) self );
-
-        printf( "DEL!\n" );
     }
 }
 
