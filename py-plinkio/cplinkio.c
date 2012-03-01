@@ -41,7 +41,7 @@ cplinkfile_dealloc(c_plink_file_t *self)
         pio_close( &self->file );
         free( self->row );
         self->row_length = 0;
-        self->ob_type->tp_free( ( PyObject * ) self );
+        Py_TYPE( self )->tp_free( ( PyObject * ) self );
     }
 }
 
@@ -429,7 +429,7 @@ PyInit_cplinkio(void)
     PyModule_AddObject( module, "CPlinkFile", (PyObject *) &c_plink_file_prototype );
 
     Py_INCREF( &py_snp_array_prototype );
-    PyModule_AddObject( m, "SnpArray", (PyObject *) &py_snp_array_prototype );
+    PyModule_AddObject( module, "SnpArray", (PyObject *) &py_snp_array_prototype );
 
     return module;
 }

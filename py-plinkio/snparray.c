@@ -24,7 +24,7 @@ snparray_dealloc(snp_array_t *self)
     {
         free( self->array );
         self->length = 0;
-        self->ob_type->tp_free( ( PyObject * ) self );
+        Py_TYPE( self )->tp_free( ( PyObject * ) self );
     }
 }
 
@@ -59,7 +59,7 @@ snparray_str(PyObject *self)
     *string_p++ = ']';
     *string_p++ = '\0';
 
-    PyObject *py_string = PyString_FromString( as_string );
+    PyObject *py_string = PyUnicode_FromString( as_string );
     free( as_string );
 
     return py_string;
