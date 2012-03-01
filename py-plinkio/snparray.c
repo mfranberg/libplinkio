@@ -123,7 +123,7 @@ snparray_contains(PyObject *self, PyObject *value)
     snp_array_t *snp_array = (snp_array_t *) self;
     int i;
 
-    long value_as_long = PyInt_AsLong( value );
+    long value_as_long = PyLong_AsLong( value );
     if( value_as_long == -1 )
     {
         return 0;

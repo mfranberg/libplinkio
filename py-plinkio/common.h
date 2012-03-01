@@ -7,7 +7,8 @@
  * Common integer conversion for python 3 and 2.x.
  */
 #if PY_MAJOR_VERSION < 3
-    #define PyLong_FromLong(x) ( (long) PyInt_FromLong( ( x ) ) )
+    #define PyLong_FromLong(x) ( (PyObject *) PyInt_FromLong( (long) ( x ) ) )
+    #define PyLong_AsLong(x) ( (long) PyInt_AsLong( ( x ) ) )
 #endif
 
 #endif
