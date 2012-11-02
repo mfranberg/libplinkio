@@ -372,6 +372,29 @@ plinkio_close(PyObject *self, PyObject *args)
     Py_RETURN_NONE;    
 }
 
+/**
+ * Transposes the given plink file.
+ *
+ * @param self -
+ * @param args First argument is a path to the plink file to transpose, and
+ *             the second argument is the path to the transposed plink file.
+ *
+ * @return True if the file could be transposed, false otherwise.
+ */
+static PyObject *
+plinkio_transpose(PyObject *self, PyObject *args)
+{
+    const char *old_path;
+    const char *new_path;
+    
+    if( !PyArg_ParseTuple( args, "ss", &old_path, &new_path ) )
+    {
+        return NULL;
+    }
+     
+    return PyBool_FromLong( (long) ( pio_transpose( old_path, new_path ) == PIO_OK ) );
+}
+
 static PyMethodDef plinkio_methods[] =
 {
     { "open", plinkio_open, METH_VARARGS, "Opens a plink file." },
@@ -381,6 +404,7 @@ static PyMethodDef plinkio_methods[] =
     { "get_samples", plinkio_get_samples, METH_VARARGS, "Returns the list of samples." },
     { "one_locus_per_row", plinkio_one_locus_per_row, METH_VARARGS, "Returns true if a row contains the snps for a single locus." },
     { "close", plinkio_close, METH_VARARGS, "Close a plink file." },
+    { "transpose", plinkio_transpose, METH_VARARGS, "Transposes the plink file." },
     { NULL }
 };
 

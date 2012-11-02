@@ -15,6 +15,14 @@ class TestPlinkIo(unittest.TestCase):
         self.assertNotEqual( pf, None );
 
     ##
+    # Make sure that the path is correct.
+    #
+    def test_get_path(self):
+        path = "./data/wgas"
+        pf = plinkfile.open( path )
+        self.assertEqual( path, pf.get_path( ) )
+
+    ##
     # Make sure open throws IOError when
     # an invalid path is specified.
     #

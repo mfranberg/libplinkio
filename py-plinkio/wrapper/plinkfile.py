@@ -10,6 +10,7 @@ class PlinkFile:
     #             /plink/myfile
     #
     def __init__(self, path):
+        self.path = path
         self.handle = cplinkio.open( path )
         self.loci = cplinkio.get_loci( self.handle )
         self.samples = cplinkio.get_samples( self.handle )
@@ -22,6 +23,13 @@ class PlinkFile:
         cplinkio.reset_row( self.handle )
 
         return self
+
+    ##
+    # Returns the prefix path to the plink file, e.g.
+    # without .bim, .bed or .fam.
+    #
+    def get_path(self):
+        return self.path
 
     ##
     # Returns a list of the samples.
@@ -66,6 +74,12 @@ class PlinkFile:
         if self.handle:
             cplinkio.close( self.handle )
             self.handle = None
+
+    ##
+    # Transposes the file.
+    #
+    def transpose(self, new_path):
+        return cplinkio.transpose( self.path, new_path )
 
 class Sample:
     def __init__(self, fid, iid, father_iid, mother_iid, sex, affection, phenotype = 0.0):
