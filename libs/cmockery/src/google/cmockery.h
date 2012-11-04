@@ -235,12 +235,14 @@
 
 // Dynamic allocators
 #define test_malloc(size) _test_malloc(size, __FILE__, __LINE__)
+#define test_realloc(ptr,size) _test_realloc(ptr, size, __FILE__, __LINE__)
 #define test_calloc(num, size) _test_calloc(num, size, __FILE__, __LINE__)
 #define test_free(ptr) _test_free(ptr, __FILE__, __LINE__)
 
 // Redirect malloc, calloc and free to the unit test allocators.
 #if UNIT_TESTING
 #define malloc test_malloc
+#define realloc test_realloc
 #define calloc test_calloc
 #define free test_free
 #endif // UNIT_TESTING
@@ -415,6 +417,7 @@ void _assert_not_in_set(const void * const value, const void *values[],
                         const int line);
 
 void* _test_malloc(const size_t size, const char* file, const int line);
+void* _test_realloc(void *prev_ptr, const size_t size, const char* file, const int line);
 void* _test_calloc(const size_t number_of_elements, const size_t size, 
                    const char* file, const int line);
 void _test_free(void* const ptr, const char* file, const int line);

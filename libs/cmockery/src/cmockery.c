@@ -1285,6 +1285,49 @@ void* _test_malloc(const size_t size, const char* file, const int line) {
 }
 #define malloc test_malloc
 
+// Use the real realloc in this function.
+#undef realloc
+void* _test_realloc(void *prev_ptr, const size_t size, const char* file, const int line) {
+	char* ptr;
+	MallocBlockInfo *block_info;
+    ListNode * const block_list = get_allocated_blocks_list();
+	const size_t allocate_size = size + (MALLOC_GUARD_SIZE * 2) + 
+	    sizeof(*block_info) + MALLOC_ALIGNMENT;
+    char* block;
+
+    if( prev_ptr != NULL )
+    {
+	    block_info = (MallocBlockInfo*)(((char *)prev_ptr) - (MALLOC_GUARD_SIZE + sizeof(*block_info)));
+	    block = (char*)realloc(prev_ptr,allocate_size);
+	    assert_true(block);
+	    list_remove(&block_info->node, NULL, NULL);
+    }
+    else
+    {
+	    block = (char*)realloc(prev_ptr,allocate_size);
+	    assert_true(block);
+    }
+
+	// Calculate the returned address.
+	ptr = (char*)(((size_t)block + MALLOC_GUARD_SIZE + sizeof(*block_info) +
+	              MALLOC_ALIGNMENT) & ~(MALLOC_ALIGNMENT - 1));
+
+	// Initialize the guard blocks.
+	memset(ptr - MALLOC_GUARD_SIZE, MALLOC_GUARD_PATTERN, MALLOC_GUARD_SIZE);
+	memset(ptr + size, MALLOC_GUARD_PATTERN, MALLOC_GUARD_SIZE);
+	memset(ptr, MALLOC_ALLOC_PATTERN, size);
+
+	block_info = (MallocBlockInfo*)(ptr - (MALLOC_GUARD_SIZE +
+	                                         sizeof(*block_info)));
+	set_source_location(&block_info->location, file, line);
+	block_info->allocated_size = allocate_size;
+	block_info->size = size;
+	block_info->block = block;
+	block_info->node.value = block_info;
+	list_add(block_list, &block_info->node);
+	return ptr;
+}
+#define realloc test_realloc
 
 void* _test_calloc(const size_t number_of_elements, const size_t size, 
                    const char* file, const int line) {
