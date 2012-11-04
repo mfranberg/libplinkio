@@ -65,7 +65,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src libs/cmockery/ tests py-plinkio
+DIST_SUBDIRS = libs/libcsv/ src libs/cmockery/ tests py-plinkio
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -229,7 +229,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 @WITH_TESTS_TRUE@TEST_DIRS = libs/cmockery/ tests
-SUBDIRS = src $(TEST_DIRS) py-plinkio
+SUBDIRS = libs/libcsv/ src $(TEST_DIRS) py-plinkio
 all: all-recursive
 
 .SUFFIXES:

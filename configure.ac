@@ -60,7 +60,7 @@ if test "$WITH_TESTS" = "yes"; then
     AC_CONFIG_SUBDIRS([libs/cmockery])
 fi
 
-AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile py-plinkio/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile libs/libcsv/Makefile tests/Makefile py-plinkio/Makefile])
 
 AC_OUTPUT
 
