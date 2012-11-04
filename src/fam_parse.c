@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -179,7 +178,7 @@ parse_phenotype(const char *field, size_t length, struct pio_sample_t *sample, p
     }
 
     phenotype_float = strtod( field, &endptr );
-    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
+    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
         sample->phenotype = (float) phenotype_float;
         sample->affection = PIO_CONTINUOUS;

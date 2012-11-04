@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -107,7 +106,7 @@ parse_chr(const char *field, size_t length, pio_status_t *status)
 {
     char *endptr;
     unsigned char chr = (unsigned char) strtol( field, &endptr, 10 );
-    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
+    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
         *status = PIO_OK;
         return chr;
@@ -132,7 +131,7 @@ parse_genetic_position(const char *field, size_t length, pio_status_t *status)
 {
     char *endptr;
     float position = (float) strtod( field, &endptr );
-    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
+    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
         *status = PIO_OK;
         return position;
@@ -156,8 +155,8 @@ static long long
 parse_bp_position(const char *field, size_t length, pio_status_t *status)
 {
     char *endptr;
-    long long int position= strtoll( field, &endptr, 10 );
-    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
+    long long int position = strtoll( field, &endptr, 10 );
+    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
     {
         *status = PIO_OK;
         return position;
@@ -218,7 +217,7 @@ new_field(void *field, unsigned long int field_length, void *data)
             status = PIO_ERROR;
             break;
     }
-
+    
     free( buffer );
 
     if( status == PIO_OK )
