@@ -3,13 +3,8 @@
 
 #include <stdio.h>
 
-#include "status.h"
-
-/**
- * Max lengths for FIDs and IIDs.
- */
-#define FAM_FID_MAX_LENGTH 11
-#define FAM_IID_MAX_LENGTH 11
+#include <utarray.h>
+#include <status.h>
 
 /**
  * Sex of a sample.
@@ -17,7 +12,8 @@
 enum sex_t
 {
     PIO_MALE,
-    PIO_FEMALE
+    PIO_FEMALE,
+    PIO_UNKOWN
 };
 
 /**
@@ -44,22 +40,22 @@ struct pio_sample_t
     /**
      * Family identifier.
      */
-    char fid[FAM_FID_MAX_LENGTH];
+    char *fid;
 
     /**
      * Plink individual identifier.
      */
-    char iid[FAM_IID_MAX_LENGTH];
+    char *iid;
 
     /**
      * Plink individual identifier of father, 0 if none.
      */
-    char father_iid[FAM_IID_MAX_LENGTH];
+    char *father_iid;
 
     /**
      * Plink individual identifier of mother, 0 if none.
      */
-    char mother_iid[FAM_IID_MAX_LENGTH];
+    char *mother_iid;
 
     /**
      * The sex of the individual.
@@ -91,14 +87,9 @@ struct pio_fam_file_t
     FILE *fp;
 
     /**
-     * The number of samples.
-     */
-    size_t num_samples;
-
-    /**
      * List of additional information for each sample.
      */
-    struct pio_sample_t *sample;
+    UT_array *sample;
 };
 
 /**

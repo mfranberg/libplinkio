@@ -41,7 +41,7 @@ main(int argc, char *argv[])
     }
     else
     {
-        assert( num_rows == plink_file.fam_file.num_samples );
+        assert( num_rows == fam_num_samples( &plink_file.fam_file ) );
     }
 
     pio_close( &plink_file );

@@ -10,6 +10,13 @@
 
 #include <fam.h>
 #include <fam.c>
+#include <fam_parse.c>
+
+/**
+ * Returns the smallest value of x and y
+ * compared with the < operator.
+ */
+#define MIN(x,y) ( ( (x) < (y) ) ? (x) : (y) )
 
 /**
  * Number of samples to parse.
@@ -17,9 +24,32 @@
 #define NUM_SAMPLES 2
 
 /**
- * Index of sample to be returned by mock_fgets.
+ * Sample string to be parsed by libcsv.
  */
-int g_sample_index = 0;
+const char *TEST_MULTIPLE_SAMPLES = "F1 P1 0 0 1 1\nF1\t P2 0 0 2 2";
+
+/**
+ * Start index of next mock_fread call.
+ */
+int g_sample_pos = 0;
+
+/**
+ * Mocks fopen, always returns stdin.
+ */
+FILE *
+mock_fopen(const char *path, const char *mode)
+{
+    return stdin;
+}
+
+/**
+ * Mocks fclose, always returns 0.
+ */
+int
+mock_fclose(FILE *fp)
+{
+    return 0;
+}
 
 /**
  * Mocks feof, returns 1 when g_sample_index is >= NUM_SAMPLES. 
@@ -27,7 +57,7 @@ int g_sample_index = 0;
 int
 mock_feof(FILE *stream)
 {
-    return g_sample_index <= NUM_SAMPLES;
+    return g_sample_pos >= strlen( TEST_MULTIPLE_SAMPLES );
 }
 
 /**
@@ -37,69 +67,88 @@ mock_feof(FILE *stream)
  * Note: You have to reset g_sample_index if you want to use this in
  *       multiple tests.
  */
-char *
-mock_fgets(char *s, int n, FILE *stream)
+size_t
+mock_fread(void *p, size_t size, size_t nmemb, FILE *stream)
 {
-    const char *sample_list[NUM_SAMPLES] = { "F1 P1 0 0 0 1", "F1 P2 0 0 0 1" };
+    size_t length_left = strlen( TEST_MULTIPLE_SAMPLES ) - g_sample_pos;
+    size_t bytes_to_copy = MIN( size * nmemb, length_left );
+    g_sample_pos += bytes_to_copy;
 
-    if( g_sample_index < NUM_SAMPLES )
+    if( bytes_to_copy > 0 )
     {
-        strncpy( s, sample_list[ g_sample_index ], n );
-        return (char *) sample_list[ g_sample_index++ ];
+        strncpy( p, TEST_MULTIPLE_SAMPLES, bytes_to_copy );
+        return bytes_to_copy;
     }
     else
     {
-        return NULL;
+        return 0;
     }
-
 }
 
 /**
- * Tests the parsing of a correct sample.
+ * Tests that iids are correctly parsed.
  */
 void
-test_parse_sample(void **state)
+test_parse_iid(void **state)
 {
-    const char *TEST_STRING = "F1 P1 0 0 1 1";
-    
-    struct pio_sample_t person;
-    assert_int_equal( parse_sample( TEST_STRING, &person ), PIO_OK );
-    assert_string_equal( person.fid, "F1" );
-    assert_string_equal( person.iid, "P1" );
-    assert_string_equal( person.father_iid, "0" );
-    assert_string_equal( person.mother_iid, "0" );
-    assert_int_equal( person.sex, PIO_MALE );
-    assert_int_equal( person.affection, PIO_CONTROL );
+    const char *TEST_STRING = "F1";
+    pio_status_t status;
+    char *iid = parse_iid( TEST_STRING, strlen( TEST_STRING ), &status );
+
+    assert_int_equal( status, PIO_OK );
+    assert_string_equal( iid, TEST_STRING );
+    free( iid );
 }
 
 /**
- * Tests the parsing of a correct sample with a
- * real phenotype.
+ * Tests that sex is correctly parsed.
  */
-void test_parse_sample_double(void **state)
+void
+test_parse_sex(void **state)
 {
-    const char *TEST_STRING = "F1 P1 0 0 1 4.5";
-    
-    struct pio_sample_t person;
-    assert_int_equal( parse_sample( TEST_STRING, &person ), PIO_OK );
-    assert_string_equal( person.fid, "F1" );
-    assert_string_equal( person.iid, "P1" );
-    assert_string_equal( person.father_iid, "0" );
-    assert_string_equal( person.mother_iid, "0" );
-    assert_int_equal( person.sex, PIO_MALE );
-    assert_int_equal( person.affection, PIO_CONTINUOUS );
-    assert_true( fabs( person.phenotype - 4.5 ) <= 1e-6 );
+    const char *TEST_STRING_MALE = "1";
+    const char *TEST_STRING_FEMALE = "2";
+    const char *TEST_STRING_UNKOWN = "0";
+    pio_status_t status;
+    enum sex_t sex;
+
+    sex = parse_sex( TEST_STRING_MALE, strlen( TEST_STRING_MALE ), &status );
+    assert_int_equal( status, PIO_OK );
+    assert_int_equal( sex, PIO_MALE );
+
+    sex = parse_sex( TEST_STRING_FEMALE, strlen( TEST_STRING_FEMALE ), &status );
+    assert_int_equal( status, PIO_OK );
+    assert_int_equal( sex, PIO_FEMALE );
+
+    sex = parse_sex( TEST_STRING_UNKOWN, strlen( TEST_STRING_UNKOWN ), &status );
+    assert_int_equal( status, PIO_OK );
+    assert_int_equal( sex, PIO_UNKOWN );
 }
 
 /**
- * Tests that parsing fails when a field is missing.
+ * Tests that a phenotype is correctly parsed.
  */
-void test_parse_sample_fail(void **state)
+void
+test_parse_phenotype(void **state)
 {
-    const char *TEST_STRING = "F1 P1 0 0 1";
+    const char *TEST_STRING_CONTROL = "1";
+    const char *TEST_STRING_CASE = "2";
+    const char *TEST_STRING_PHENOTYPE = "1.0";
+    struct pio_sample_t sample;
+    pio_status_t status;
+
+    parse_phenotype( TEST_STRING_CONTROL, strlen( TEST_STRING_CONTROL ), &sample, &status );
+    assert_int_equal( status, PIO_OK );
+    assert_int_equal( sample.affection, PIO_CONTROL );
+
+    parse_phenotype( TEST_STRING_CASE, strlen( TEST_STRING_CASE ), &sample, &status );
+    assert_int_equal( status, PIO_OK );
+    assert_int_equal( sample.affection, PIO_CASE );
     
-    struct pio_sample_t person;
-    assert_int_equal( parse_sample( TEST_STRING, &person ), PIO_ERROR );
+    parse_phenotype( TEST_STRING_PHENOTYPE, strlen( TEST_STRING_PHENOTYPE ), &sample, &status );
+    assert_int_equal( status, PIO_OK );
+    assert_int_equal( sample.affection, PIO_CONTINUOUS );
+    assert_true( fabs( sample.phenotype - 1.0 ) <= 1e-6 );
 }
 
 /**
@@ -111,33 +160,55 @@ test_parse_multiple_samples(void **state)
 {
     struct pio_sample_t person;
     struct pio_fam_file_t fam_file;
-    assert_int_equal( parse_samples( &fam_file ), PIO_OK );
-    assert_int_equal( fam_file.num_samples, NUM_SAMPLES );
+    
+    assert_int_equal( fam_open( &fam_file, "" ), PIO_OK );
+    assert_int_equal( fam_num_samples( &fam_file ), NUM_SAMPLES );
 
-    person = fam_file.sample[0];
+    person = *fam_get_sample( &fam_file, 0 );
     assert_string_equal( person.fid, "F1" );
     assert_string_equal( person.iid, "P1" );
     assert_string_equal( person.father_iid, "0" );
     assert_string_equal( person.mother_iid, "0" );
-    assert_int_equal( person.sex, PIO_FEMALE );
+    assert_int_equal( person.sex, PIO_MALE );
     assert_int_equal( person.affection, PIO_CONTROL );
 
-    person = fam_file.sample[1];
+    person = *fam_get_sample( &fam_file, 1 );
     assert_string_equal( person.fid, "F1" );
     assert_string_equal( person.iid, "P2" );
     assert_string_equal( person.father_iid, "0" );
     assert_string_equal( person.mother_iid, "0" );
     assert_int_equal( person.sex, PIO_FEMALE );
-    assert_int_equal( person.affection, PIO_CONTROL );
+    assert_int_equal( person.affection, PIO_CASE );
+ 
+    fam_close( &fam_file );
+}
+
+/**
+ * Cmockerys initial implementation couldn't handle realloc,
+ * this test make sure that it works as intended.
+ */
+void
+test_utarray(void **state)
+{
+    UT_array *samples;
+    struct pio_sample_t person1 = {0};
+    struct pio_sample_t person2 = {0};
+    utarray_new( samples, &SAMPLE_ICD );
+
+    utarray_push_back( samples, &person1 );
+    utarray_push_back( samples, &person2 );
+
+    utarray_free( samples );
 }
 
 int main(int argc, char* argv[])
 {
     const UnitTest tests[] = {
-        unit_test( test_parse_sample ),
-        unit_test( test_parse_sample_double ),
-        unit_test( test_parse_sample_fail ),
+        unit_test( test_parse_iid ),
+        unit_test( test_parse_sex ),
+        unit_test( test_parse_phenotype ),
         unit_test( test_parse_multiple_samples ),
+        unit_test( test_utarray ),
     };
 
     return run_tests( tests );

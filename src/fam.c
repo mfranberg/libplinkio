@@ -1,179 +1,60 @@
-#include <errno.h>
 #include <stdio.h>
+
 #include <utarray.h>
 
 #include <fam.h>
+#include <fam_parse.h>
 #include <status.h>
 
 /**
  * Creates mock versions of IO functions to allow unit testing.
  */
 #ifdef UNIT_TESTING
-    extern int mock_feof(FILE *stream);
-    extern char *mock_fgets(char *s, int n, FILE *stream);
+    extern FILE *mock_fopen(const char *path, const char *mode);
+    int mock_fclose(FILE *fp);
 
-    #define fgets mock_fgets
-    #define feof mock_feof
+    #define fopen mock_fopen
+    #define fclose mock_fclose
 #endif
 
 /**
- * Size of string buffer for parsing phenotype.
+ * Sample destructor. Ensures that the allocated
+ * strings are freed properly.
+ *
+ * @param element Pointer to a sample.
  */
-#define BUFFER_SIZE 1024
+static void
+utarray_sample_dtor(void *element)
+{
+    struct pio_sample_t *sample = (struct pio_sample_t *) element;
+
+    if( sample->fid != NULL )
+    {
+        free( sample->fid );
+    }
+    if( sample->iid != NULL )
+    {
+        free( sample->iid );
+    }
+    if( sample->father_iid != NULL )
+    {
+        free( sample->father_iid );
+    }
+    if( sample->mother_iid != NULL )
+    {
+        free( sample->mother_iid );
+    }
+}
 
 /**
  * Properties of the sample array for dtarray.
  */
-UT_icd SAMPLE_ICD = { sizeof( struct pio_sample_t ), NULL, NULL, NULL };
-
-/**
- * Reads a single line from the input file and stores it in the given
- * buffer.
- *
- * @param fp Pointer to a fam file.
- * @param buffer Buffer to store the read line.
- * @param buffer_length Length of the buffer.
- *
- * @return PIO_OK if the line was read successfully, PIO_END if we are
- *                at the end of the file, PIO_ERROR otherwise.
- */
-pio_status_t
-read_sample(FILE *fp, char *buffer, size_t buffer_length)
-{
-    char *result = fgets( buffer, buffer_length, fp );
-    if( result != NULL )
-    {
-        return PIO_OK;
-    }
-    else
-    {
-        if( feof( fp ) != 0 )
-        {
-            return PIO_END;
-        }
-        else
-        {
-            return PIO_ERROR;
-        }
-    }
-}
-
-/**
- * Takes the given pointer to data and tries to parse
- * a sample from the beginning.
- *
- * Note: If data could not be parsed, the contents of
- *       locus is undetermined.
- *
- * @param data The data to be parsed.
- * @param locus The parsed data will be stored here.
- *
- * @return PIO_OK if the sample could be parsed,
- *         PIO_ERROR otherwise.
- */
-pio_status_t
-parse_sample(const char *sample, struct pio_sample_t *person)
-{
-    unsigned int sex;
-    char phenotype_as_string[BUFFER_SIZE];
-    char *endptr;
-    long phenotype_int;
-    double phenotype_float;
-
-    int num_read_fields = sscanf( sample, "%s %s %s %s %u %s",
-                                person->fid,
-                                person->iid,
-                                person->father_iid,
-                                person->mother_iid,
-                                &sex,
-                                phenotype_as_string );
-
-    if( num_read_fields != 6 )
-    {
-        return PIO_ERROR;
-    }
-        
-    if( sex == 1 )
-    {
-        person->sex = PIO_MALE;
-    }
-    else
-    {
-        person->sex = PIO_FEMALE;
-    }
-
-    errno = 0;
-    phenotype_int = strtol( phenotype_as_string, &endptr, 10 );
-    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
-    {
-        switch( phenotype_int )
-        {
-            case 1L:
-                person->affection = PIO_CONTROL;
-                break;
-            case 2L:
-                person->affection = PIO_CASE;
-                break;
-            default:
-                person->affection = PIO_MISSING;
-                break;
-        }
-
-        return PIO_OK;
-    }
-
-    errno = 0;
-    phenotype_float = strtod( phenotype_as_string, &endptr );
-    if( errno == 0 && ( endptr == NULL || *endptr == '\0' ) )
-    {
-        person->phenotype = (float) phenotype_float;
-        person->affection = PIO_CONTINUOUS;
-        return PIO_OK;
-    }
-
-    return PIO_ERROR;
-
-}
-
-/**
- * Parses the samples and points the given sample array to a
- * the memory that contains them, and writes back the number
- * of samples.
- *
- * @param fam_file Fam file.
- *
- * @return PIO_OK if the samples could be parsed, PIO_ERROR otherwise.
- */
-pio_status_t
-parse_samples(struct pio_fam_file_t *fam_file)
-{
-    UT_array *samples;
-    char read_buffer[BUFFER_SIZE];
-    struct pio_sample_t person;
-    
-    utarray_new( samples, &SAMPLE_ICD );
-
-    while( read_sample( fam_file->fp, read_buffer, BUFFER_SIZE ) != PIO_END )
-    {
-        if( parse_sample( read_buffer, &person ) != PIO_OK )
-        {
-            continue;
-        }
-
-        person.pio_id = utarray_len( samples );
-        utarray_push_back( samples, &person );
-    }
-
-    fam_file->num_samples = utarray_len( samples );
-    fam_file->sample = (struct pio_sample_t *) utarray_front( samples );
-    
-    /* Free the dtarray but keep the underlying array, if
-       changes are made to the utarray, we need to make sure
-       that no memory is leaked here. */
-    free( samples );
-
-    return PIO_OK;
-}
+UT_icd SAMPLE_ICD = {
+    sizeof( struct pio_sample_t ),
+    NULL,
+    NULL,
+    utarray_sample_dtor
+};
 
 pio_status_t
 fam_open(struct pio_fam_file_t *fam_file, const char *path)
@@ -183,10 +64,11 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
     if( fam_fp == NULL )
     {
         return PIO_ERROR;
-    }
+    } 
 
     fam_file->fp = fam_fp;
-    status = parse_samples( fam_file );
+    utarray_new( fam_file->sample, &SAMPLE_ICD );
+    status = parse_samples( fam_file->fp, fam_file->sample );
     fclose( fam_fp );
 
     return status;
@@ -195,20 +77,13 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
 struct pio_sample_t *
 fam_get_sample(struct pio_fam_file_t *fam_file, size_t pio_id)
 {
-    if( pio_id < fam_file->num_samples )
-    {
-        return &fam_file->sample[ pio_id ];
-    }
-    else
-    {
-        return NULL;
-    }
+    return (struct pio_sample_t *) utarray_eltptr( fam_file->sample, pio_id );
 }
 
 size_t
 fam_num_samples(struct pio_fam_file_t *fam_file)
 {
-    return fam_file->num_samples;
+    return utarray_len( fam_file->sample );
 }
 
 void
@@ -219,8 +94,8 @@ fam_close(struct pio_fam_file_t *fam_file)
         return;
     }
 
-    free( fam_file->sample );
+    utarray_free( fam_file->sample );
+
     fam_file->sample = NULL;
-    fam_file->num_samples = 0;
     fam_file->fp = NULL;
 }

@@ -46,7 +46,7 @@ pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
     }
 
     char *bed_path = concatenate( plink_file_prefix, ".bed" );
-    num_samples = plink_file->fam_file.num_samples;
+    num_samples = fam_num_samples( &plink_file->fam_file );
     num_loci = plink_file->bim_file.num_loci;
     if( bed_open( &plink_file->bed_file, bed_path, num_loci, num_samples ) != PIO_OK )
     {
