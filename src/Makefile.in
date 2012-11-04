@@ -75,8 +75,9 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libplinkio_la_DEPENDENCIES = ../libs/libcsv/libcsv.la
 am_libplinkio_la_OBJECTS = libplinkio_la-fam.lo \
 	libplinkio_la-fam_parse.lo libplinkio_la-bim.lo \
-	libplinkio_la-bed.lo libplinkio_la-plinkio.lo \
-	libplinkio_la-file.lo libplinkio_la-bed_header.lo
+	libplinkio_la-bim_parse.lo libplinkio_la-bed.lo \
+	libplinkio_la-plinkio.lo libplinkio_la-file.lo \
+	libplinkio_la-bed_header.lo
 libplinkio_la_OBJECTS = $(am_libplinkio_la_OBJECTS)
 libplinkio_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libplinkio_la_CFLAGS) \
@@ -228,7 +229,7 @@ top_srcdir = @top_srcdir@
 @GCC_TRUE@AM_CFLAGS = -Wall -strict -pendantic
 lib_LTLIBRARIES = libplinkio.la
 libplinkio_la_HEADERS = $(top_srcdir)/src/plinkio/*.h
-libplinkio_la_SOURCES = fam.c fam_parse.c bim.c bed.c plinkio.c file.c bed_header.c
+libplinkio_la_SOURCES = fam.c fam_parse.c bim.c bim_parse.c bed.c plinkio.c file.c bed_header.c
 libplinkio_ladir = $(includedir)/plinkio
 libplinkio_la_CFLAGS = -I$(top_srcdir)/src/plinkio -I$(top_srcdir)/libs/libcsv/inc
 libplinkio_la_LIBADD = ../libs/libcsv/libcsv.la
@@ -309,6 +310,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-bed.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-bed_header.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-bim.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-bim_parse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-fam.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-fam_parse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplinkio_la-file.Plo@am__quote@
@@ -355,6 +357,13 @@ libplinkio_la-bim.lo: bim.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bim.c' object='libplinkio_la-bim.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-bim.lo `test -f 'bim.c' || echo '$(srcdir)/'`bim.c
+
+libplinkio_la-bim_parse.lo: bim_parse.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-bim_parse.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-bim_parse.Tpo -c -o libplinkio_la-bim_parse.lo `test -f 'bim_parse.c' || echo '$(srcdir)/'`bim_parse.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libplinkio_la-bim_parse.Tpo $(DEPDIR)/libplinkio_la-bim_parse.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bim_parse.c' object='libplinkio_la-bim_parse.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -c -o libplinkio_la-bim_parse.lo `test -f 'bim_parse.c' || echo '$(srcdir)/'`bim_parse.c
 
 libplinkio_la-bed.lo: bed.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libplinkio_la_CFLAGS) $(CFLAGS) -MT libplinkio_la-bed.lo -MD -MP -MF $(DEPDIR)/libplinkio_la-bed.Tpo -c -o libplinkio_la-bed.lo `test -f 'bed.c' || echo '$(srcdir)/'`bed.c

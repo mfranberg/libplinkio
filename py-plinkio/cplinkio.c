@@ -251,13 +251,13 @@ plinkio_get_loci(PyObject *self, PyObject *args)
     {
         struct pio_locus_t *locus = pio_get_locus( &c_plink_file->file, i );
 
-        PyObject *args = Py_BuildValue( "Bskkcc",
+        PyObject *args = Py_BuildValue( "BsfLss",
                                         locus->chromosome,
                                         locus->name,
                                         locus->position,
                                         locus->bp_position,
-                                        locus->major,
-                                        locus->minor );
+                                        locus->allele1,
+                                        locus->allele2 );
         PyObject *pyLocus = PyObject_CallObject( locusClass, args );
 
         PyList_SetItem( loci_list, i, pyLocus );

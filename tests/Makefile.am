@@ -7,10 +7,10 @@ endif
 TESTS = fam_test bim_test bed_test
 noinst_PROGRAMS = $(TESTS) plinkio_test transpose
 
-fam_test_SOURCES = fam_test.c
+fam_test_SOURCES = fam_test.c mock.c
 fam_test_LDADD = ../libs/cmockery/libcmockery.la ../libs/libcsv/libcsv.la
 
-bim_test_SOURCES = bim_test.c
+bim_test_SOURCES = bim_test.c mock.c
 bim_test_LDADD = ../libs/cmockery/libcmockery.la ../libs/libcsv/libcsv.la
 
 

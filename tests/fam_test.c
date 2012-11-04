@@ -12,78 +12,7 @@
 #include <fam.c>
 #include <fam_parse.c>
 
-/**
- * Returns the smallest value of x and y
- * compared with the < operator.
- */
-#define MIN(x,y) ( ( (x) < (y) ) ? (x) : (y) )
-
-/**
- * Number of samples to parse.
- */
-#define NUM_SAMPLES 2
-
-/**
- * Sample string to be parsed by libcsv.
- */
-const char *TEST_MULTIPLE_SAMPLES = "F1 P1 0 0 1 1\nF1\t P2 0 0 2 2";
-
-/**
- * Start index of next mock_fread call.
- */
-int g_sample_pos = 0;
-
-/**
- * Mocks fopen, always returns stdin.
- */
-FILE *
-mock_fopen(const char *path, const char *mode)
-{
-    return stdin;
-}
-
-/**
- * Mocks fclose, always returns 0.
- */
-int
-mock_fclose(FILE *fp)
-{
-    return 0;
-}
-
-/**
- * Mocks feof, returns 1 when g_sample_index is >= NUM_SAMPLES. 
- */
-int
-mock_feof(FILE *stream)
-{
-    return g_sample_pos >= strlen( TEST_MULTIPLE_SAMPLES );
-}
-
-/**
- * Mock fgets, returns a sample as long as it has been called less than
- * NUM_SAMPLES times.
- *
- * Note: You have to reset g_sample_index if you want to use this in
- *       multiple tests.
- */
-size_t
-mock_fread(void *p, size_t size, size_t nmemb, FILE *stream)
-{
-    size_t length_left = strlen( TEST_MULTIPLE_SAMPLES ) - g_sample_pos;
-    size_t bytes_to_copy = MIN( size * nmemb, length_left );
-    g_sample_pos += bytes_to_copy;
-
-    if( bytes_to_copy > 0 )
-    {
-        strncpy( p, TEST_MULTIPLE_SAMPLES, bytes_to_copy );
-        return bytes_to_copy;
-    }
-    else
-    {
-        return 0;
-    }
-}
+#include "mock.h"
 
 /**
  * Tests that iids are correctly parsed.
@@ -160,9 +89,11 @@ test_parse_multiple_samples(void **state)
 {
     struct pio_sample_t person;
     struct pio_fam_file_t fam_file;
-    
+
+
+    mock_init( "F1 P1 0 0 1 1\nF1\t P2 0 0 2 2" );
     assert_int_equal( fam_open( &fam_file, "" ), PIO_OK );
-    assert_int_equal( fam_num_samples( &fam_file ), NUM_SAMPLES );
+    assert_int_equal( fam_num_samples( &fam_file ), 2 );
 
     person = *fam_get_sample( &fam_file, 0 );
     assert_string_equal( person.fid, "F1" );

@@ -55,11 +55,11 @@ PROGRAMS = $(noinst_PROGRAMS)
 am_bed_test_OBJECTS = bed_test.$(OBJEXT)
 bed_test_OBJECTS = $(am_bed_test_OBJECTS)
 bed_test_DEPENDENCIES = ../libs/cmockery/libcmockery.la
-am_bim_test_OBJECTS = bim_test.$(OBJEXT)
+am_bim_test_OBJECTS = bim_test.$(OBJEXT) mock.$(OBJEXT)
 bim_test_OBJECTS = $(am_bim_test_OBJECTS)
 bim_test_DEPENDENCIES = ../libs/cmockery/libcmockery.la \
 	../libs/libcsv/libcsv.la
-am_fam_test_OBJECTS = fam_test.$(OBJEXT)
+am_fam_test_OBJECTS = fam_test.$(OBJEXT) mock.$(OBJEXT)
 fam_test_OBJECTS = $(am_fam_test_OBJECTS)
 fam_test_DEPENDENCIES = ../libs/cmockery/libcmockery.la \
 	../libs/libcsv/libcsv.la
@@ -227,9 +227,9 @@ AM_CFLAGS = -I$(srcdir)/../libs/cmockery/src/google \
 	-I$(srcdir)/../src/plinkio -I$(srcdir)/../src/ \
 	-I$(srcdir)/../libs/libcsv/inc -DUNIT_TESTING=1 \
 	$(am__append_1)
-fam_test_SOURCES = fam_test.c
+fam_test_SOURCES = fam_test.c mock.c
 fam_test_LDADD = ../libs/cmockery/libcmockery.la ../libs/libcsv/libcsv.la
-bim_test_SOURCES = bim_test.c
+bim_test_SOURCES = bim_test.c mock.c
 bim_test_LDADD = ../libs/cmockery/libcmockery.la ../libs/libcsv/libcsv.la
 bed_test_SOURCES = bed_test.c
 bed_test_LDADD = ../libs/cmockery/libcmockery.la
@@ -307,6 +307,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bed_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bim_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fam_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plinkio_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transpose.Po@am__quote@
 

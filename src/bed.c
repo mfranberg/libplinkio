@@ -201,7 +201,10 @@ pio_status_t
 bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, size_t num_samples)
 {
     size_t row_size_bytes;
-    FILE *bed_fp = fopen( path, "r" );
+    FILE *bed_fp;
+   
+    bzero( bed_file, sizeof( *bed_file ) );
+    bed_fp = fopen( path, "r" );
     if( bed_fp == NULL )
     {
         return PIO_ERROR;

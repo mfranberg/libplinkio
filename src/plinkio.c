@@ -30,24 +30,30 @@ pio_status_t
 pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
 {
     int error = 0;
-    int num_samples;
-    int num_loci;
+    int num_samples = 0;
+    int num_loci = 0;
     
     char *fam_path = concatenate( plink_file_prefix, ".fam" );
-    if( fam_open( &plink_file->fam_file, fam_path ) != PIO_OK )
+    if( fam_open( &plink_file->fam_file, fam_path ) == PIO_OK )
+    {
+        num_samples = fam_num_samples( &plink_file->fam_file );
+    }
+    else
     {
         error = 1;
     }
 
     char *bim_path = concatenate( plink_file_prefix, ".bim" );
-    if( bim_open( &plink_file->bim_file, bim_path ) != PIO_OK )
+    if( bim_open( &plink_file->bim_file, bim_path ) == PIO_OK )
+    {
+        num_loci = bim_num_loci( &plink_file->bim_file );
+    }
+    else
     {
         error = 1;
     }
 
     char *bed_path = concatenate( plink_file_prefix, ".bed" );
-    num_samples = fam_num_samples( &plink_file->fam_file );
-    num_loci = plink_file->bim_file.num_loci;
     if( bed_open( &plink_file->bed_file, bed_path, num_loci, num_samples ) != PIO_OK )
     {
         error = 1;
@@ -62,6 +68,10 @@ pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
     }
     else
     {
+        fam_close( &plink_file->fam_file );
+        bim_close( &plink_file->bim_file );
+        bed_close( &plink_file->bed_file );
+
         return PIO_ERROR;
     }
 }

@@ -122,7 +122,7 @@ class Sample:
         return "{0} {1} {2} {3}".format( self.fid, self.iid, self.sex, self.affection )
 
 class Locus:
-    def __init__(self, chromosome, name, position, bp_position, major, minor):
+    def __init__(self, chromosome, name, position, bp_position, allele1, allele2):
         ##
         # Chromosome number starting from 1
         #
@@ -145,14 +145,14 @@ class Locus:
         self.bp_position = bp_position
 
         ##
-        # Major allele A, C, G or T.
+        # First allele
         #
-        self.major = major
+        self.allele1 = allele1
 
         ##
-        # Minor allele A, C, G, or T.
+        # Second allele
         #
-        self.minor = minor
+        self.allele2 = allele2
 
     def __str__(self):
         return "{0} {1}".format( chromosome, name )

@@ -40,7 +40,7 @@ class TestPlinkIo(unittest.TestCase):
         for row in pf:
             num_rows += 1
 
-        self.assertEqual( num_rows, 94 )
+        self.assertEqual( num_rows, 228694 )
 
 ##
 # Tests the snp array.

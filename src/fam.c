@@ -60,11 +60,14 @@ pio_status_t
 fam_open(struct pio_fam_file_t *fam_file, const char *path)
 {
     pio_status_t status;
-    FILE *fam_fp = fopen( path, "r" );
+    FILE *fam_fp;
+
+    bzero( fam_file, sizeof( *fam_file ) );
+    fam_fp = fopen( path, "r" );
     if( fam_fp == NULL )
     {
         return PIO_ERROR;
-    } 
+    }
 
     fam_file->fp = fam_fp;
     utarray_new( fam_file->sample, &SAMPLE_ICD );
