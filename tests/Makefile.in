@@ -237,7 +237,7 @@ plinkio_test_SOURCES = plinkio_test.c ../libs/libcsv/libcsv.la
 plinkio_test_LDADD = ../src/libplinkio.la
 plinkio_test_LDFLAGS = -static
 transpose_SOURCES = transpose.c
-transpose_LDADD = ../src/libplinkio.la
+transpose_LDADD = ../src/libplinkio.la -lm
 transpose_LDFLAGS = -static
 all: all-am
 

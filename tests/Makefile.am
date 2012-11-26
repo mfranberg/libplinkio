@@ -22,5 +22,5 @@ plinkio_test_LDADD = ../src/libplinkio.la
 plinkio_test_LDFLAGS = -static
 
 transpose_SOURCES = transpose.c
-transpose_LDADD = ../src/libplinkio.la
+transpose_LDADD = ../src/libplinkio.la -lm
 transpose_LDFLAGS = -static
