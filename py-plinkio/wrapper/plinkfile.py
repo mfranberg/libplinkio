@@ -155,7 +155,7 @@ class Locus:
         self.allele2 = allele2
 
     def __str__(self):
-        return "{0} {1}".format( chromosome, name )
+        return "{0} {1}".format( self.chromosome, self.name )
 
 ##
 # Opens the plink file at the given path.
