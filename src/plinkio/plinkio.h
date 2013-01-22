@@ -6,6 +6,11 @@
  * for details.
  */
 
+/**
+ * @file
+ * @brief Module for reading plink files, a set of a .fam, .bim and .bed.
+ */
+
 #ifndef __PIO_H__
 #define __PIO_H__ 
 
@@ -71,7 +76,7 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
  * you call pio_close with the save argument.
  *
  * @param plink_file Plink file.
- * @param pio_id Pio id of the sample. This is not the same as iid.
+ * @param pio_id Pio id of the sample, between 0 and pio_num_samples.
  *
  * @return The struct with the given id, or NULL if it does not exist.
  */
@@ -92,7 +97,7 @@ size_t pio_num_samples(struct pio_file_t *plink_file);
  * you call pio_close with the save argument.
  *
  * @param plink_file Plink file.
- * @param id Id of the locus, as returned by pio_next_row.
+ * @param pio_id Id of the locus, between 0 and pio_num_loci.
  *
  * @return The struct with the given id, or NULL if it does not exist.
  */

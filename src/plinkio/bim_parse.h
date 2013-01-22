@@ -20,7 +20,8 @@ extern "C" {
  * the memory that contains them, and writes back the number
  * of loci.
  *
- * @param bim_file Bim file.
+ * @param bim_fp Bim file.
+ * @param locus The parsed loci will be stored here.
  *
  * @return PIO_OK if the loci could be parsed, PIO_ERROR otherwise.
  */
