@@ -48,6 +48,8 @@ If you installed libplinkio to a custom location you need to specify the locatio
 
 ## Using in C
 
+For specific information look at http://fadern.github.com/libplinkio/index.html
+
 The following C program prints the genotypes of all individuals. Note, that it is not recommended to run this program on a big plink file since it will fill your screen with data.
 
 ```c
