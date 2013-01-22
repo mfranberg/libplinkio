@@ -63,7 +63,7 @@ main(int argc, char *argv[])
     int sample;
     int locus;
 
-    if( pio_open( &plink_file, "/data/scarf_sheep/scarf_sheep_extracted" ) != PIO_OK )
+    if( pio_open( &plink_file, "/path/to/plink_file" ) != PIO_OK )
     {
         printf( "Error: Could not open %s\n", argv[ 1 ] );
         return EXIT_FAILURE;
@@ -101,7 +101,7 @@ The following script does the same as the above C program, utilizing most of the
 ```python
 from plinkio import plinkfile
 
-plink_file = plinkfile.open( "/path/to/plink" )
+plink_file = plinkfile.open( "/path/to/plink_file" )
 if not plink_file.one_locus_per_row( ):
      print( "This script requires that snps are rows and samples columns." )
      exit( 1 )
