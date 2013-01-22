@@ -46,6 +46,52 @@ If you installed libplinkio to a custom location you need to specify the locatio
 
 ## Using in C
 
+The following C program prints the genotypes of all individuals. Note, that this for illustrating the API and it is not recommended to run this program on a big plink file.
+
+```c
+#include <stdlib.h>
+#include <stdio.h>
+#include <plinkio/plinkio.h>
+
+int
+main(int argc, char *argv[])
+{   
+    struct pio_file_t plink_file;
+    snp_t *snp_buffer;
+    int sample;
+    int locus;
+
+    if( pio_open( &plink_file, "/data/scarf_sheep/scarf_sheep_extracted" ) != PIO_OK )
+    {
+        printf( "Error: Could not open %s\n", argv[ 1 ] );
+        return EXIT_FAILURE;
+    }
+
+    if( !pio_one_locus_per_row( &plink_file ) )
+    {
+        printf( "This script requires that snps are rows and samples columns.\n" );
+        return EXIT_FAILURE;
+    }
+
+    locus = 0;
+    snp_buffer = (snp_t *) malloc( pio_row_size( &plink_file ) );
+    while( pio_next_row( &plink_file, snp_buffer ) == PIO_OK )
+    {
+        for( sample = 0; sample < pio_num_samples( &plink_file ); sample++)
+        {
+            printf( "Individual %d has genotype %d for snp %d.\n", sample, locus, snp_buffer[ sample ] );
+        }
+
+        locus++;
+    }
+
+    free( snp_buffer );
+    pio_close( &plink_file );
+    
+    return EXIT_SUCCESS;
+}
+```
+
 ## Using in Python
 
 The following script does the same as the above C program, utilizing most of the API.
