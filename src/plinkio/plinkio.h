@@ -53,6 +53,19 @@ struct pio_file_t
 pio_status_t pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix);
 
 /**
+ * Opens the given plink file, which is specificed by separate paths
+ * to the .bim, .bed and .fam files.
+ *
+ * @param plink_file Plink file.
+ * @param bed_path Path to the .fam file.
+ * @param bim_path Path to the .bim file.
+ * @param fam_path Path to the .bed file.
+ *
+ * @return PIO_OK, if all files existed and could be read. PIO_ERROR otherwise.
+ */
+pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, const char *bim_path, const char *bed_path);
+
+/**
  * Returns a struct that contains information about the sample associated
  * with the given id. Note, any changes to this struct will be reflected if
  * you call pio_close with the save argument.
