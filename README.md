@@ -60,8 +60,8 @@ main(int argc, char *argv[])
 {   
     struct pio_file_t plink_file;
     snp_t *snp_buffer;
-    int sample;
-    int locus;
+    int sample_id;
+    int locus_id;
 
     if( pio_open( &plink_file, "/path/to/plink_file" ) != PIO_OK )
     {
@@ -75,16 +75,18 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    locus = 0;
+    locus_id = 0;
     snp_buffer = (snp_t *) malloc( pio_row_size( &plink_file ) );
     while( pio_next_row( &plink_file, snp_buffer ) == PIO_OK )
     {
-        for( sample = 0; sample < pio_num_samples( &plink_file ); sample++)
+        for( sample_id = 0; sample_id < pio_num_samples( &plink_file ); sample_id++)
         {
-            printf( "Individual %d has genotype %d for snp %d.\n", sample, locus, snp_buffer[ sample ] );
+            struct pio_sample_t *sample = pio_get_sample( &plink_file, sample_id );
+            struct pio_locus_t *locus = pio_get_locus( &plink_file, locus_id );
+            printf( "Individual %s has genotype %d for snp %s.\n", sample->iid, snp_buffer[ sample_id ], locus->name );
         }
 
-        locus++;
+        locus_id++;
     }
 
     free( snp_buffer );
@@ -111,5 +113,5 @@ locus_list = plink_file.get_loci( )
 
 for locus, row in zip( locus_list, plink_file ):
     for sample, genotype in zip( sample_list, row ):
-        print( "Individual {0} has genotype {1} for snp {2}.".format( sample.iid, locus.name, genotype ) )
+        print( "Individual {0} has genotype {1} for snp {2}.".format( sample.iid, genotype, locus.name ) )
 ```
