@@ -96,6 +96,106 @@ main(int argc, char *argv[])
 }
 ```
 
+## Accessing sample and locus information in C
+
+Information about samples and loci are obtained by referencing directly into the struct. The fields are summarized below.
+
+### The pio_sample_t declaration
+
+```c
+/**
+ * Data structure that contains the PLINK information about a sample (individual).
+ */
+struct pio_sample_t
+{
+    /**
+     * An internal reference id, so that we can read them in order.
+     */
+    size_t pio_id;
+
+    /**
+     * Family identifier.
+     */
+    char *fid;
+
+    /**
+     * Plink individual identifier.
+     */
+    char *iid;
+
+    /**
+     * Plink individual identifier of father, 0 if none.
+     */
+    char *father_iid;
+
+    /**
+     * Plink individual identifier of mother, 0 if none.
+     */
+    char *mother_iid;
+
+    /**
+     * The sex of the individual.
+     */
+    enum sex_t sex;
+
+    /**
+     * Affection of the individuals, case, control or unkown. Control
+     * is always 0 and case always 1.
+     */
+    enum affection_t affection;
+
+    /**
+     * A continuous phenotype of the individual.
+     */
+    float phenotype;
+};
+```
+
+### The pio_locus_t declaration
+
+```c
+/**
+ * Data structure that contains the PLINK information about a locus (SNP).
+ */
+struct pio_locus_t
+{
+    /**
+     * An internal reference id, so that we can read them in order.
+     */
+    size_t pio_id;
+
+    /**
+     * Chromosome number starting from 1.
+     */
+    unsigned char chromosome;
+
+    /**
+     * Name of the SNP.
+     */
+    char *name;
+
+    /**
+     * Genetic position of the SNP.
+     */
+    float position;
+
+    /**
+     * Base pair position of the SNP.
+     */
+    long long bp_position;
+
+    /**
+     * First allele.
+     */
+    char *allele1;
+
+    /**
+     * Second allele.
+     */
+    char *allele2;
+};
+```
+
 ## Using in Python
 
 The following script does the same as the above C program, utilizing most of the API.
@@ -114,4 +214,84 @@ locus_list = plink_file.get_loci( )
 for locus, row in zip( locus_list, plink_file ):
     for sample, genotype in zip( sample_list, row ):
         print( "Individual {0} has genotype {1} for snp {2}.".format( sample.iid, genotype, locus.name ) )
+```
+
+## Accessing sample and locus information in Python
+
+### The Sample object
+
+```python
+class Sample:
+    def __init__(self, fid, iid, father_iid, mother_iid, sex, affection, phenotype = 0.0):
+        ##
+        # Family id.
+        #
+        self.fid = fid
+
+        ##
+        # Individual id.
+        #
+        self.iid = iid
+
+        ##
+        # Individual id of father.
+        #
+        self.father_iid = father_iid
+
+        ##
+        # Individual id of mother.
+        #
+        self.mother_iid = mother_iid
+
+        ##
+        # Sex of individual.
+        #
+        self.sex = sex
+
+        ##
+        # Affection of individual, 0/1, case/control
+        #
+        self.affection = affection
+
+        ##
+        # Optional continuous phenotype, will be 0.0/1.0 if case/control
+        #
+        self.phenotype = phenotype
+```
+
+### The Locus object
+
+```python
+class Locus:
+    def __init__(self, chromosome, name, position, bp_position, allele1, allele2):
+        ##
+        # Chromosome number starting from 1
+        #
+        self.chromosome = chromosome
+
+        ##
+        # Name of the loci, usually rs-number or
+        # chrX:pos.
+        #
+        self.name = name
+
+        ##
+        # Genetic position (floating point number).
+        #
+        self.position = position
+
+        ##
+        # Base pair position (integer).
+        #
+        self.bp_position = bp_position
+
+        ##
+        # First allele
+        #
+        self.allele1 = allele1
+
+        ##
+        # Second allele
+        #
+        self.allele2 = allele2
 ```

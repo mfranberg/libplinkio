@@ -109,12 +109,12 @@ class Sample:
         self.sex = sex
 
         ##
-        # Affection of individual, 0/1, case/control
+        # Affection of individual, 0/1, control/case
         #
         self.affection = affection
 
         ##
-        # Optional continuous phenotype
+        # Optional continuous phenotype, will be 0.0/1.0 if control/case
         #
         self.phenotype = phenotype
 
@@ -129,18 +129,18 @@ class Locus:
         self.chromosome = chromosome
 
         ##
-        # Name of the loci, usually RS number or
+        # Name of the loci, usually rs-number or
         # chrX:pos.
         #
         self.name = name
 
         ##
-        # Position.
+        # Genetic position (floating point).
         #
         self.position = position
 
         ##
-        # Base pair position.
+        # Base pair position (integer).
         #
         self.bp_position = bp_position
 
