@@ -228,6 +228,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
+EXTRA_DIST = README.md
 @WITH_TESTS_TRUE@TEST_DIRS = libs/cmockery/ tests
 SUBDIRS = libs/libcsv/ src $(TEST_DIRS) py-plinkio
 all: all-recursive
