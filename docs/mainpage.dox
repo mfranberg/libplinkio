@@ -1,0 +1,27 @@
+/**
+@brief Documentation file for Mainpage, and defgroups.
+@author Mattias Frånberg
+@file
+*/
+/** @defgroup Libplinkio */
+/**
+@mainpage Libplinkio - Parsing plink genotype files
+This is a small C and Python library for reading Plink genotype files. 
+
+Currently it can:
+- Read and parse BED, BIM and FAM files.
+- Transpose BED files.
+
+Libplinkio will reach 1.0 when it can:
+- Read PED files (i.e. non-binary bed-files).
+- Write BED, BIM and FAM files.
+
+Project rationales:
+- Use C to make it as simple as possible to add bindings
+  for other languages.
+- Focus only on IO-functionality.
+- Few external dependencies to make it easy to use.
+
+The most relevant functions can be found in plinkio.h. You then have the pio_sample_t struct and pio_locus_t struct that allows you to access meta information about individuals and snps.
+
+*/
