@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2012-2013, Mattias Frånberg
+ * All rights reserved.
+ *
+ * This file is distributed under the Modified BSD License. See the COPYING file
+ * for details.
+ */
+
 #ifndef __FAM_PARSE_H__
 #define __FAM_PARSE_H__
 

@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2012-2013, Mattias Frånberg
+ * All rights reserved.
+ *
+ * This file is distributed under the Modified BSD License. See the COPYING file
+ * for details.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 

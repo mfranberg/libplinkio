@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2012-2013, Mattias Frånberg
+ * All rights reserved.
+ *
+ * This file is distributed under the Modified BSD License. See the COPYING file
+ * for details.
+ */
+
 union snp_lookup_t snp_lookup[256] =
 {
     {{2, 2, 2, 2}},
