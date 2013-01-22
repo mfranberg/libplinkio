@@ -5,3 +5,4 @@ autom4te.cache
 config.status
 build
 *.swo
+html/
