@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([libplinkio], [0.2], [mattias.franberg@googlemail.com])
+AC_INIT([libplinkio], [0.2.2], [mattias.franberg@googlemail.com])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([src/fam.c])
 AC_CONFIG_MACRO_DIR([m4])
