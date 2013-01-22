@@ -43,3 +43,25 @@ To link your own application to libplinkio you can use the following include and
 If you installed libplinkio to a custom location you need to specify the location of libplinkio:
 
     gcc -lplinkio -I/path/to/plinkio/include -L/path/to/plinkio/lib source.c
+
+## Using in C
+
+## Using in Python
+
+The following script does the same as the above C program, utilizing most of the API.
+
+```python
+from plinkio import plinkfile
+
+plink_file = plinkfile.open( "/path/to/plink" )
+if not plink_file.one_locus_per_row( ):
+     print( "This script requires that snps are rows and samples columns." )
+     exit( 1 )
+
+sample_list = plink_file.get_samples( )
+locus_list = plink_file.get_loci( )
+
+for locus, row in zip( locus_list, plink_file ):
+    for sample, genotype in zip( sample_list, row ):
+        print( "Individual {0} has genotype {1} for snp {2}.".format( sample.iid, locus.name, genotype ) )
+```
