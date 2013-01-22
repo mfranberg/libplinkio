@@ -1,6 +1,10 @@
 #ifndef __STATUS_H__
 #define __STATUS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum pio_status_e
 {
     /**
@@ -20,5 +24,9 @@ enum pio_status_e
 };
 
 typedef enum pio_status_e pio_status_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* End of __STATUS_H__ */

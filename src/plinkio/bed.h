@@ -1,6 +1,10 @@
 #ifndef __BED_H__
 #define __BED_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 #include <plinkio/status.h>
@@ -126,5 +130,9 @@ void bed_close(struct pio_bed_file_t *bed_file);
  *
  */
 pio_status_t bed_transpose(const char *original_path, const char *transposed_path, size_t num_loci, size_t num_samples);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* End of __BED_H__ */

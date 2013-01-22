@@ -1,6 +1,10 @@
 #ifndef __FAM_H__
 #define __FAM_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 #include <plinkio/utarray.h>
@@ -128,5 +132,9 @@ size_t fam_num_samples(struct pio_fam_file_t *fam_file);
  * @param fam_file Fam file.
  */
 void fam_close(struct pio_fam_file_t *fam_file);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* End of __FAM_H__ */

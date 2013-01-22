@@ -1,6 +1,10 @@
 #ifndef __SNP_LOOKUP_H__
 #define __SNP_LOOKUP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if HAVE_ENDIAN_H
 #include <endian.h>
 #elif HAVE_MACHINE_ENDIAN_H
@@ -32,5 +36,9 @@ union snp_lookup_t
 #else
 #include "snp_lookup_big.h"
 #endif /* End test endianess */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* End of __SNP_LOOKUP_H__ */

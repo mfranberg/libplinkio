@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "file.h"
+#include <plinkio/file.h>
 
 /**
  * Total size for a buffer containing the copy command

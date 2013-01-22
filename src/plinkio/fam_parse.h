@@ -1,8 +1,11 @@
 #ifndef __FAM_PARSE_H__
 #define __FAM_PARSE_H__
 
-#include <stdio.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#include <stdio.h>
 
 #include <plinkio/fam.h>
 #include <plinkio/status.h>
@@ -18,5 +21,9 @@
  * @return PIO_OK if the samples could be parsed, PIO_ERROR otherwise.
  */
 pio_status_t parse_samples(FILE *fam_fp, UT_array *sample);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* End of __FAM_PARSE_H__ */

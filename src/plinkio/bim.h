@@ -1,6 +1,10 @@
 #ifndef __BIM_H__
 #define __BIM_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <plinkio/utarray.h>
 #include <plinkio/status.h>
 
@@ -99,5 +103,9 @@ size_t bim_num_loci(struct pio_bim_file_t *bim_file);
  * @param bim_file Bim file.
  */
 void bim_close(struct pio_bim_file_t *bim_file);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* End of __BIM_H__ */

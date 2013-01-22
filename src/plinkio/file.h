@@ -1,6 +1,10 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Defines return values from file operations.
  */
@@ -36,5 +40,9 @@ file_status_t file_copy(const char *from_path, const char *to_path);
  * @return FILE_OK if the file was removed, FILE_ERROR otherwise.
  */
 file_status_t file_remove(const char *path);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __FILE_H__ */

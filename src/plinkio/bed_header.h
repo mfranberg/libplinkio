@@ -1,6 +1,10 @@
 #ifndef __BED_HEADER_H__
 #define __BED_HEADER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 
 #define BED_HEADER_MAX_SIZE 3
@@ -184,5 +188,9 @@ enum SnpOrder bed_header_snp_order(struct bed_header_t *header);
  * @param header Bed header.
  */
 void bed_header_transpose(struct bed_header_t *header);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

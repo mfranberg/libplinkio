@@ -1,6 +1,10 @@
 #ifndef __PIO_H__
 #define __PIO_H__ 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 #include <plinkio/bed.h>
@@ -147,5 +151,9 @@ pio_status_t pio_transpose(const char *plink_file_prefix, const char *transposed
  * @param plink_file The file to close.
  */
 void pio_close(struct pio_file_t *plink_file);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __PIO_H__ */

@@ -27,6 +27,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef UTARRAY_H
 #define UTARRAY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define UTARRAY_VERSION 1.9.4
 
 #ifdef __GNUC__
@@ -228,5 +232,8 @@ static const UT_icd ut_str_icd _UNUSED_ = {sizeof(char*),NULL,utarray_str_cpy,ut
 static const UT_icd ut_int_icd _UNUSED_ = {sizeof(int),NULL,NULL,NULL};
 static const UT_icd ut_ptr_icd _UNUSED_ = {sizeof(void*),NULL,NULL,NULL};
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* UTARRAY_H */
