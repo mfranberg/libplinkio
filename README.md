@@ -18,6 +18,8 @@ Project rationales:
 
 ## Installing
 
+Installing this library is easy, just **configure** and **make**. This will also install Python bindings for the active interpeter.
+
 ### Installing to a standard location
 
     mkdir build
@@ -46,7 +48,7 @@ If you installed libplinkio to a custom location you need to specify the locatio
 
 ## Using in C
 
-The following C program prints the genotypes of all individuals. Note, that this for illustrating the API and it is not recommended to run this program on a big plink file.
+The following C program prints the genotypes of all individuals. Note, that it is not recommended to run this program on a big plink file since it will fill your screen with data.
 
 ```c
 #include <stdlib.h>
