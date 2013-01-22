@@ -1,9 +1,8 @@
 #ifndef __BIM_H__
 #define __BIM_H__
 
-#include <utarray.h>
-
-#include <status.h>
+#include <plinkio/utarray.h>
+#include <plinkio/status.h>
 
 /**
  * Data structure that contains the PLINK information about a locus (SNP).

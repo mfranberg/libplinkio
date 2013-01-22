@@ -1,10 +1,9 @@
 #include <stdio.h>
 
-#include <utarray.h>
-
-#include <fam.h>
-#include <fam_parse.h>
-#include <status.h>
+#include <plinkio/utarray.h>
+#include <plinkio/fam.h>
+#include <plinkio/fam_parse.h>
+#include <plinkio/status.h>
 
 /**
  * Creates mock versions of IO functions to allow unit testing.

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <plinkio.h>
+#include <plinkio/plinkio.h>
 
 /**
  * Concatenates the given strings and returns the concatenated

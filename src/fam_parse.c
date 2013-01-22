@@ -2,9 +2,9 @@
 #include <stdlib.h>
 
 #include <csv.h>
-#include <utarray.h>
 
-#include <fam_parse.h>
+#include <plinkio/utarray.h>
+#include <plinkio/fam_parse.h>
 
 /**
  * Creates mock versions of IO functions to allow unit testing.

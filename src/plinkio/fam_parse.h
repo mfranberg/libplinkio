@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 
-#include <fam.h>
-#include <status.h>
+#include <plinkio/fam.h>
+#include <plinkio/status.h>
 
 /**
  * Parses the samples and points the given sample array to a

@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#include <utarray.h>
-#include <status.h>
+#include <plinkio/utarray.h>
+#include <plinkio/status.h>
 
 /**
  * Sex of a sample.

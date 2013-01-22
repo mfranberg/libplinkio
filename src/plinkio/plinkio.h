@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-#include "bed.h"
-#include "bim.h"
-#include "fam.h"
+#include <plinkio/bed.h>
+#include <plinkio/bim.h>
+#include <plinkio/fam.h>
 
 /**
  * Abstract structure for all the files that

@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#include "status.h"
-#include "bed_header.h"
+#include <plinkio/status.h>
+#include <plinkio/bed_header.h>
 
 /**
  * Integral type used for storing a single SNP.

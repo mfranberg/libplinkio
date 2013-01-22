@@ -8,11 +8,10 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#include <bed_header.h>
-#include <status.h>
-
-#include <bed.h>
-#include <snp_lookup.h>
+#include <plinkio/bed.h>
+#include <plinkio/bed_header.h>
+#include <plinkio/status.h>
+#include <plinkio/snp_lookup.h>
 
 /**
  * Creates mock versions of IO functions to allow unit testing.

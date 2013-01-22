@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <utarray.h>
 
-#include <bim.h>
-#include <bim_parse.h>
-#include <status.h>
+#include <plinkio/utarray.h>
+#include <plinkio/bim.h>
+#include <plinkio/bim_parse.h>
+#include <plinkio/status.h>
 
 /**
  * Creates mock versions of IO functions to allow unit testing.

@@ -1,7 +1,7 @@
 #ifndef __BIM_PARSE_H__
 #define __BIM_PARSE_H__
 
-#include <status.h>
+#include <plinkio/status.h>
 
 /**
  * Parses the loci and points the given locus array to a

@@ -1,4 +1,4 @@
-#include <bed_header.h>
+#include <plinkio/bed_header.h>
 
 /**
  * Magic constants for v 1.00 format.
