@@ -16,7 +16,6 @@ set( LIBCMOCKERY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/cmockery/src/google/" )
 set( LIBPLINKIO_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/plinkio/" )
 set( LIBPLINKIO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/" )
 
-message( ${LIBCMOCKERY_INCLUDE_DIR} )
 enable_testing( )
 
 add_subdirectory( src )
