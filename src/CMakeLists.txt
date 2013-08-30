@@ -1,4 +1,4 @@
-include_directories( "plinkio/" )
+include_directories( "." )
 include_directories( ${LIBCSV_INCLUDE_DIR} )
 
 file( GLOB_RECURSE SRC_LIST "*.c" "." )
