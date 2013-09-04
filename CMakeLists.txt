@@ -21,7 +21,7 @@ option( DISABLE_TESTS "Disables building tests." OFF )
 add_subdirectory( src )
 add_subdirectory( libs )
 
-if( !DISABLE_TESTS )
+if( NOT DISABLE_TESTS )
     enable_testing( )
     add_subdirectory( tests )
 endif( )

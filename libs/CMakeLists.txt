@@ -1,5 +1,5 @@
 add_subdirectory( libcsv )
 
-if( !DISABLE_TESTS )
+if( NOT DISABLE_TESTS )
     add_subdirectory( cmockery )
 endif( )
