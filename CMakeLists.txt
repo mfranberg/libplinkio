@@ -1,5 +1,5 @@
 project( libplinkio )
-cmake_minimum_required( VERSION 2.7 )
+cmake_minimum_required( VERSION 2.8.9 )
 
 set( LIBPLINKIO_VERSION_MAJOR 0 )
 set( LIBPLINKIO_VERSION_MINOR 1 )
