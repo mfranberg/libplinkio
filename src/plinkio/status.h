@@ -28,7 +28,22 @@ enum pio_status_e
     /**
      * Generic error.
      */
-    PIO_ERROR
+    PIO_ERROR,
+
+    /**
+     * FAM IO error.
+     */
+    P_FAM_IO_ERROR,
+
+    /**
+     * BIM IO error.
+     */
+    P_BIM_IO_ERROR,
+    
+    /**
+     * Bed IO error.
+     */
+    P_BED_IO_ERROR
 };
 
 typedef enum pio_status_e pio_status_t;

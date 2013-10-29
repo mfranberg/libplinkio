@@ -67,7 +67,7 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
     }
     else
     {
-        error = 1;
+        error = P_FAM_IO_ERROR;
     }
 
     if( bim_open( &plink_file->bim_file, bim_path ) == PIO_OK )
@@ -76,12 +76,12 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
     }
     else
     {
-        error = 1;
+        error = P_BIM_IO_ERROR;
     }
 
     if( bed_open( &plink_file->bed_file, bed_path, num_loci, num_samples ) != PIO_OK )
     {
-        error = 1;
+        error = P_BED_IO_ERROR;
     }
 
     if( error == 0 )
@@ -94,7 +94,7 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
         bim_close( &plink_file->bim_file );
         bed_close( &plink_file->bed_file );
 
-        return PIO_ERROR;
+        return error;
     }
 }
 
