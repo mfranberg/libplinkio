@@ -127,10 +127,17 @@ plinkio_open(PyObject *self, PyObject *args)
     {
         return NULL;
     }
-    
-    if( pio_open( &plink_file, path ) != PIO_OK )
-    {
-        PyErr_SetString( PyExc_IOError, "Error while trying to open plink file." );
+    int pio_open_status = pio_open( &plink_file, path );
+    if( pio_open_status != PIO_OK ){
+        if (pio_open_status == P_FAM_IO_ERROR){
+            PyErr_SetString( PyExc_IOError, "Error while trying to open the FAM plink file." );
+        } else if (pio_open_status == P_BIM_IO_ERROR){
+            PyErr_SetString( PyExc_IOError, "Error while trying to open the BIM plink file." );
+        }else if (pio_open_status == P_BED_IO_ERROR){
+            PyErr_SetString( PyExc_IOError, "Error while trying to open the BED plink file." );
+        }else{
+            PyErr_SetString( PyExc_IOError, "Error while trying to open plink file." );
+        } 
         return NULL;
     }
 
