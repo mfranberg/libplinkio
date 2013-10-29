@@ -65,7 +65,7 @@ main(int argc, char *argv[])
     int sample_id;
     int locus_id;
 
-    if( pio_open( &plink_file, "/path/to/plink_file" ) != PIO_OK )
+    if( pio_open( &plink_file, argv[ 1 ] ) != PIO_OK )
     {
         printf( "Error: Could not open %s\n", argv[ 1 ] );
         return EXIT_FAILURE;
