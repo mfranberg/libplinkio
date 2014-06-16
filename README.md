@@ -5,10 +5,10 @@ This is a small C and Python library for reading Plink genotype files.
 Currently it can:
 * Read and parse BED, BIM and FAM files.
 * Transpose BED files.
+* Write BED, BIM and FAM files.
 
 Libplinkio will reach 1.0 when it can:
 * Read PED files (i.e. non-binary bed-files).
-* Write BED, BIM and FAM files.
 
 Project rationales:
 * Use C to make it as simple as possible to add bindings
