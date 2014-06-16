@@ -113,6 +113,31 @@ unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, size_t num_c
 }
 
 /**
+ * Does the reverse of unpack_snps, and packs SNPs into bytes. See unpack_snps for
+ * the detailed format.
+ *
+ * @param unpack_snps The unpacked SNPs.
+ * @param packed_snps The packed SNPs.
+ * @param num_cols The number of columns.
+ */
+void
+pack_snps(const snp_t *unpacked_snps, unsigned char *packed_snps, size_t num_cols)
+{
+    int i;
+    int packed_index;
+    int position_in_byte;
+
+    bzero( packed_snps, num_cols / 4 + 1 );
+    for(i = 0; i < num_cols; i++)
+    {
+        /* Genotypes are stored backwards. */
+        packed_index = i / 4;
+        position_in_byte = (i % 4) * 2;
+        packed_snps[ packed_index ] |= ( snp_to_bits[ unpacked_snps[ i ] ] << position_in_byte );
+    }
+}
+
+/**
  * Transposes the given memory mapped file in place.
  *
  * @param rows Rows of the file.
@@ -229,6 +254,61 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, siz
     bed_file->cur_row = 0;
 
     return PIO_OK;
+}
+
+pio_status_t
+bed_create(struct pio_bed_file_t *bed_file, const char *path, size_t num_samples)
+{
+    FILE *bed_fp;
+    unsigned char header_bytes[3];
+    int length;
+    int row_size_bytes;
+   
+    bzero( bed_file, sizeof( *bed_file ) );
+    bed_fp = fopen( path, "w" );
+    if( bed_fp == NULL )
+    {
+        return PIO_ERROR;
+    }
+
+    bed_file->fp = bed_fp;
+    bed_file->header = bed_header_init( 0, num_samples );
+    bed_header_to_bytes( &bed_file->header, header_bytes, &length );
+    if( fwrite( header_bytes, sizeof( unsigned char ), length, bed_fp ) <= 0 )
+    {
+        fclose( bed_fp );
+        return PIO_ERROR;
+    }
+    
+    row_size_bytes = bed_header_row_size( &bed_file->header ); 
+    bed_file->read_buffer = ( snp_t * ) malloc( row_size_bytes );
+    bed_file->cur_row = 0;
+
+    return PIO_OK;
+}
+
+pio_status_t
+bed_write_row(struct pio_bed_file_t *bed_file, snp_t *buffer)
+{
+    int row_size_bytes;
+    int bytes_written;
+
+    pack_snps( buffer, bed_file->read_buffer, bed_header_num_cols( &bed_file->header ) );
+    row_size_bytes = bed_header_row_size( &bed_file->header );
+
+    bytes_written = fwrite( bed_file->read_buffer, sizeof( unsigned char ), row_size_bytes, bed_file->fp );
+
+    if( bytes_written > 0 )
+    {
+        bed_file->header.num_loci += 1;
+        bed_file->cur_row += 1;
+
+        return PIO_OK;
+    }
+    else
+    {
+        return PIO_ERROR;
+    }
 }
 
 pio_status_t

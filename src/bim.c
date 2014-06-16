@@ -75,6 +75,46 @@ bim_open(struct pio_bim_file_t *bim_file, const char *path)
     return status;
 }
 
+pio_status_t
+bim_create(struct pio_bim_file_t *bim_file, const char *path)
+{
+    FILE *bim_fp;
+    bzero( bim_file, sizeof( *bim_file ) );
+    bim_fp = fopen( path, "w" );
+    if( bim_fp == NULL )
+    {
+        return PIO_ERROR;
+    }
+
+    bim_file->fp = bim_fp;
+    utarray_new( bim_file->locus, &LOCUS_ICD );
+
+    return PIO_OK;
+}
+
+pio_status_t
+bim_write(struct pio_bim_file_t *bim_file, struct pio_locus_t *locus)
+{
+    struct pio_locus_t locus_copy;
+    if( write_locus( bim_file->fp, locus ) == PIO_OK )
+    {
+        locus_copy.pio_id = bim_num_loci( bim_file );
+        locus_copy.chromosome = locus->chromosome;
+        locus_copy.name = strdup( locus->name );
+        locus_copy.position = locus->position;
+        locus_copy.bp_position = locus->bp_position;
+        locus_copy.allele1 = strdup( locus->allele1 );
+        locus_copy.allele2 = strdup( locus->allele2 );
+
+        utarray_push_back( bim_file->locus, &locus_copy );
+        return PIO_OK;
+    }
+    else
+    {
+        return PIO_ERROR;
+    }
+}
+
 struct pio_locus_t *
 bim_get_locus(struct pio_bim_file_t *bim_file, size_t pio_id)
 {
@@ -93,6 +133,10 @@ bim_close(struct pio_bim_file_t *bim_file)
     if( bim_file->locus == NULL )
     {
         return;
+    }
+    if( bim_file->fp != NULL )
+    {
+        fclose( bim_file->fp );
     }
 
     utarray_free( bim_file->locus );

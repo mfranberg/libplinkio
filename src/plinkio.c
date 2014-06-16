@@ -98,6 +98,49 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
     }
 }
 
+pio_status_t
+pio_create(struct pio_file_t *plink_file, const char *plink_file_prefix, struct pio_sample_t *samples, size_t num_samples)
+{
+    int error = 0;
+    
+    char *fam_path = concatenate( plink_file_prefix, ".fam" );
+    char *bim_path = concatenate( plink_file_prefix, ".bim" );
+    char *bed_path = concatenate( plink_file_prefix, ".bed" );
+    
+    if( fam_create( &plink_file->fam_file, fam_path, samples, num_samples ) != PIO_OK )
+    {
+        return P_FAM_IO_ERROR;
+    }
+    if( bim_create( &plink_file->bim_file, bim_path ) )
+    {
+        return P_BIM_IO_ERROR;
+    }
+    if( bed_create( &plink_file->bed_file, bed_path, num_samples ) )
+    {
+        return P_BED_IO_ERROR;
+    }
+}
+
+pio_status_t
+pio_write_row(struct pio_file_t *plink_file, struct pio_locus_t *locus, snp_t *buffer)
+{
+    pio_status_t status_bim = bim_write( &plink_file->bim_file, locus );
+    pio_status_t status_bed = bed_write_row( &plink_file->bed_file, buffer );
+
+    if( status_bim != PIO_OK )
+    {
+        return P_BIM_IO_ERROR;
+    }
+    else if( status_bed != PIO_OK )
+    {
+        return P_BED_IO_ERROR;
+    }
+    else
+    {
+        return PIO_OK;
+    }
+}
+
 struct pio_sample_t *
 pio_get_sample(struct pio_file_t *plink_file, size_t pio_id)
 {

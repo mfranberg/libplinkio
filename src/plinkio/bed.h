@@ -64,6 +64,26 @@ struct pio_bed_file_t
 pio_status_t bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, size_t num_samples);
 
 /**
+ * Creates a bed file.
+ *
+ * @param bed_file Bed file.
+ * @param path Path to the bed file.
+ * @param num_samples The number of samples that the .bed file will include.
+ *
+ * @return PIO_OK if the file could be created, PIO_ERROR otherwise.
+ */
+pio_status_t bed_create(struct pio_bed_file_t *bed_file, const char *path, size_t num_samples);
+
+/**
+ * Writes a single row of samples to the bed file, assuming that the size of
+ * the buffer is at least as big as specified when created.
+ *
+ * @param bed_file Bed file.
+ * @param buffer List of SNPs to write to file.
+ */
+pio_status_t bed_write_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
+
+/**
  * Reads a single row from the given bed_file. Each element in the buffer
  * will contain a SNP. The SNP will be encoded as follows:
  * 0 - Homozygous major

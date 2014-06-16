@@ -30,6 +30,14 @@ extern "C" {
  */
 pio_status_t parse_samples(FILE *fam_fp, UT_array *sample);
 
+/**
+ * Writes a sample to the .fam file.
+ *
+ * @param fam_fp Fam file.
+ * @param sample The sample to write.
+ */
+pio_status_t write_sample(FILE *fam_fp, struct pio_sample_t *sample);
+
 #ifdef __cplusplus
 }
 #endif

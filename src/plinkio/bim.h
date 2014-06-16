@@ -87,6 +87,26 @@ struct pio_bim_file_t
 pio_status_t bim_open(struct pio_bim_file_t *bim_file, const char *path);
 
 /**
+ * Creates a new bim file at the given path.
+ *
+ * @param bim_file Bim file.
+ * @param path The location of the bim file.
+ *
+ * @return PIO_OK if the file could be created, PIO_ERROR otherwise.
+ */
+pio_status_t bim_create(struct pio_bim_file_t *bim_file, const char *path);
+
+/**
+ * Writes the given locus to the bim file.
+ *
+ * @param bim_file Bim file.
+ * @param locus The locus to write to the bim file.
+ *
+ * @return PIO_OK if the locus could be written, PIO_ERROR otherwise.
+ */
+pio_status_t bim_write(struct pio_bim_file_t *bim_file, struct pio_locus_t *locus);
+
+/**
  * Returns the locus with the given pio_id.
  *
  * @param bim_file The bim file to get the locus from.

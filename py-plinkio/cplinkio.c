@@ -128,14 +128,22 @@ plinkio_open(PyObject *self, PyObject *args)
         return NULL;
     }
     int pio_open_status = pio_open( &plink_file, path );
-    if( pio_open_status != PIO_OK ){
-        if (pio_open_status == P_FAM_IO_ERROR){
+    if( pio_open_status != PIO_OK )
+    {
+        if( pio_open_status == P_FAM_IO_ERROR )
+        {
             PyErr_SetString( PyExc_IOError, "Error while trying to open the FAM plink file." );
-        } else if (pio_open_status == P_BIM_IO_ERROR){
+        }
+        else if( pio_open_status == P_BIM_IO_ERROR )
+        {
             PyErr_SetString( PyExc_IOError, "Error while trying to open the BIM plink file." );
-        }else if (pio_open_status == P_BED_IO_ERROR){
+        }
+        else if( pio_open_status == P_BED_IO_ERROR )
+        {
             PyErr_SetString( PyExc_IOError, "Error while trying to open the BED plink file." );
-        }else{
+        }
+        else
+        {
             PyErr_SetString( PyExc_IOError, "Error while trying to open plink file." );
         } 
         return NULL;
@@ -152,6 +160,167 @@ plinkio_open(PyObject *self, PyObject *args)
 
 
     return (PyObject *) c_plink_file;
+}
+
+/**
+ * Creates a plink file and returns a handle to it.
+ *
+ * @param self -
+ * @param args First argument is a path to the plink file. Second argument
+ *             is a list of Sample objects.
+ *
+ * @return A handle to the plink file, or throws an IOError.
+ */
+static PyObject *
+plinkio_create(PyObject *self, PyObject *args)
+{
+    int i, sex, affection;
+    const char *path;
+    struct pio_sample_t *samples;
+    struct pio_file_t plink_file = { 0 };
+    c_plink_file_t *c_plink_file;
+    PyObject *sample_list;
+    PyObject *sample_object;
+    PyObject *i_object;
+    
+    if( !PyArg_ParseTuple( args, "sO", &path, &sample_list ) )
+    {
+        return NULL;
+    }
+    
+    samples = ( struct pio_sample_t * ) malloc( sizeof( struct pio_sample_t ) * PyObject_Size( sample_list ) );
+    for(i = 0; i < PyObject_Size( sample_list ); i++)
+    {
+        i_object = PyInt_FromLong( i );
+        sample_object = PyObject_GetItem( sample_list, i_object );
+        samples[ i ].fid = PyString_AsString( PyObject_GetAttrString( sample_object, "fid" ) );
+        samples[ i ].iid = PyString_AsString( PyObject_GetAttrString( sample_object, "iid" ) );
+        samples[ i ].father_iid = PyString_AsString( PyObject_GetAttrString( sample_object, "father_iid" ) );
+        samples[ i ].mother_iid = PyString_AsString( PyObject_GetAttrString( sample_object, "mother_iid" ) );
+        samples[ i ].phenotype = PyFloat_AsDouble( PyObject_GetAttrString( sample_object, "phenotype" ) ) ;
+        
+        sex = PyInt_AsLong( PyObject_GetAttrString( sample_object, "sex" ) );
+        if( sex == 0 )
+        {
+            samples[ i ].sex = PIO_FEMALE;
+        }
+        else if( sex == 1 )
+        {
+            samples[ i ].sex = PIO_MALE;
+        }
+        else
+        {
+            samples[ i ].sex = PIO_UNKNOWN;
+        }
+
+        affection = PyInt_AsLong( PyObject_GetAttrString( sample_object, "affection" ) );
+        if( affection == 0 )
+        {
+            samples[ i ].affection = PIO_CONTROL;
+        }
+        else if( affection == 1 )
+        {
+            samples[ i ].affection = PIO_CASE;
+        }
+        else if( affection == -9 )
+        {
+            samples[ i ].affection = PIO_MISSING;
+        }
+        else
+        {
+            samples[ i ].affection = PIO_CONTINUOUS;
+        }
+        
+        Py_DECREF( i_object );
+    }
+
+    int pio_create_status = pio_create( &plink_file, path, samples, PyObject_Size( sample_list ) );
+    if( pio_create_status != PIO_OK )
+    {
+        free( samples );
+        if( pio_create_status == P_FAM_IO_ERROR )
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to creating FAM file." );
+        }
+        else if( pio_create_status == P_BIM_IO_ERROR )
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to creating BIM file." );
+        }
+        else if( pio_create_status == P_BED_IO_ERROR )
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to creating BED file." );
+        }
+        else
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to creating plink file." );
+        }
+        return NULL;
+    }
+    
+    c_plink_file = (c_plink_file_t *) c_plink_file_prototype.tp_alloc( &c_plink_file_prototype, 0 );
+    c_plink_file->file = plink_file;
+    c_plink_file->row  = (snp_t *) malloc( pio_row_size( &plink_file ) );
+    c_plink_file->row_length = pio_num_samples( &plink_file );
+
+    free( samples );
+    
+    return (PyObject *) c_plink_file;
+}
+
+/**
+ * Writes a row to a created plink file.
+ *
+ * @param self -
+ * @param args First argument is the plink file. Second argument
+ *             is a Locus object. Third argument is a list of genotypes.
+ *
+ * @return A handle to the plink file, or throws an IOError.
+ */
+static PyObject *
+plinkio_write_row(PyObject *self, PyObject *args)
+{
+    PyObject *plink_file;
+    c_plink_file_t *c_plink_file;
+    PyObject *locus_object;
+    PyObject *genotypes;
+    PyObject *i_object;
+    struct pio_locus_t locus;
+    int i;
+    
+    if( !PyArg_ParseTuple( args, "O!OO", &c_plink_file_prototype, &plink_file, &locus_object, &genotypes ) )
+    {
+        return NULL;
+    }
+
+    c_plink_file = (c_plink_file_t *) plink_file;
+    if( PyObject_Size( genotypes ) != c_plink_file->row_length )
+    {
+        PyErr_SetString( PyExc_ValueError, "Error, wrong number of genotypes given." );
+        return NULL;
+    }
+
+    locus.chromosome = PyInt_AsLong( PyObject_GetAttrString( locus_object, "chromosome" ) );
+    locus.name = PyString_AsString( PyObject_GetAttrString( locus_object, "name" ) );
+    locus.position = PyFloat_AsDouble( PyObject_GetAttrString( locus_object, "position" ) );
+    locus.bp_position = PyInt_AsLong( PyObject_GetAttrString( locus_object, "bp_position" ) );
+    locus.allele1 = PyString_AsString( PyObject_GetAttrString( locus_object, "allele1" ) );
+    locus.allele2 = PyString_AsString( PyObject_GetAttrString( locus_object, "allele2" ) );
+    
+    for(i = 0; i < c_plink_file->row_length; i++)
+    {
+        i_object = PyInt_FromLong( i );
+        c_plink_file->row[ i ] = (snp_t) PyInt_AsLong( PyObject_GetItem( genotypes, i_object ) );
+
+        Py_DECREF( i_object );
+    }
+
+    if( pio_write_row( &c_plink_file->file, &locus, c_plink_file->row ) != PIO_OK )
+    {
+        PyErr_SetString( PyExc_IOError, "Error while writing to plink file." );
+        return NULL;
+    }
+    
+    Py_RETURN_NONE;
 }
 
 /**
@@ -287,7 +456,7 @@ plinkio_get_samples(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
     c_plink_file_t *c_plink_file;
-    int i;
+    int i, sex, affection;
     
     if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
@@ -313,13 +482,33 @@ plinkio_get_samples(PyObject *self, PyObject *args)
     {
         struct pio_sample_t *sample = pio_get_sample( &c_plink_file->file, i );
 
+        sex = 0;
+        if( sample->sex == PIO_MALE )
+        {
+            sex = 1;
+        }
+        else if( sample->sex != PIO_FEMALE )
+        {
+            sex = -9;
+        }
+
+        affection = 0;
+        if( sample->affection == PIO_CASE )
+        {
+            affection = 1;
+        }
+        else if( sample->affection != PIO_CONTROL )
+        {
+            affection = -9;
+        }
+
         PyObject *args = Py_BuildValue( "ssssiif",
                                         sample->fid,
                                         sample->iid,
                                         sample->father_iid,
                                         sample->mother_iid,
-                                        (int) sample->sex,
-                                        (int) sample->affection,
+                                        sex,
+                                        affection,
                                         sample->phenotype );
         PyObject *pySample = PyObject_CallObject( sampleClass, args );
 
@@ -412,6 +601,8 @@ static PyMethodDef plinkio_methods[] =
     { "one_locus_per_row", plinkio_one_locus_per_row, METH_VARARGS, "Returns true if a row contains the snps for a single locus." },
     { "close", plinkio_close, METH_VARARGS, "Close a plink file." },
     { "transpose", plinkio_transpose, METH_VARARGS, "Transposes the plink file." },
+    { "create", plinkio_create, METH_VARARGS, "Creates a new plink file." },
+    { "write_row", plinkio_write_row, METH_VARARGS, "Writes genotypes to a created plink file." },
     { NULL }
 };
 

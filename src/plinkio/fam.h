@@ -25,7 +25,7 @@ enum sex_t
 {
     PIO_MALE,
     PIO_FEMALE,
-    PIO_UNKOWN
+    PIO_UNKNOWN
 };
 
 /**
@@ -114,6 +114,19 @@ struct pio_fam_file_t
  * @return Returns PIO_OK if the file could be read, PIO_ERROR otherwise.
  */
 pio_status_t fam_open(struct pio_fam_file_t *fam_file, const char *path);
+
+/**
+ * Creates a fam file at the given path, and writes all
+ * individuals to the file.
+ *
+ * @param fam_file Fam file.
+ * @param path The location of the fam file.
+ * @param samples List of samples.
+ * @param num_samples Number of samples in the list.
+ *
+ * @return PIO_OK if the file could be created and written, PIO_ERROR otherwise.
+ */
+pio_status_t fam_create(struct pio_fam_file_t *fam_file, const char *path, struct pio_sample_t *samples, size_t num_samples);
 
 /**
  * Returns the sample with the given pio_id.

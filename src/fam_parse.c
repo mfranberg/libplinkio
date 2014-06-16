@@ -105,7 +105,7 @@ parse_iid(const char *field, size_t length, pio_status_t *status)
  * @param length Length of the field.
  * @param status Status of the conversion.
  *
- * @return The parsed csv field, or PIO_UNKOWN along with
+ * @return The parsed csv field, or PIO_UNKNOWN along with
  *         status = PIO_ERROR if it could not be parsed.
  */
 static enum sex_t
@@ -114,7 +114,7 @@ parse_sex(const char *field, size_t length, pio_status_t *status)
     if( length != 1 )
     {
         *status = PIO_ERROR;
-        return PIO_UNKOWN;
+        return PIO_UNKNOWN;
     }
 
     *status = PIO_OK;
@@ -128,7 +128,7 @@ parse_sex(const char *field, size_t length, pio_status_t *status)
     }
     else
     {
-        return PIO_UNKOWN;
+        return PIO_UNKNOWN;
     }
 }
 
@@ -305,4 +305,62 @@ parse_samples(FILE *fam_fp, UT_array *sample)
     csv_free( &parser );
     
     return ( state.any_error == 0 ) ? PIO_OK : PIO_ERROR;
+}
+
+
+pio_status_t
+write_sample(FILE *fam_fp, struct pio_sample_t *sample)
+{
+    int sex = 0;
+    if( sample->sex == PIO_MALE )
+    {
+        sex = 1;
+    }
+    else if( sample->sex == PIO_FEMALE )
+    {
+        sex = 2;
+    }
+
+    int bytes_written = 0;
+    if( sample->affection == PIO_CONTINUOUS )
+    {
+        bytes_written = fprintf( fam_fp,
+                 "%s\t%s\t%s\t%s\t%d\t%f\n", 
+                 sample->fid,
+                 sample->iid,
+                 sample->father_iid,
+                 sample->mother_iid,
+                 sex,
+                 sample->phenotype );
+    }
+    else
+    {
+        int affection = 0;
+        if( sample->affection == PIO_CONTROL )
+        {
+            affection = 1;
+        }
+        else if( sample->affection == PIO_CASE )
+        {
+            affection = 2;
+        }
+
+        bytes_written = fprintf( fam_fp,
+                 "%s\t%s\t%s\t%s\t%d\t%d\n", 
+                 sample->fid,
+                 sample->iid,
+                 sample->father_iid,
+                 sample->mother_iid,
+                 sex,
+                 affection );
+    }
+
+    if( bytes_written > 0 )
+    {
+        return PIO_OK;
+    }
+    else
+    {
+        return PIO_ERROR;
+    }
 }

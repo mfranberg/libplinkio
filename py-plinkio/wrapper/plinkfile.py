@@ -81,6 +81,54 @@ class PlinkFile:
     def transpose(self, new_path):
         return cplinkio.transpose( self.path, new_path )
 
+class WritablePlinkFile: 
+    ##
+    # Creates the plink file at the given path containing the given
+    # samples. Their genotypes can then be written one row at a time.
+    # This file may not be read simulatenously.
+    #
+    # @param path The prefix for a .bed, .fam and .bim without
+    #             the extension. E.g. for the files /plink/myfile.fam,
+    #             /plink/myfile.bim, /plink/myfile.bed use the path
+    #             /plink/myfile
+    # @param samples A list of Sample objects which are the final subjects
+    #                that will be in the file.
+    #
+    def __init__(self, path, samples):
+        self.path = path
+        self.handle = cplinkio.create( path, samples )
+    
+    ##
+    # Returns a list of the samples.
+    #
+    def get_samples(self):
+        return cplinkio.get_samples( self.handle )
+
+    ##
+    # Returns a list of the loci.
+    #
+    def get_loci(self):
+        return cplinkio.get_loci( self.handle )
+
+    ##
+    # Takes a locus and the corresponding genotypes and
+    # writes them to the plink file.
+    # 
+    # @param locus A Locus object to write.
+    # @param row An indexable list of genotypes.
+    #
+    def write_row(self, locus, row):
+        return cplinkio.write_row( self.handle, locus, row )
+    
+    ##
+    # Closes the file.
+    #
+    def close(self):
+        if self.handle:
+            cplinkio.close( self.handle )
+            self.handle = None
+
+
 class Sample:
     def __init__(self, fid, iid, father_iid, mother_iid, sex, affection, phenotype = 0.0):
         ##
@@ -167,3 +215,15 @@ class Locus:
 #
 def open(path):
     return PlinkFile( path )
+
+##
+# Creates a new plink file based on the given samples.
+#
+# @param path The prefix for a .bed, .fam and .bim without
+#             the extension. E.g. for the files /plink/myfile.fam,
+#             /plink/myfile.bim, /plink/myfile.bed use the path
+#             /plink/myfile
+# @param samples A list of Sample objects to write to the file.
+#
+def create(path, samples):
+    return WritablePlinkFile( path, samples )

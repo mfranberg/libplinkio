@@ -22,6 +22,11 @@ extern "C" {
 #endif
 
 /**
+ * Maps an unpacked snp to its corresponding bits.
+ */
+unsigned char snp_to_bits[] = { 0, 2, 3, 1 };
+
+/**
  * This files contains a lookup table that maps
  * SNPs packed in a single byte into an array of
  * four bytes.
@@ -40,9 +45,9 @@ union snp_lookup_t
 };
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-#include "snp_lookup_little.h"
+#include <plinkio/snp_lookup_little.h>
 #else
-#include "snp_lookup_big.h"
+#include <plinkio/snp_lookup_big.h>
 #endif /* End test endianess */
 
 #ifdef __cplusplus

@@ -84,6 +84,45 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
     return status;
 }
 
+pio_status_t
+fam_create(struct pio_fam_file_t *fam_file, const char *path, struct pio_sample_t *samples, size_t num_samples)
+{
+    int i;
+    FILE *fam_fp;
+    struct pio_sample_t sample_copy;
+
+    bzero( fam_file, sizeof( *fam_file ) );
+    fam_fp = fopen( path, "w" );
+    if( fam_fp == NULL )
+    {
+        return PIO_ERROR;
+    }
+
+    fam_file->fp = fam_fp;
+
+    utarray_new( fam_file->sample, &SAMPLE_ICD );
+    for(i = 0; i < num_samples; i++)
+    {
+        if( write_sample( fam_fp, &samples[ i ] ) != PIO_OK )
+        {
+            return PIO_ERROR;
+        }
+
+        sample_copy.pio_id = i;
+        sample_copy.fid = strdup( samples[ i ].fid );
+        sample_copy.iid = strdup( samples[ i ].iid );
+        sample_copy.mother_iid = strdup( samples[ i ].mother_iid );
+        sample_copy.father_iid = strdup( samples[ i ].father_iid );
+        sample_copy.sex = samples[ i ].sex;
+        sample_copy.affection = samples[ i ].affection;
+        sample_copy.phenotype = samples[ i ].phenotype;
+
+        utarray_push_back( fam_file->sample, &sample_copy );
+    }
+
+    return PIO_OK;
+}
+
 struct pio_sample_t *
 fam_get_sample(struct pio_fam_file_t *fam_file, size_t pio_id)
 {
@@ -102,6 +141,10 @@ fam_close(struct pio_fam_file_t *fam_file)
     if( fam_file->sample == NULL )
     {
         return;
+    }
+    if( fam_file->fp != NULL )
+    {
+        fclose( fam_file->fp );
     }
 
     utarray_free( fam_file->sample );

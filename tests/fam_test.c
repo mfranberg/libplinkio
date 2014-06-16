@@ -37,7 +37,7 @@ test_parse_sex(void **state)
 {
     const char *TEST_STRING_MALE = "1";
     const char *TEST_STRING_FEMALE = "2";
-    const char *TEST_STRING_UNKOWN = "0";
+    const char *TEST_STRING_UNKNOWN = "0";
     pio_status_t status;
     enum sex_t sex;
 
@@ -49,9 +49,9 @@ test_parse_sex(void **state)
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sex, PIO_FEMALE );
 
-    sex = parse_sex( TEST_STRING_UNKOWN, strlen( TEST_STRING_UNKOWN ), &status );
+    sex = parse_sex( TEST_STRING_UNKNOWN, strlen( TEST_STRING_UNKNOWN ), &status );
     assert_int_equal( status, PIO_OK );
-    assert_int_equal( sex, PIO_UNKOWN );
+    assert_int_equal( sex, PIO_UNKNOWN );
 }
 
 /**

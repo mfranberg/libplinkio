@@ -282,3 +282,26 @@ parse_loci(FILE *bim_fp, UT_array *locus)
     
     return ( state.any_error == 0 ) ? PIO_OK : PIO_ERROR;
 }
+
+pio_status_t
+write_locus(FILE *bim_fp, struct pio_locus_t *locus)
+{
+    int bytes_written = fprintf( bim_fp,
+                    "%d\t%s\t%f\t%lld\t%s\t%s\n",
+                    locus->chromosome,
+                    locus->name,
+                    locus->position,
+                    locus->bp_position,
+                    locus->allele1,
+                    locus->allele2
+                    );
+
+    if( bytes_written > 0 )
+    {
+        return PIO_OK;
+    }
+    else
+    {
+        return PIO_ERROR;
+    }
+}

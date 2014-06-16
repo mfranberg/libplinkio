@@ -58,6 +58,31 @@ struct pio_file_t
 pio_status_t pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix);
 
 /**
+ * Creates a new binary plink file.
+ *
+ * @param plink_file Plink file to create.
+ * @param plink_file_prefix Path to plink file.
+ * @param samples Complete list of samples to be in the .fam file. This is required since
+ *                we need to know the length of the rows in the bed file.
+ * @param num_samples The number of samples in the samples array.
+ *
+ * @return PIO_OK if all files could be created. PIO_ERROR otherwise.
+ */
+pio_status_t pio_create(struct pio_file_t *plink_file, const char *plink_file_prefix, struct pio_sample_t *samples, size_t num_samples);
+
+/**
+ * Writes the genotypes for a single SNP for all individuals to the .bed file,
+ * and adds the corresponding entry to the .bim file.
+ *
+ * @param plink_file Plink file created with pio_create.
+ * @param locus The locus to write genotypes for.
+ * @param buffer The genotypes for all individuals.
+ *
+ * @return PIO_OK if the files could be written. PIO_ERROR otherwise.
+ */
+pio_status_t pio_write_row(struct pio_file_t *plink_file, struct pio_locus_t *locus, snp_t *buffer);
+
+/**
  * Opens the given plink file, which is specificed by separate paths
  * to the .bim, .bed and .fam files.
  *
