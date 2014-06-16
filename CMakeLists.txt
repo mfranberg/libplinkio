@@ -2,7 +2,7 @@ project( libplinkio )
 cmake_minimum_required( VERSION 2.8.9 )
 
 set( LIBPLINKIO_VERSION_MAJOR 0 )
-set( LIBPLINKIO_VERSION_MINOR 1 )
+set( LIBPLINKIO_VERSION_MINOR 3 )
 set( LIBPLINKIO_VERSION_PATCH 0 )
 
 set( CPACK_SOURCE_GENERATOR "TGZ" )
