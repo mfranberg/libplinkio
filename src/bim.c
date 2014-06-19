@@ -71,6 +71,7 @@ bim_open(struct pio_bim_file_t *bim_file, const char *path)
     status = parse_loci( bim_file->fp, bim_file->locus );
 
     fclose( bim_fp );
+    bim_file->fp = NULL;
 
     return status;
 }

@@ -79,7 +79,9 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
     fam_file->fp = fam_fp;
     utarray_new( fam_file->sample, &SAMPLE_ICD );
     status = parse_samples( fam_file->fp, fam_file->sample );
+    
     fclose( fam_fp );
+    fam_file->fp = NULL;
 
     return status;
 }
