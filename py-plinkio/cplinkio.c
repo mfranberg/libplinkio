@@ -436,8 +436,14 @@ plinkio_get_loci(PyObject *self, PyObject *args)
                                         locus->allele2 );
         PyObject *pyLocus = PyObject_CallObject( locusClass, args );
 
+        /* Steals the pyLocus reference */
         PyList_SetItem( loci_list, i, pyLocus );
+        
+        Py_DECREF( args );
     }
+
+    Py_DECREF( module );
+    Py_DECREF( locusClass );
 
     return loci_list;
 }
@@ -512,8 +518,14 @@ plinkio_get_samples(PyObject *self, PyObject *args)
                                         sample->phenotype );
         PyObject *pySample = PyObject_CallObject( sampleClass, args );
 
+        /* Steals the pySample reference */
         PyList_SetItem( sample_list, i, pySample );
+
+        Py_DECREF( args );
     }
+    
+    Py_DECREF( module );
+    Py_DECREF( sampleClass );
 
     return sample_list;
 }
