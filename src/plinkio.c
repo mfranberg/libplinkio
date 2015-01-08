@@ -111,14 +111,16 @@ pio_create(struct pio_file_t *plink_file, const char *plink_file_prefix, struct 
     {
         return P_FAM_IO_ERROR;
     }
-    if( bim_create( &plink_file->bim_file, bim_path ) )
+    if( bim_create( &plink_file->bim_file, bim_path ) != PIO_OK )
     {
         return P_BIM_IO_ERROR;
     }
-    if( bed_create( &plink_file->bed_file, bed_path, num_samples ) )
+    if( bed_create( &plink_file->bed_file, bed_path, num_samples ) != PIO_OK )
     {
         return P_BED_IO_ERROR;
     }
+
+    return PIO_OK;
 }
 
 pio_status_t
