@@ -182,7 +182,14 @@ plinkio_create(PyObject *self, PyObject *args)
     PyObject *sample_list;
     PyObject *sample_object;
     PyObject *i_object;
-    
+    PyObject *fid_object;
+    PyObject *iid_object;
+    PyObject *father_iid_object;
+    PyObject *mother_iid_object;
+    PyObject *phenotype_object;
+    PyObject *sex_object;
+    PyObject *affection_object;
+
     if( !PyArg_ParseTuple( args, "sO", &path, &sample_list ) )
     {
         return NULL;
@@ -193,13 +200,20 @@ plinkio_create(PyObject *self, PyObject *args)
     {
         i_object = PyInt_FromLong( i );
         sample_object = PyObject_GetItem( sample_list, i_object );
-        samples[ i ].fid = PyString_AsString( PyObject_GetAttrString( sample_object, "fid" ) );
-        samples[ i ].iid = PyString_AsString( PyObject_GetAttrString( sample_object, "iid" ) );
-        samples[ i ].father_iid = PyString_AsString( PyObject_GetAttrString( sample_object, "father_iid" ) );
-        samples[ i ].mother_iid = PyString_AsString( PyObject_GetAttrString( sample_object, "mother_iid" ) );
-        samples[ i ].phenotype = PyFloat_AsDouble( PyObject_GetAttrString( sample_object, "phenotype" ) ) ;
+        fid_object = PyObject_GetAttrString( sample_object, "fid" );
+        iid_object = PyObject_GetAttrString( sample_object, "iid" );
+        father_iid_object = PyObject_GetAttrString( sample_object, "father_iid" );
+        mother_iid_object = PyObject_GetAttrString( sample_object, "mother_iid" );
+        phenotype_object = PyObject_GetAttrString( sample_object, "phenotype" );
+
+        samples[ i ].fid = strndup( PyString_AsString( fid_object ), PyString_Size( fid_object ) );
+        samples[ i ].iid = strndup( PyString_AsString( iid_object ), PyString_Size( iid_object ) );
+        samples[ i ].father_iid = strndup( PyString_AsString( father_iid_object ), PyString_Size( father_iid_object ) );
+        samples[ i ].mother_iid = strndup( PyString_AsString( mother_iid_object ), PyString_Size( mother_iid_object ) );
+        samples[ i ].phenotype = PyFloat_AsDouble( phenotype_object );
         
-        sex = PyInt_AsLong( PyObject_GetAttrString( sample_object, "sex" ) );
+        sex_object = PyObject_GetAttrString( sample_object, "sex" );
+        sex = PyInt_AsLong( sex_object );
         if( sex == 0 )
         {
             samples[ i ].sex = PIO_FEMALE;
@@ -213,7 +227,8 @@ plinkio_create(PyObject *self, PyObject *args)
             samples[ i ].sex = PIO_UNKNOWN;
         }
 
-        affection = PyInt_AsLong( PyObject_GetAttrString( sample_object, "affection" ) );
+        affection_object = PyObject_GetAttrString( sample_object, "affection" );
+        affection = PyInt_AsLong( affection_object );
         if( affection == 0 )
         {
             samples[ i ].affection = PIO_CONTROL;
@@ -231,10 +246,30 @@ plinkio_create(PyObject *self, PyObject *args)
             samples[ i ].affection = PIO_CONTINUOUS;
         }
         
+        /* Lower refcount for both accessed attributes and objects */
         Py_DECREF( i_object );
+        Py_DECREF( iid_object );
+        Py_DECREF( fid_object );
+        Py_DECREF( father_iid_object );
+        Py_DECREF( mother_iid_object );
+        Py_DECREF( sex_object );
+        Py_DECREF( affection_object );
+        Py_DECREF( sample_object );
     }
 
     int pio_create_status = pio_create( &plink_file, path, samples, PyObject_Size( sample_list ) );
+    
+    /* Free duplicated strings and sample array */
+    for(i = 0; i < PyObject_Size( sample_list ); i++)
+    {
+        free( samples[ i ].iid );
+        free( samples[ i ].fid );
+        free( samples[ i ].father_iid );
+        free( samples[ i ].mother_iid );
+    }
+    free( samples );
+    
+    /* Check for errors */
     if( pio_create_status != PIO_OK )
     {
         free( samples );
@@ -259,10 +294,8 @@ plinkio_create(PyObject *self, PyObject *args)
     
     c_plink_file = (c_plink_file_t *) c_plink_file_prototype.tp_alloc( &c_plink_file_prototype, 0 );
     c_plink_file->file = plink_file;
-    c_plink_file->row  = (snp_t *) malloc( pio_row_size( &plink_file ) );
+    c_plink_file->row = (snp_t *) malloc( pio_row_size( &plink_file ) );
     c_plink_file->row_length = pio_num_samples( &plink_file );
-
-    free( samples );
     
     return (PyObject *) c_plink_file;
 }
@@ -284,8 +317,16 @@ plinkio_write_row(PyObject *self, PyObject *args)
     PyObject *locus_object;
     PyObject *genotypes;
     PyObject *i_object;
+    PyObject *chromosome_object;
+    PyObject *name_object;
+    PyObject *position_object;
+    PyObject *bp_position_object;
+    PyObject *allele1_object;
+    PyObject *allele2_object;
+    PyObject *genotype_object;
     struct pio_locus_t locus;
     int i;
+    int write_status;
     
     if( !PyArg_ParseTuple( args, "O!OO", &c_plink_file_prototype, &plink_file, &locus_object, &genotypes ) )
     {
@@ -299,22 +340,40 @@ plinkio_write_row(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    locus.chromosome = PyInt_AsLong( PyObject_GetAttrString( locus_object, "chromosome" ) );
-    locus.name = PyString_AsString( PyObject_GetAttrString( locus_object, "name" ) );
-    locus.position = PyFloat_AsDouble( PyObject_GetAttrString( locus_object, "position" ) );
-    locus.bp_position = PyInt_AsLong( PyObject_GetAttrString( locus_object, "bp_position" ) );
-    locus.allele1 = PyString_AsString( PyObject_GetAttrString( locus_object, "allele1" ) );
-    locus.allele2 = PyString_AsString( PyObject_GetAttrString( locus_object, "allele2" ) );
+    chromosome_object = PyObject_GetAttrString( locus_object, "chromosome" );
+    name_object = PyObject_GetAttrString( locus_object, "name" ); 
+    position_object = PyObject_GetAttrString( locus_object, "position" );
+    bp_position_object = PyObject_GetAttrString( locus_object, "bp_position" );
+    allele1_object = PyObject_GetAttrString( locus_object, "allele1" );
+    allele2_object = PyObject_GetAttrString( locus_object, "allele2" );
+
+    locus.chromosome = PyInt_AsLong( chromosome_object );
+    locus.name = PyString_AsString( name_object );
+    locus.position = PyFloat_AsDouble( position_object );
+    locus.bp_position = PyInt_AsLong( bp_position_object );
+    locus.allele1 = PyString_AsString( allele1_object );
+    locus.allele2 = PyString_AsString( allele2_object );
     
     for(i = 0; i < c_plink_file->row_length; i++)
     {
         i_object = PyInt_FromLong( i );
-        c_plink_file->row[ i ] = (snp_t) PyInt_AsLong( PyObject_GetItem( genotypes, i_object ) );
+        genotype_object = PyObject_GetItem( genotypes, i_object );
+        c_plink_file->row[ i ] = (snp_t) PyInt_AsLong( genotype_object );
 
+        Py_DECREF( genotype_object );
         Py_DECREF( i_object );
     }
 
-    if( pio_write_row( &c_plink_file->file, &locus, c_plink_file->row ) != PIO_OK )
+    write_status = pio_write_row( &c_plink_file->file, &locus, c_plink_file->row );
+    
+    Py_DECREF( chromosome_object );
+    Py_DECREF( name_object );
+    Py_DECREF( position_object );
+    Py_DECREF( bp_position_object );
+    Py_DECREF( allele1_object );
+    Py_DECREF( allele2_object );
+
+    if( write_status != PIO_OK )
     {
         PyErr_SetString( PyExc_IOError, "Error while writing to plink file." );
         return NULL;

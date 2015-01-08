@@ -96,19 +96,21 @@ class WritablePlinkFile:
     #
     def __init__(self, path, samples):
         self.path = path
+        self.samples = samples
+        self.loci = [ ]
         self.handle = cplinkio.create( path, samples )
     
     ##
     # Returns a list of the samples.
     #
     def get_samples(self):
-        return cplinkio.get_samples( self.handle )
+        return self.samples
 
     ##
     # Returns a list of the loci.
     #
     def get_loci(self):
-        return cplinkio.get_loci( self.handle )
+        return self.loci
 
     ##
     # Takes a locus and the corresponding genotypes and
@@ -118,7 +120,8 @@ class WritablePlinkFile:
     # @param row An indexable list of genotypes.
     #
     def write_row(self, locus, row):
-        return cplinkio.write_row( self.handle, locus, row )
+        cplinkio.write_row( self.handle, locus, row )
+        self.loci.append( locus )
     
     ##
     # Closes the file.
@@ -126,8 +129,9 @@ class WritablePlinkFile:
     def close(self):
         if self.handle:
             cplinkio.close( self.handle )
+            self.samples = None
+            self.loci = None
             self.handle = None
-
 
 class Sample:
     def __init__(self, fid, iid, father_iid, mother_iid, sex, affection, phenotype = 0.0):
