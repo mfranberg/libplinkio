@@ -127,7 +127,7 @@ pack_snps(const snp_t *unpacked_snps, unsigned char *packed_snps, size_t num_col
     int packed_index;
     int position_in_byte;
 
-    bzero( packed_snps, num_cols / 4 + 1 );
+    bzero( packed_snps, (num_cols + 3) / 4 );
     for(i = 0; i < num_cols; i++)
     {
         /* Genotypes are stored backwards. */
@@ -280,7 +280,7 @@ bed_create(struct pio_bed_file_t *bed_file, const char *path, size_t num_samples
         return PIO_ERROR;
     }
     
-    row_size_bytes = bed_header_row_size( &bed_file->header ); 
+    row_size_bytes = bed_header_row_size( &bed_file->header );
     bed_file->read_buffer = ( snp_t * ) malloc( row_size_bytes );
     bed_file->cur_row = 0;
 
