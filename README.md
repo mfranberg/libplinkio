@@ -231,7 +231,8 @@ for locus, row in zip( locus_list, plink_file ):
 #             /plink/myfile.bim, /plink/myfile.bed use the path
 #             /plink/myfile
 #
-def open(path)
+def open(path):
+    pass
 
 ##
 # Creates a new plink file based on the given samples.
@@ -242,7 +243,8 @@ def open(path)
 #             /plink/myfile
 # @param samples A list of Sample objects to write to the file.
 #
-def create(path, samples)
+def create(path, samples):
+    pass
 ```
 
 ### The Sample object
@@ -331,34 +333,42 @@ class PlinkFile:
     # Returns the prefix path to the plink file, e.g.
     # without .bim, .bed or .fam.
     #
-    def get_path(self)
+    def get_path():
+        pass
 
     ##
     # Returns a list of the Sample objects.
     #
-    def get_samples(self)
+    def get_samples():
+        pass
 
     ##
     # Returns a list of Locus objects.
     #
-    def get_loci(self)
+    def get_loci():
+        pass
 
     ##
     # Determines how the snps are stored. It will return
     # true if a row contains the genotypes of all individuals
     # from a single locus, false otherwise.
     #
-    def one_locus_per_row(self)
+    def one_locus_per_row():
+        pass
 
     ##
     # Closes the file.
     #
-    def close(self)
+    def close():
+        pass
 
     ##
     # Transposes the file.
     #
-    def transpose(self, new_path)
+    # @param new_path Prefix of the new plink file.
+    #
+    def transpose(self, new_path):
+        pass
 ```
 
 ### The WritablePlinkFile object
@@ -368,12 +378,14 @@ class WritablePlinkFile:
     ##
     # Returns a list of Sample objects.
     #
-    def get_samples(self)
+    def get_samples():
+        pass
 
     ##
     # Returns a list of Locus objects written so far.
     #
-    def get_loci(self)
+    def get_loci():
+        pass
 
     ##
     # Takes a locus and the corresponding genotypes and
@@ -382,10 +394,12 @@ class WritablePlinkFile:
     # @param locus A Locus object to write.
     # @param row An indexable list of genotypes.
     #
-    def write_row(self, locus, row)
+    def write_row(self, locus, row):
+        pass
     
     ##
     # Closes the file.
     #
-    def close(self)
+    def close():
+        pass
 ```
