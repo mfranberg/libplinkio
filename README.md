@@ -20,6 +20,10 @@ Project rationales:
 
 Installing this library is easy, just **configure** and **make**. This will also install Python bindings for the active interpeter.
 
+*NEWS* The python extension can now be installed by
+
+    pip install plinkio
+
 ### Installing to a standard location
 
     mkdir build

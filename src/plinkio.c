@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include <plinkio/plinkio.h>
+#include <plinkio/file.h>
 
 /**
  * Concatenates the given strings and returns the concatenated
