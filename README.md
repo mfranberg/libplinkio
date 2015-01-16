@@ -367,7 +367,7 @@ class PlinkFile:
     #
     # @param new_path Prefix of the new plink file.
     #
-    def transpose(self, new_path):
+    def transpose(new_path):
         pass
 ```
 
@@ -394,7 +394,7 @@ class WritablePlinkFile:
     # @param locus A Locus object to write.
     # @param row An indexable list of genotypes.
     #
-    def write_row(self, locus, row):
+    def write_row(locus, row):
         pass
     
     ##
