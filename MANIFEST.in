@@ -1,0 +1,4 @@
+include src/plinkio/*.h
+include libs/libcsv/inc/*.h
+include py-plinkio/*.h
+include README.md

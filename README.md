@@ -220,6 +220,31 @@ for locus, row in zip( locus_list, plink_file ):
 
 ## Accessing sample and locus information in Python
 
+### The file API
+
+```python
+##
+# Opens the plink file at the given path.
+#
+# @param path The prefix for a .bed, .fam and .bim without
+#             the extension. E.g. for the files /plink/myfile.fam,
+#             /plink/myfile.bim, /plink/myfile.bed use the path
+#             /plink/myfile
+#
+def open(path)
+
+##
+# Creates a new plink file based on the given samples.
+#
+# @param path The prefix for a .bed, .fam and .bim without
+#             the extension. E.g. for the files /plink/myfile.fam,
+#             /plink/myfile.bim, /plink/myfile.bed use the path
+#             /plink/myfile
+# @param samples A list of Sample objects to write to the file.
+#
+def create(path, samples)
+```
+
 ### The Sample object
 
 ```python
@@ -296,4 +321,71 @@ class Locus:
         # Second allele
         #
         self.allele2 = allele2
+```
+
+### The PlinkFile object
+
+```python
+class PlinkFile:
+    ##
+    # Returns the prefix path to the plink file, e.g.
+    # without .bim, .bed or .fam.
+    #
+    def get_path(self)
+
+    ##
+    # Returns a list of the Sample objects.
+    #
+    def get_samples(self)
+
+    ##
+    # Returns a list of Locus objects.
+    #
+    def get_loci(self)
+
+    ##
+    # Determines how the snps are stored. It will return
+    # true if a row contains the genotypes of all individuals
+    # from a single locus, false otherwise.
+    #
+    def one_locus_per_row(self)
+
+    ##
+    # Closes the file.
+    #
+    def close(self)
+
+    ##
+    # Transposes the file.
+    #
+    def transpose(self, new_path)
+```
+
+### The WritablePlinkFile object
+
+```python
+class WritablePlinkFile: 
+    ##
+    # Returns a list of Sample objects.
+    #
+    def get_samples(self)
+
+    ##
+    # Returns a list of Locus objects written so far.
+    #
+    def get_loci(self)
+
+    ##
+    # Takes a locus and the corresponding genotypes and
+    # writes them to the plink file.
+    # 
+    # @param locus A Locus object to write.
+    # @param row An indexable list of genotypes.
+    #
+    def write_row(self, locus, row)
+    
+    ##
+    # Closes the file.
+    #
+    def close(self)
 ```
