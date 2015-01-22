@@ -11,7 +11,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 libplinkio_src_dir = "src"
-libplinkio_include_dir = os.path.join( libplinkio_src_dir, "plinkio" )
+libplinkio_include_dir = os.path.join( libplinkio_src_dir )
 libplinkio_src_files = glob.glob( os.path.join( libplinkio_src_dir, "*.c" ) )
 
 libcsv_root_dir = os.path.join( "libs", "libcsv" )
@@ -30,7 +30,7 @@ cplinkio = Extension(
     include_dirs=[libplinkio_include_dir, libcsv_include_dir, pyplinkio_include_dir],
     libraries=[],
     language="c",
-    extra_compile_args=[""],
+    extra_compile_args=[],
     define_macros=[]
 )
 
@@ -40,13 +40,13 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.9.2',
+    version='0.9.5',
 
     description='A library for parsing plink genotype files',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/fadern/plinkio',
+    url='https://github.com/fadern/libplinkio',
 
     # Author details
     author='Mattias Franberg',

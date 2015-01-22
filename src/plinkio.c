@@ -38,10 +38,6 @@ concatenate(const char *a, const char *b)
 pio_status_t
 pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
 {
-    int error = 0;
-    int num_samples = 0;
-    int num_loci = 0;
-    
     char *fam_path = concatenate( plink_file_prefix, ".fam" );
     char *bim_path = concatenate( plink_file_prefix, ".bim" );
     char *bed_path = concatenate( plink_file_prefix, ".bed" );
@@ -61,7 +57,7 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
     int error = 0;
     int num_samples = 0;
     int num_loci = 0;
-    
+
     if( fam_open( &plink_file->fam_file, fam_path ) == PIO_OK )
     {
         num_samples = fam_num_samples( &plink_file->fam_file );
@@ -102,8 +98,6 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
 pio_status_t
 pio_create(struct pio_file_t *plink_file, const char *plink_file_prefix, struct pio_sample_t *samples, size_t num_samples)
 {
-    int error = 0;
-    
     char *fam_path = concatenate( plink_file_prefix, ".fam" );
     char *bim_path = concatenate( plink_file_prefix, ".bim" );
     char *bed_path = concatenate( plink_file_prefix, ".bed" );
