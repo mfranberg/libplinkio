@@ -50,6 +50,10 @@ If you installed libplinkio to a custom location you need to specify the locatio
 
     gcc -lplinkio -I/path/to/plinkio/include -L/path/to/plinkio/lib source.c
 
+## Genotype coding
+
+The genotypes are coded 0, 1, 2, and 3. The numbers 0-2 represent the number of A2 alleles as specified in the .bim file. The number 3 represents a missing genotype.
+
 ## Using in C
 
 For specific information look at http://fadern.github.com/libplinkio/index.html
