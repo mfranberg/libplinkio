@@ -158,10 +158,19 @@ class Sample:
         ##
         # Sex of individual.
         #
+        # 0 is female
+        # 1 is male
+        # anything else is unknown.
+        #
         self.sex = sex
 
         ##
         # Affection of individual, 0/1, control/case
+        #
+        # 0 is control
+        # 1 is case
+        # -9 is missing
+        # anything else means that the phenotype is continuous.
         #
         self.affection = affection
 

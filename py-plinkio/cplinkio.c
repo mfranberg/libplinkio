@@ -163,6 +163,132 @@ plinkio_open(PyObject *self, PyObject *args)
 }
 
 /**
+ * Converts a python sample object into a c sample object.
+ *
+ * @param py_locus A python sample object that will be read.
+ * @param locus A C sample object that will be written.
+ *
+ * @return 1 on success, 0 on failure in which case the error
+ *         string has been set.
+ */
+int parse_sample(PyObject *py_sample, struct pio_sample_t *sample)
+{
+    int sex, affection;
+    float phenotype;
+    PyObject *fid_object;
+    PyObject *iid_object;
+    PyObject *father_iid_object;
+    PyObject *mother_iid_object;
+    PyObject *phenotype_object;
+    PyObject *sex_object;
+    PyObject *affection_object;
+
+    PyObject *fid_string;
+    PyObject *iid_string;
+    PyObject *father_iid_string;
+    PyObject *mother_iid_string;
+
+    int ret = 1;
+
+    /* Get attributes */
+    fid_object = PyObject_GetAttrString( py_sample, "fid" );
+    iid_object = PyObject_GetAttrString( py_sample, "iid" );
+    father_iid_object = PyObject_GetAttrString( py_sample, "father_iid" );
+    mother_iid_object = PyObject_GetAttrString( py_sample, "mother_iid" );
+    sex_object = PyObject_GetAttrString( py_sample, "sex" );
+    affection_object = PyObject_GetAttrString( py_sample, "affection" );
+    phenotype_object = PyObject_GetAttrString( py_sample, "phenotype" );
+
+    /* Convert strings */
+    fid_string = PyObject_Str( fid_object );
+    iid_string = PyObject_Str( iid_object );
+    father_iid_string = PyObject_Str( father_iid_object );
+    mother_iid_string = PyObject_Str( mother_iid_object );
+    sex = PyInt_AsLong( sex_object );
+    affection = PyInt_AsLong( affection_object );
+    phenotype = PyFloat_AsDouble( phenotype_object );
+
+    if( fid_string == NULL || iid_string == NULL || father_iid_string == NULL || mother_iid_string == NULL )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error all iid fields must be convertable to a string." );
+        ret = 0;
+    }
+    else if( sex == -1 && PyErr_Occurred( ) )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error sex field must be an integer." );
+        ret = 0;
+    }
+    else if( affection == -1 && PyErr_Occurred( ) )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error affection field must be an integer." );
+        ret = 0;
+    }
+    else if( phenotype == -1.0f && PyErr_Occurred( ) )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error phenotype field must a float." );
+        ret = 0;
+    }
+
+    if( ret == 0 )
+    {
+        goto sample_error;
+    }
+    
+    /* Assign strings and other values, these will be copied in libplinkio so we don't make a copy here */
+    sample->fid = PyString_AsString( fid_string ), PyString_Size( fid_string );
+    sample->iid = PyString_AsString( iid_string ), PyString_Size( iid_string );
+    sample->father_iid = PyString_AsString( father_iid_string );
+    sample->mother_iid = PyString_AsString( mother_iid_string );
+    sample->phenotype = phenotype;
+
+    if( sex == 0 )
+    {
+        sample->sex = PIO_FEMALE;
+    }
+    else if( sex == 1 )
+    {
+        sample->sex = PIO_MALE;
+    }
+    else
+    {
+        sample->sex = PIO_UNKNOWN;
+    }
+
+    if( affection == 0 )
+    {
+        sample->affection = PIO_CONTROL;
+    }
+    else if( affection == 1 )
+    {
+        sample->affection = PIO_CASE;
+    }
+    else if( affection == -9 )
+    {
+        sample->affection = PIO_MISSING;
+    }
+    else
+    {
+        sample->affection = PIO_CONTINUOUS;
+    }
+    
+    /* Lower refcount for both accessed attributes and objects */
+sample_error:
+    Py_DECREF( fid_string );
+    Py_DECREF( iid_string );
+    Py_DECREF( mother_iid_string );
+    Py_DECREF( father_iid_string );
+
+    Py_DECREF( iid_object );
+    Py_DECREF( fid_object );
+    Py_DECREF( father_iid_object );
+    Py_DECREF( mother_iid_object );
+    Py_DECREF( sex_object );
+    Py_DECREF( affection_object );
+
+    return ret;
+}
+
+/**
  * Creates a plink file and returns a handle to it.
  *
  * @param self -
@@ -174,7 +300,7 @@ plinkio_open(PyObject *self, PyObject *args)
 static PyObject *
 plinkio_create(PyObject *self, PyObject *args)
 {
-    int i, sex, affection;
+    int i;
     const char *path;
     struct pio_sample_t *samples;
     struct pio_file_t plink_file;
@@ -182,91 +308,33 @@ plinkio_create(PyObject *self, PyObject *args)
     PyObject *sample_list;
     PyObject *sample_object;
     PyObject *i_object;
-    PyObject *fid_object;
-    PyObject *iid_object;
-    PyObject *father_iid_object;
-    PyObject *mother_iid_object;
-    PyObject *phenotype_object;
-    PyObject *sex_object;
-    PyObject *affection_object;
+    int is_ok;
 
     if( !PyArg_ParseTuple( args, "sO", &path, &sample_list ) )
     {
         return NULL;
     }
-    
+
+    /* Parse samples from object list */
     samples = ( struct pio_sample_t * ) malloc( sizeof( struct pio_sample_t ) * PyObject_Size( sample_list ) );
     for(i = 0; i < PyObject_Size( sample_list ); i++)
     {
         i_object = PyInt_FromLong( i );
         sample_object = PyObject_GetItem( sample_list, i_object );
-        fid_object = PyObject_GetAttrString( sample_object, "fid" );
-        iid_object = PyObject_GetAttrString( sample_object, "iid" );
-        father_iid_object = PyObject_GetAttrString( sample_object, "father_iid" );
-        mother_iid_object = PyObject_GetAttrString( sample_object, "mother_iid" );
-        phenotype_object = PyObject_GetAttrString( sample_object, "phenotype" );
 
-        samples[ i ].fid = strndup( PyString_AsString( fid_object ), PyString_Size( fid_object ) );
-        samples[ i ].iid = strndup( PyString_AsString( iid_object ), PyString_Size( iid_object ) );
-        samples[ i ].father_iid = strndup( PyString_AsString( father_iid_object ), PyString_Size( father_iid_object ) );
-        samples[ i ].mother_iid = strndup( PyString_AsString( mother_iid_object ), PyString_Size( mother_iid_object ) );
-        samples[ i ].phenotype = PyFloat_AsDouble( phenotype_object );
-        
-        sex_object = PyObject_GetAttrString( sample_object, "sex" );
-        sex = PyInt_AsLong( sex_object );
-        if( sex == 0 )
-        {
-            samples[ i ].sex = PIO_FEMALE;
-        }
-        else if( sex == 1 )
-        {
-            samples[ i ].sex = PIO_MALE;
-        }
-        else
-        {
-            samples[ i ].sex = PIO_UNKNOWN;
-        }
-
-        affection_object = PyObject_GetAttrString( sample_object, "affection" );
-        affection = PyInt_AsLong( affection_object );
-        if( affection == 0 )
-        {
-            samples[ i ].affection = PIO_CONTROL;
-        }
-        else if( affection == 1 )
-        {
-            samples[ i ].affection = PIO_CASE;
-        }
-        else if( affection == -9 )
-        {
-            samples[ i ].affection = PIO_MISSING;
-        }
-        else
-        {
-            samples[ i ].affection = PIO_CONTINUOUS;
-        }
-        
-        /* Lower refcount for both accessed attributes and objects */
+        is_ok = parse_sample( sample_object, &samples[ i ] );
         Py_DECREF( i_object );
-        Py_DECREF( iid_object );
-        Py_DECREF( fid_object );
-        Py_DECREF( father_iid_object );
-        Py_DECREF( mother_iid_object );
-        Py_DECREF( sex_object );
-        Py_DECREF( affection_object );
         Py_DECREF( sample_object );
+
+        if( !is_ok )
+        {
+            free( samples );
+            return NULL;
+        }
     }
 
     int pio_create_status = pio_create( &plink_file, path, samples, PyObject_Size( sample_list ) );
     
-    /* Free duplicated strings and sample array */
-    for(i = 0; i < PyObject_Size( sample_list ); i++)
-    {
-        free( samples[ i ].iid );
-        free( samples[ i ].fid );
-        free( samples[ i ].father_iid );
-        free( samples[ i ].mother_iid );
-    }
     free( samples );
     
     /* Check for errors */
@@ -301,6 +369,101 @@ plinkio_create(PyObject *self, PyObject *args)
 }
 
 /**
+ * Converts a python locus object into a c locus object.
+ *
+ * @param py_locus A python locus object that will be read.
+ * @param locus A C locus object that will be written.
+ *
+ * @return 1 on success, 0 on failure in which case the error
+ *         string has been set.
+ */
+int parse_locus(PyObject *py_locus, struct pio_locus_t *locus)
+{
+    PyObject *chromosome_object;
+    PyObject *name_object;
+    PyObject *position_object;
+    PyObject *bp_position_object;
+    PyObject *allele1_object;
+    PyObject *allele2_object;
+    
+    PyObject *name_string;
+    PyObject *allele1_string;
+    PyObject *allele2_string;
+
+    int chromosome;
+    float position;
+    int bp_position;
+
+    int ret = 1;
+    
+    chromosome_object = PyObject_GetAttrString( py_locus, "chromosome" );
+    name_object = PyObject_GetAttrString( py_locus, "name" ); 
+    position_object = PyObject_GetAttrString( py_locus, "position" );
+    bp_position_object = PyObject_GetAttrString( py_locus, "bp_position" );
+    allele1_object = PyObject_GetAttrString( py_locus, "allele1" );
+    allele2_object = PyObject_GetAttrString( py_locus, "allele2" );
+
+    chromosome = PyInt_AsLong( chromosome_object );
+    name_string = PyObject_Str( name_object );
+    position = PyFloat_AsDouble( position_object );
+    bp_position = PyInt_AsLong( bp_position_object );
+    allele1_string = PyObject_Str( allele1_object );
+    allele2_string = PyObject_Str( allele2_object );
+    
+    if( chromosome == -1 && PyErr_Occurred( ) )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error chromosome field must be an integer." );
+        ret = 0;
+    }
+    else if( name_string == NULL )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error name field must be a string." );
+        ret = 0;
+    }
+    else if( position == -1.0f && PyErr_Occurred( ) )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error position field must be a float." );
+        ret = 0;
+    }
+    else if( bp_position == -1 && PyErr_Occurred( ) )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error bp_position field must be an integer." );
+        ret = 0;
+    }
+    if( allele1_string == NULL || allele2_string == NULL )
+    {
+        PyErr_SetString( PyExc_TypeError, "Error allele fields must be strings." );
+        ret = 0;
+    }
+
+    if( ret == 0 )
+    {
+        goto locus_error;
+    }
+
+    locus->chromosome = PyInt_AsLong( chromosome_object );
+    locus->name = PyString_AsString( name_string );
+    locus->position = PyFloat_AsDouble( position_object );
+    locus->bp_position = PyInt_AsLong( bp_position_object );
+    locus->allele1 = PyString_AsString( allele1_string );
+    locus->allele2 = PyString_AsString( allele2_string );
+
+locus_error:
+    Py_DECREF( name_string );
+    Py_DECREF( allele1_string );
+    Py_DECREF( allele2_string );
+
+    Py_DECREF( chromosome_object );
+    Py_DECREF( name_object );
+    Py_DECREF( position_object );
+    Py_DECREF( bp_position_object );
+    Py_DECREF( allele1_object );
+    Py_DECREF( allele2_object );
+
+    return ret;
+}
+
+/**
  * Writes a row to a created plink file.
  *
  * @param self -
@@ -317,12 +480,6 @@ plinkio_write_row(PyObject *self, PyObject *args)
     PyObject *locus_object;
     PyObject *genotypes;
     PyObject *i_object;
-    PyObject *chromosome_object;
-    PyObject *name_object;
-    PyObject *position_object;
-    PyObject *bp_position_object;
-    PyObject *allele1_object;
-    PyObject *allele2_object;
     PyObject *genotype_object;
     struct pio_locus_t locus;
     int i;
@@ -340,19 +497,10 @@ plinkio_write_row(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    chromosome_object = PyObject_GetAttrString( locus_object, "chromosome" );
-    name_object = PyObject_GetAttrString( locus_object, "name" ); 
-    position_object = PyObject_GetAttrString( locus_object, "position" );
-    bp_position_object = PyObject_GetAttrString( locus_object, "bp_position" );
-    allele1_object = PyObject_GetAttrString( locus_object, "allele1" );
-    allele2_object = PyObject_GetAttrString( locus_object, "allele2" );
-
-    locus.chromosome = PyInt_AsLong( chromosome_object );
-    locus.name = PyString_AsString( name_object );
-    locus.position = PyFloat_AsDouble( position_object );
-    locus.bp_position = PyInt_AsLong( bp_position_object );
-    locus.allele1 = PyString_AsString( allele1_object );
-    locus.allele2 = PyString_AsString( allele2_object );
+    if( !parse_locus( locus_object, &locus ) )
+    {
+        return NULL;
+    }
     
     for(i = 0; i < c_plink_file->row_length; i++)
     {
@@ -366,13 +514,6 @@ plinkio_write_row(PyObject *self, PyObject *args)
 
     write_status = pio_write_row( &c_plink_file->file, &locus, c_plink_file->row );
     
-    Py_DECREF( chromosome_object );
-    Py_DECREF( name_object );
-    Py_DECREF( position_object );
-    Py_DECREF( bp_position_object );
-    Py_DECREF( allele1_object );
-    Py_DECREF( allele2_object );
-
     if( write_status != PIO_OK )
     {
         PyErr_SetString( PyExc_IOError, "Error while writing to plink file." );
