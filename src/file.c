@@ -22,9 +22,10 @@ file_status_t
 file_copy(const char *from_path, const char *to_path)
 {
     char *copy_command = malloc( sizeof( char ) * ( strlen( from_path ) + strlen( to_path ) + 5 ) );
+    int status = 0;
 
     sprintf( copy_command, "cp %s %s", from_path, to_path );
-    int status = system( copy_command );
+    status = system( copy_command );
     free( copy_command );
 
     if( status != -1 )
@@ -41,10 +42,11 @@ file_copy(const char *from_path, const char *to_path)
 file_status_t
 file_remove(const char *path)
 {
-    char *rm_command = malloc( sizeof( char ) * ( strlen( path ) + 4 ) ); 
+    char *rm_command = malloc( sizeof( char ) * ( strlen( path ) + 4 ) );
+    int status = 0;
     
     sprintf( rm_command, "rm %s", path );
-    int status = system( rm_command );
+    status = system( rm_command );
     free( rm_command );
 
     if( status != -1 )

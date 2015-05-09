@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 
 #include <plinkio/bed.h>
 #include <plinkio/bed_header.h>
@@ -193,6 +194,8 @@ transpose_file(const unsigned char *mapped_file, size_t num_loci, size_t num_sam
     struct bed_header_t header = bed_header_init2( num_loci, num_samples, mapped_file );
     size_t original_num_rows = bed_header_num_rows( &header );
     size_t original_num_cols = bed_header_num_cols( &header );
+    unsigned char byte_header[ BED_HEADER_MAX_SIZE ];
+    int byte_header_length = 0;
    
     FILE *output_file = fopen( output_path, "w" );
     if( output_file == NULL )
@@ -207,8 +210,6 @@ transpose_file(const unsigned char *mapped_file, size_t num_loci, size_t num_sam
     }
     
     /* Transpose and write header */
-    unsigned char byte_header[ BED_HEADER_MAX_SIZE ];
-    int byte_header_length = 0;
     bed_header_transpose( &header );
     bed_header_to_bytes( &header, byte_header, &byte_header_length );
     
@@ -384,18 +385,21 @@ bed_transpose(const char *original_path, const char *transposed_path, size_t num
 {
     /* Open original for mmap */ 
     int original_fd = open( original_path, O_RDONLY );
+    struct stat file_stats;
+    void *mapped_file = NULL;
+    pio_status_t status;
+
     if( original_fd == -1 )
     {
         return PIO_ERROR;
     }
 
-    struct stat file_stats;
     if( fstat( original_fd, &file_stats ) == -1 )
     {
         return PIO_ERROR;
     }
    
-    void *mapped_file = mmap( NULL,
+    mapped_file = mmap( NULL,
                               file_stats.st_size,
                               PROT_READ,
                               MAP_FILE | MAP_PRIVATE,
@@ -408,7 +412,7 @@ bed_transpose(const char *original_path, const char *transposed_path, size_t num
     }
 
     /* Transpose */
-    pio_status_t status = transpose_file( mapped_file, num_loci, num_samples, transposed_path );
+    status = transpose_file( mapped_file, num_loci, num_samples, transposed_path );
 
     /* Release alloacted resources */
     munmap( mapped_file, file_stats.st_size );

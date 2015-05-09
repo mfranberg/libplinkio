@@ -36,6 +36,7 @@ snparray_str(PyObject *self)
     size_t string_length = 3 * snp_array->length + 3;
     char *as_string = (char *) malloc( string_length );
     char *string_p = as_string;
+    PyObject *py_string;
 
     *string_p++ = '[';
 
@@ -59,7 +60,7 @@ snparray_str(PyObject *self)
     *string_p++ = ']';
     *string_p++ = '\0';
 
-    PyObject *py_string = PyUnicode_FromString( as_string );
+    py_string = PyUnicode_FromString( as_string );
     free( as_string );
 
     return py_string;
@@ -71,6 +72,7 @@ snparray_allele_counts(PyObject *self, PyObject *none)
     snp_array_t *snp_array = (snp_array_t *) self;
     long counts[4] = { 0 };
     int i;
+    PyObject *count_list;
 
     for(i = 0; i < snp_array->length; i++)
     {
@@ -80,7 +82,7 @@ snparray_allele_counts(PyObject *self, PyObject *none)
         }
     }
 
-    PyObject *count_list = PyList_New( 4 );
+    count_list = PyList_New( 4 );
     if( count_list == NULL )
     {
         PyErr_SetString( PyExc_MemoryError, "Could not allocate count list." );
@@ -124,12 +126,13 @@ snparray_contains(PyObject *self, PyObject *value)
     int i;
 
     long value_as_long = PyLong_AsLong( value );
+    snp_t value_to_look_for;
     if( value_as_long == -1 )
     {
         return 0;
     }
 
-    snp_t value_to_look_for = (snp_t) value_as_long;
+    value_to_look_for = (snp_t) value_as_long;
     for(i = 0; i < snp_array->length; i++)
     {
         if( snp_array->array[ i ] == value_to_look_for )

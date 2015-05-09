@@ -312,6 +312,7 @@ pio_status_t
 write_sample(FILE *fam_fp, struct pio_sample_t *sample)
 {
     int sex = 0;
+    int bytes_written = 0;
     if( sample->sex == PIO_MALE )
     {
         sex = 1;
@@ -321,7 +322,6 @@ write_sample(FILE *fam_fp, struct pio_sample_t *sample)
         sex = 2;
     }
 
-    int bytes_written = 0;
     if( sample->affection == PIO_CONTINUOUS )
     {
         bytes_written = fprintf( fam_fp,

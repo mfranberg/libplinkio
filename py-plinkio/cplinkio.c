@@ -75,6 +75,11 @@ static PyTypeObject c_plink_file_prototype =
     "Contains the pio_file_t struct for interfacing libplinkio.",           /* tp_doc */
 };
 
+#define PyInt_FromLong(x) (PyLong_FromLong((x)))
+#define PyInt_AsLong(x) (PyLong_AsLong((x)))
+#define PyString_AsString(x) (PyBytes_AsString(x))
+#define PyString_Size(x) (PyBytes_Size(x))
+
 #else
 
 /**
@@ -122,12 +127,13 @@ plinkio_open(PyObject *self, PyObject *args)
     const char *path;
     struct pio_file_t plink_file;
     c_plink_file_t *c_plink_file;
+    int pio_open_status;
     
     if( !PyArg_ParseTuple( args, "s", &path ) )
     {
         return NULL;
     }
-    int pio_open_status = pio_open( &plink_file, path );
+    pio_open_status = pio_open( &plink_file, path );
     if( pio_open_status != PIO_OK )
     {
         if( pio_open_status == P_FAM_IO_ERROR )
@@ -309,6 +315,7 @@ plinkio_create(PyObject *self, PyObject *args)
     PyObject *sample_object;
     PyObject *i_object;
     int is_ok;
+    int pio_create_status;
 
     if( !PyArg_ParseTuple( args, "sO", &path, &sample_list ) )
     {
@@ -333,7 +340,7 @@ plinkio_create(PyObject *self, PyObject *args)
         }
     }
 
-    int pio_create_status = pio_create( &plink_file, path, samples, PyObject_Size( sample_list ) );
+    pio_create_status = pio_create( &plink_file, path, samples, PyObject_Size( sample_list ) );
     
     free( samples );
     
@@ -539,6 +546,8 @@ plinkio_next_row(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
     c_plink_file_t *c_plink_file;
+    snp_t *row;
+    int status;
     
     if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
@@ -546,8 +555,8 @@ plinkio_next_row(PyObject *self, PyObject *args)
     }
 
     c_plink_file = (c_plink_file_t *) plink_file;
-    snp_t *row = c_plink_file->row;
-    int status = pio_next_row( &c_plink_file->file, row );
+    row = c_plink_file->row;
+    status = pio_next_row( &c_plink_file->file, row );
     if( status == PIO_END )
     {
         Py_RETURN_NONE;
@@ -601,6 +610,9 @@ plinkio_get_loci(PyObject *self, PyObject *args)
     PyObject *plink_file;
     c_plink_file_t *c_plink_file;
     int i;
+    PyObject *module;
+    PyObject *locusClass;
+    PyObject *loci_list;
     
     if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
@@ -609,19 +621,19 @@ plinkio_get_loci(PyObject *self, PyObject *args)
 
     c_plink_file = (c_plink_file_t *) plink_file;
 
-    PyObject *module = PyImport_ImportModule( "plinkio.plinkfile" );
+    module = PyImport_ImportModule( "plinkio.plinkfile" );
     if( module == NULL )
     {
         return NULL;
     }
 
-    PyObject *locusClass = PyObject_GetAttrString( module, "Locus" );
+    locusClass = PyObject_GetAttrString( module, "Locus" );
     if( locusClass == NULL )
     {
         return NULL;
     }
 
-    PyObject *loci_list = PyList_New( pio_num_loci( &c_plink_file->file ) );
+    loci_list = PyList_New( pio_num_loci( &c_plink_file->file ) );
     for(i = 0; i < pio_num_loci( &c_plink_file->file ); i++)
     {
         struct pio_locus_t *locus = pio_get_locus( &c_plink_file->file, i );
@@ -662,6 +674,9 @@ plinkio_get_samples(PyObject *self, PyObject *args)
     PyObject *plink_file;
     c_plink_file_t *c_plink_file;
     int i, sex, affection;
+    PyObject *module;
+    PyObject *sample_list;
+    PyObject *sample_class;
     
     if( !PyArg_ParseTuple( args, "O!", &c_plink_file_prototype, &plink_file ) )
     {
@@ -670,22 +685,24 @@ plinkio_get_samples(PyObject *self, PyObject *args)
 
     c_plink_file = (c_plink_file_t *) plink_file;
 
-    PyObject *module = PyImport_ImportModule( "plinkio.plinkfile" );
+    module = PyImport_ImportModule( "plinkio.plinkfile" );
     if( module == NULL )
     {
         return NULL;
     }
 
-    PyObject *sampleClass = PyObject_GetAttrString( module, "Sample" );
-    if( sampleClass == NULL )
+    sample_class = PyObject_GetAttrString( module, "Sample" );
+    if( sample_class == NULL )
     {
         return NULL;
     }
 
-    PyObject *sample_list = PyList_New( pio_num_samples( &c_plink_file->file ) );
+    sample_list = PyList_New( pio_num_samples( &c_plink_file->file ) );
     for(i = 0; i < pio_num_samples( &c_plink_file->file ); i++)
     {
         struct pio_sample_t *sample = pio_get_sample( &c_plink_file->file, i );
+        PyObject *args;
+        PyObject *pySample;
 
         sex = 0;
         if( sample->sex == PIO_MALE )
@@ -707,7 +724,7 @@ plinkio_get_samples(PyObject *self, PyObject *args)
             affection = -9;
         }
 
-        PyObject *args = Py_BuildValue( "ssssiif",
+        args = Py_BuildValue( "ssssiif",
                                         sample->fid,
                                         sample->iid,
                                         sample->father_iid,
@@ -715,7 +732,7 @@ plinkio_get_samples(PyObject *self, PyObject *args)
                                         sex,
                                         affection,
                                         sample->phenotype );
-        PyObject *pySample = PyObject_CallObject( sampleClass, args );
+        pySample = PyObject_CallObject( sample_class, args );
 
         /* Steals the pySample reference */
         PyList_SetItem( sample_list, i, pySample );
@@ -724,7 +741,7 @@ plinkio_get_samples(PyObject *self, PyObject *args)
     }
     
     Py_DECREF( module );
-    Py_DECREF( sampleClass );
+    Py_DECREF( sample_class );
 
     return sample_list;
 }
@@ -849,7 +866,7 @@ PyInit_cplinkio(void)
     py_snp_array_prototype.tp_new = PyType_GenericNew;
     if( PyType_Ready( &py_snp_array_prototype ) < 0 )
     {
-        return;
+        return NULL;
     }
 
     module = PyModule_Create( &moduledef );
