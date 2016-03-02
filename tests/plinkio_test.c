@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <plinkio.h>
+#include <plinkio/plinkio.h>
 
 /**
  * A small test program that reads the given plink file
