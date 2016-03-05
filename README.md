@@ -56,7 +56,7 @@ The genotypes are coded 0, 1, 2, and 3. The numbers 0-2 represent the number of 
 
 ## Using in C
 
-For specific information look at http://fadern.github.com/libplinkio/index.html
+For specific information look at http://mfranberg.github.com/libplinkio/index.html
 
 The following C program prints the genotypes of all individuals. Note, that it is not recommended to run this program on a big plink file since it will fill your screen with data.
 
