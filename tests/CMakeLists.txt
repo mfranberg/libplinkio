@@ -17,3 +17,6 @@ add_test( bim_test bim_test )
 add_executable( fam_test "fam_test.c" "mock.c" )
 target_link_libraries( fam_test libcmockery libcsv )
 add_test( fam_test fam_test )
+
+add_executable( plinkio_test "plinkio_test.c" )
+target_link_libraries( plinkio_test libcsv libplinkio-static )

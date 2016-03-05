@@ -351,7 +351,6 @@ csv_parse(struct csv_parser *p, const void *s, size_t len, void (*cb1)(void *, s
           continue;
         } else if (is_term ? is_term(c) : c == CSV_CR || c == CSV_LF) { /* Carriage Return or Line Feed */
           if (pstate == FIELD_NOT_BEGUN) {
-            SUBMIT_FIELD(p);
             SUBMIT_ROW(p, (unsigned char)c); 
           } else {  /* ROW_NOT_BEGUN */
             /* Don't submit empty rows by default */

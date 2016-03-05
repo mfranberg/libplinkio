@@ -270,7 +270,6 @@ parse_loci(FILE *bim_fp, UT_array *locus)
 
     csv_init( &parser, 0 );
     csv_set_delim_func( &parser, bim_is_delim );
-    csv_set_delim( &parser, ' ' );
     while( !feof( bim_fp ) )
     {
         int bytes_read = fread( &read_buffer[ 0 ], sizeof( char ), BUFFER_SIZE, bim_fp );

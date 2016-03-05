@@ -294,7 +294,6 @@ parse_samples(FILE *fam_fp, UT_array *sample)
 
     csv_init( &parser, 0 );
     csv_set_delim_func( &parser, fam_is_delim );
-    csv_set_delim( &parser, ' ' );
     while( !feof( fam_fp ) )
     {
         int bytes_read = fread( &read_buffer[ 0 ], sizeof( char ), BUFFER_SIZE, fam_fp );
