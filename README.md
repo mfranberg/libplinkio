@@ -44,7 +44,7 @@ You can also pass the --disable-tests flag to **configure** to avoid building th
 
 To link your own application to libplinkio you can use the following include and library paths after installing it:
 
-    gcc -lplinkio source.c
+    gcc source.c -lplinkio 
 
 If you installed libplinkio to a custom location you need to specify the location of libplinkio:
 
