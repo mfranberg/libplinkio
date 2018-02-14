@@ -14,8 +14,7 @@ endif( )
 if( NOT DISABLE_STATIC_LIBRARY ) 
     add_library( libplinkio-static STATIC ${SRC_LIST} )
     target_link_libraries( libplinkio-static libcsv )
+    SET_TARGET_PROPERTIES( libplinkio-static PROPERTIES OUTPUT_NAME plinkio )
 endif( )
-
-SET_TARGET_PROPERTIES( libplinkio-static PROPERTIES OUTPUT_NAME plinkio )
 
 install( FILES ${HEADERS} DESTINATION include/plinkio )
