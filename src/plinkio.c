@@ -168,6 +168,12 @@ pio_next_row(struct pio_file_t *plink_file, snp_t *buffer)
     return bed_read_row( &plink_file->bed_file, buffer ); 
 }
 
+pio_status_t
+pio_skip_row(struct pio_file_t *plink_file)
+{
+    return bed_skip_row( &plink_file->bed_file ); 
+}
+
 void
 pio_reset_row(struct pio_file_t *plink_file)
 {

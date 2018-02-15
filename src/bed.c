@@ -341,6 +341,27 @@ bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer)
     return PIO_OK;
 }
 
+pio_status_t
+bed_skip_row(struct pio_bed_file_t *bed_file)
+{
+    size_t row_size_bytes;
+    size_t bytes_read;
+
+    if( feof( bed_file->fp ) != 0 || bed_file->cur_row >= bed_header_num_rows( &bed_file->header ) )
+    {
+        return PIO_END;
+    }
+
+    row_size_bytes = bed_header_row_size( &bed_file->header );
+    if( fseek( bed_file->fp, row_size_bytes, SEEK_CUR ) ) {
+        return PIO_ERROR;
+    }
+
+    bed_file->cur_row++;
+
+    return PIO_OK;
+}
+
 size_t
 bed_row_size(struct pio_bed_file_t *bed_file)
 {

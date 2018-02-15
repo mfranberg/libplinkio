@@ -100,15 +100,34 @@ mock_fopen(const char *filename, const char *mode)
 int
 mock_fseek(FILE *stream, long offset, int whence)
 {
-    if( offset < g_mock_data.data_length )
+    if( whence == SEEK_SET )
     {
-        g_mock_data.cur_pos = offset;
-        return 0;
+        if( offset < g_mock_data.data_length )
+        {
+            g_mock_data.cur_pos = offset;
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
-    else
+
+    if( whence == SEEK_CUR )
     {
-        return 1;
+        if( (g_mock_data.cur_pos + offset)  < g_mock_data.data_length )
+        {
+            g_mock_data.cur_pos += offset;
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
+
+    // other whence options (e.i. SEEK_END) are not implemented.
+    return 1;
 }
 
 /**
@@ -275,6 +294,40 @@ test_bed_read_row(void **state)
     bed_close( &bed_file ); 
 }
 
+void
+test_bed_skip_row(void **state)
+{
+    int i, j;
+    struct pio_bed_file_t bed_file;
+    /**
+     * v 1.00 file containing only a header, and two snp rows = 
+     * [0, 1, 2, 3] = 0b01111000 = 0x78.
+     * [3, 2, 1, 0] = 0b00101101 = 0x2d.
+     */
+    unsigned char file_data[] = { BED_V100_MAGIC1, BED_V100_MAGIC2, 0x01, 0x78, 0x2d };
+
+    mock_init( file_data, 5 );
+    assert_int_equal( bed_open( &bed_file, "", 2, 4 ), PIO_OK );
+
+    // skip first row
+    assert_int_equal( bed_skip_row( &bed_file ), PIO_OK );
+
+    for(i = 1; i < 2; i++)
+    {
+        snp_t snps[4];
+        assert_int_equal( bed_read_row( &bed_file, snps ), PIO_OK );
+
+        for(j = 0; j < 4; j++)
+        {
+            assert_int_equal( snps[ j ], 3 - j );
+        }
+    }
+
+    assert_int_equal( bed_skip_row( &bed_file ), PIO_END );
+    assert_int_equal( bed_read_row( &bed_file, 0 ), PIO_END );
+    bed_close( &bed_file ); 
+}
+
 int main(int argc, char* argv[])
 {
     const UnitTest tests[] = {
@@ -285,6 +338,7 @@ int main(int argc, char* argv[])
         unit_test( test_bed_open2 ),
         unit_test( test_unpack_snps ),
         unit_test( test_bed_read_row ),
+        unit_test( test_bed_skip_row ),
     };
 
     return run_tests( tests );

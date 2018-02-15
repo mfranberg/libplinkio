@@ -104,6 +104,17 @@ pio_status_t bed_write_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
 pio_status_t bed_read_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
 
 /**
+ * Skips a single row from the given bed_file.
+ *
+ * @param bed_file Bed file.
+ *
+ * @return PIO_OK if a row could be skipped,
+ *         PIO_END if there are no more rows,
+ *         PIO_ERROR otherwise.
+ */
+pio_status_t bed_skip_row(struct pio_bed_file_t *bed_file);
+
+/**
  * Returns the number of bytes required to store a row from
  * the given bed file.
  *
