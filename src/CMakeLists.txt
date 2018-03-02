@@ -9,6 +9,7 @@ if( NOT DISABLE_SHARED_LIBRARY )
     target_link_libraries( libplinkio libcsv )
     SET_TARGET_PROPERTIES( libplinkio PROPERTIES OUTPUT_NAME plinkio )
     install( TARGETS libplinkio DESTINATION lib )
+    install( FILES ${HEADERS} DESTINATION include/plinkio )
 endif( )
 
 if( NOT DISABLE_STATIC_LIBRARY ) 
@@ -16,5 +17,3 @@ if( NOT DISABLE_STATIC_LIBRARY )
     target_link_libraries( libplinkio-static libcsv )
     SET_TARGET_PROPERTIES( libplinkio-static PROPERTIES OUTPUT_NAME plinkio )
 endif( )
-
-install( FILES ${HEADERS} DESTINATION include/plinkio )
