@@ -19,6 +19,7 @@ set( LIBPLINKIO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/" )
 option( DISABLE_TESTS "Disables building tests." OFF )
 option( DISABLE_SHARED_LIBS "Disable building shared library." OFF )
 option( DISABLE_STATIC_LIBS "Disable building static library." OFF )
+option( DISABLE_INSTALL_HEADERS "Disable installing header files." OFF )
 
 add_subdirectory( src )
 add_subdirectory( libs )
