@@ -50,7 +50,7 @@ setup(
 
     # Author details
     author='Mattias Franberg',
-    author_email='mfranberg@gmail.com',
+    author_email='mattias.franberg@gmail.com',
 
     # Choose your license
     license='BSD',
