@@ -316,6 +316,7 @@ plinkio_create(PyObject *self, PyObject *args)
     PyObject *i_object;
     int is_ok;
     int pio_create_status;
+    size_t num_samples;
 
     if( !PyArg_ParseTuple( args, "sO", &path, &sample_list ) )
     {
@@ -323,7 +324,8 @@ plinkio_create(PyObject *self, PyObject *args)
     }
 
     /* Parse samples from object list */
-    samples = ( struct pio_sample_t * ) malloc( sizeof( struct pio_sample_t ) * PyObject_Size( sample_list ) );
+    num_samples = PyObject_Size( sample_list );
+    samples = ( struct pio_sample_t * ) malloc( sizeof( struct pio_sample_t ) * num_samples );
     for(i = 0; i < PyObject_Size( sample_list ); i++)
     {
         i_object = PyInt_FromLong( i );
@@ -340,14 +342,12 @@ plinkio_create(PyObject *self, PyObject *args)
         }
     }
 
-    pio_create_status = pio_create( &plink_file, path, samples, PyObject_Size( sample_list ) );
-    
-    free( samples );
+    pio_create_status = pio_create( &plink_file, path, samples, num_samples );
+    free(samples);
     
     /* Check for errors */
     if( pio_create_status != PIO_OK )
     {
-        free( samples );
         if( pio_create_status == P_FAM_IO_ERROR )
         {
             PyErr_SetString( PyExc_IOError, "Error while trying to creating FAM file." );
