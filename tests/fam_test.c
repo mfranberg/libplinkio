@@ -63,6 +63,7 @@ test_parse_phenotype(void **state)
     const char *TEST_STRING_CONTROL = "1";
     const char *TEST_STRING_CASE = "2";
     const char *TEST_STRING_PHENOTYPE = "1.0";
+    const char *TEST_STRING_MISSING = "-9";
     struct pio_sample_t sample;
     pio_status_t status;
 
@@ -78,6 +79,11 @@ test_parse_phenotype(void **state)
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sample.affection, PIO_CONTINUOUS );
     assert_true( fabs( sample.phenotype - 1.0 ) <= 1e-6 );
+
+    parse_phenotype( TEST_STRING_MISSING, strlen( TEST_STRING_MISSING ), &sample, &status );
+    assert_int_equal( status, PIO_OK );
+    assert_int_equal( sample.affection, PIO_MISSING );
+    assert_true( fabs( sample.phenotype - (-9.0) ) <= 1e-6 );
 }
 
 /**
