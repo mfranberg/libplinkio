@@ -177,7 +177,7 @@ parse_phenotype(const char *field, size_t length, struct pio_sample_t *sample, p
             return;
         }
     }
-    if( strncmp( field, "-9", length ) == 0 )
+    if( strncmp( field, "-9", length ) == 0 || strncmp( field, "NA", length ) == 0)
     {
         sample->affection = PIO_MISSING;
         sample->phenotype = -9.0f;
