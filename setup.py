@@ -40,17 +40,17 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.9.5',
+    version='0.9.7',
 
     description='A library for parsing plink genotype files',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/fadern/libplinkio',
+    url='https://github.com/mfranberg/libplinkio',
 
     # Author details
     author='Mattias Franberg',
-    author_email='mattias.franberg@scilifelab.se',
+    author_email='mfranberg@gmail.com',
 
     # Choose your license
     license='BSD',
