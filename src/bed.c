@@ -14,7 +14,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#if defined(_WIN32) || defined(_WIN64)
+#include <inttypes.h>
+#include <windows.h>
+#define bzero(s, n) memset((s), 0, (n))
+#define MAP_FAILED NULL
+#else
 #include <sys/mman.h>
+#endif
 #include <sys/types.h>
 
 #include <plinkio/bed.h>
@@ -420,12 +427,25 @@ bed_transpose(const char *original_path, const char *transposed_path, size_t num
         return PIO_ERROR;
     }
    
+#if defined(_WIN32) || defined(_WIN64)
+    HANDLE file_mapping_handle = CreateFileMapping(
+        (HANDLE)_get_osfhandle(original_fd),
+        NULL,
+        PAGE_READONLY,
+        0, 0,
+        NULL);
+    mapped_file = MapViewOfFile(file_mapping_handle,
+                              FILE_MAP_READ,
+                              0, 0,
+                              file_stats.st_size);
+#else
     mapped_file = mmap( NULL,
                               file_stats.st_size,
                               PROT_READ,
                               MAP_FILE | MAP_PRIVATE,
                               original_fd,
                               0 );
+#endif
 
     if( mapped_file == MAP_FAILED )
     {
@@ -436,7 +456,12 @@ bed_transpose(const char *original_path, const char *transposed_path, size_t num
     status = transpose_file( mapped_file, num_loci, num_samples, transposed_path );
 
     /* Release alloacted resources */
+#if defined(_WIN32) || defined(_WIN64)
+    UnmapViewOfFile(mapped_file);
+    CloseHandle(file_mapping_handle);
+#else
     munmap( mapped_file, file_stats.st_size );
+#endif
     close( original_fd );
     
     return status;

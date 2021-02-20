@@ -7,6 +7,9 @@
  */
 
 #include <stdio.h>
+#if defined(_WIN32) || defined(_WIN64)
+#define bzero(s, n) memset((s), 0, (n))
+#endif
 
 #include <plinkio/utarray.h>
 #include <plinkio/fam.h>
