@@ -186,6 +186,19 @@ class Sample:
     def __str__(self):
         return "{0} {1} {2} {3}".format(self.fid, self.iid, self.sex, self.affection)
 
+    def __eq__(self, other):
+        return (
+            self.fid == other.fid
+            and self.iid == other.iid
+            and self.father_iid == other.father_iid
+            and self.mother_iid == other.mother_iid
+            and self.sex == other.sex
+            and (
+                (self.affection in (0, 1, -9) and self.affection == other.affection)
+                or self.phenotype == other.phenotype
+            )
+        )
+
 
 class Locus:
     __slots__ = ["chromosome", "name", "position", "bp_position", "allele1", "allele2"]
@@ -225,6 +238,16 @@ class Locus:
 
     def __str__(self):
         return "{0} {1}".format(self.chromosome, self.name)
+
+    def __eq__(self, other):
+        return (
+            self.chromosome == other.chromosome
+            and self.name == other.name
+            and self.position == other.position
+            and self.bp_position == other.bp_position
+            and self.allele1 == other.allele1
+            and self.allele2 == other.allele2
+        )
 
 
 ##
