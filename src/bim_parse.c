@@ -26,6 +26,12 @@
     #define feof mock_feof
 #endif
 
+#ifdef WIN32
+    #define UNUSED(x) x
+#else
+    #define UNUSED(x) __attribute__((unused)) x
+#endif
+
 /**
  * Buffer size for reading CSV file.
  */
@@ -247,7 +253,7 @@ new_field(void *field, unsigned long int field_length, void *data)
  * @param data A state_t struct.
  */
 static void
-new_row(__attribute__((unused)) int number, void *data)
+new_row(UNUSED(int number), void *data)
 {
     struct state_t *state = (struct state_t *) data;
 
