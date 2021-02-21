@@ -1,6 +1,7 @@
 from . import cplinkio
 
-class PlinkFile: 
+
+class PlinkFile:
     ##
     # Opens the plink file at the given path.
     #
@@ -11,16 +12,16 @@ class PlinkFile:
     #
     def __init__(self, path):
         self.path = path
-        self.handle = cplinkio.open( path )
-        self.loci = cplinkio.get_loci( self.handle )
-        self.samples = cplinkio.get_samples( self.handle )
+        self.handle = cplinkio.open(path)
+        self.loci = cplinkio.get_loci(self.handle)
+        self.samples = cplinkio.get_samples(self.handle)
 
     ##
     # Returns an iterator from the beginning of
     # the file.
     #
     def __iter__(self):
-        cplinkio.reset_row( self.handle )
+        cplinkio.reset_row(self.handle)
 
         return self
 
@@ -49,13 +50,13 @@ class PlinkFile:
     # from a single locus, false otherwise.
     #
     def one_locus_per_row(self):
-        return cplinkio.one_locus_per_row( self.handle )
+        return cplinkio.one_locus_per_row(self.handle)
 
     ##
     # Goes to next row.
     #
     def next(self):
-        row = cplinkio.next_row( self.handle )
+        row = cplinkio.next_row(self.handle)
         if not row:
             raise StopIteration
 
@@ -65,23 +66,24 @@ class PlinkFile:
     # For python 3.x.
     #
     def __next__(self):
-        return self.next( )
+        return self.next()
 
     ##
     # Closes the file.
     #
     def close(self):
         if self.handle:
-            cplinkio.close( self.handle )
+            cplinkio.close(self.handle)
             self.handle = None
 
     ##
     # Transposes the file.
     #
     def transpose(self, new_path):
-        return cplinkio.transpose( self.path, new_path )
+        return cplinkio.transpose(self.path, new_path)
 
-class WritablePlinkFile: 
+
+class WritablePlinkFile:
     ##
     # Creates the plink file at the given path containing the given
     # samples. Their genotypes can then be written one row at a time.
@@ -97,9 +99,9 @@ class WritablePlinkFile:
     def __init__(self, path, samples):
         self.path = path
         self.samples = samples
-        self.loci = [ ]
-        self.handle = cplinkio.create( path, samples )
-    
+        self.loci = []
+        self.handle = cplinkio.create(path, samples)
+
     ##
     # Returns a list of the samples.
     #
@@ -115,26 +117,28 @@ class WritablePlinkFile:
     ##
     # Takes a locus and the corresponding genotypes and
     # writes them to the plink file.
-    # 
+    #
     # @param locus A Locus object to write.
     # @param row An indexable list of genotypes.
     #
     def write_row(self, locus, row):
-        cplinkio.write_row( self.handle, locus, row )
-        self.loci.append( locus )
-    
+        cplinkio.write_row(self.handle, locus, row)
+        self.loci.append(locus)
+
     ##
     # Closes the file.
     #
     def close(self):
         if self.handle:
-            cplinkio.close( self.handle )
+            cplinkio.close(self.handle)
             self.samples = None
             self.loci = None
             self.handle = None
 
+
 class Sample:
-    def __init__(self, fid, iid, father_iid, mother_iid, sex, affection, phenotype = 0.0):
+    def __init__(self, fid, iid, father_iid, mother_iid, sex, affection, phenotype=0.0):
+        # pylint: disable = too-many-arguments
         ##
         # Family id.
         #
@@ -180,11 +184,14 @@ class Sample:
         self.phenotype = phenotype
 
     def __str__(self):
-        return "{0} {1} {2} {3}".format( self.fid, self.iid, self.sex, self.affection )
+        return "{0} {1} {2} {3}".format(self.fid, self.iid, self.sex, self.affection)
+
 
 class Locus:
-    __slots__ = ['chromosome', 'name', 'position', 'bp_position', 'allele1', 'allele2']
+    __slots__ = ["chromosome", "name", "position", "bp_position", "allele1", "allele2"]
+
     def __init__(self, chromosome, name, position, bp_position, allele1, allele2):
+        # pylint: disable = too-many-arguments
         ##
         # Chromosome number starting from 1
         #
@@ -217,7 +224,8 @@ class Locus:
         self.allele2 = allele2
 
     def __str__(self):
-        return "{0} {1}".format( self.chromosome, self.name )
+        return "{0} {1}".format(self.chromosome, self.name)
+
 
 ##
 # Opens the plink file at the given path.
@@ -228,7 +236,9 @@ class Locus:
 #             /plink/myfile
 #
 def open(path):
-    return PlinkFile( path )
+    # pylint: disable = redefined-builtin
+    return PlinkFile(path)
+
 
 ##
 # Creates a new plink file based on the given samples.
@@ -240,4 +250,4 @@ def open(path):
 # @param samples A list of Sample objects to write to the file.
 #
 def create(path, samples):
-    return WritablePlinkFile( path, samples )
+    return WritablePlinkFile(path, samples)

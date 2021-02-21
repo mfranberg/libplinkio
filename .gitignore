@@ -6,3 +6,7 @@ config.status
 build
 *.swo
 html/
+*.coverage
+*.so
+*.egg-info
+__pycache__

@@ -1,1 +1,1 @@
-__all__ = [ "plinkfile" ]
+__all__ = ["plinkfile"]
