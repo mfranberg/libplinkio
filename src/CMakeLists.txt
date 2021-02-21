@@ -8,7 +8,8 @@ if( NOT DISABLE_SHARED_LIBRARY )
     add_library( libplinkio SHARED ${SRC_LIST} )
 
     if(MSVC)
-        target_compile_options( libplinkio PRIVATE /W4 /WX)
+        # Add /WX once codebase is ready
+        target_compile_options( libplinkio PRIVATE /W4)
     else()
         target_compile_options( libplinkio PRIVATE -Wall -Wextra -Werror)
     endif()
