@@ -77,8 +77,8 @@ static PyTypeObject c_plink_file_prototype =
 
 #define PyInt_FromLong(x) (PyLong_FromLong((x)))
 #define PyInt_AsLong(x) (PyLong_AsLong((x)))
-#define PyString_AsString(x) (PyBytes_AsString(x))
-#define PyString_Size(x) (PyBytes_Size(x))
+#define PyString_AsString(x) (PyUnicode_AsUTF8(x))
+#define PyString_Size(x) (PyObject_Size(x))
 
 #else
 
