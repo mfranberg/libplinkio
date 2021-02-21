@@ -29,8 +29,8 @@ concatenate(const char *a, const char *b)
 {
     size_t total_length = strlen( a ) + strlen( b ) + 1;
     char *buffer = (char *) malloc( total_length );
-    strncpy( buffer, a, total_length );
-    strncat( buffer, b, total_length );
+    strcpy( buffer, a );
+    strcat( buffer, b );
 
     return buffer;
 }
