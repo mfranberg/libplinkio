@@ -144,7 +144,7 @@ int mock_fclose(FILE *stream)
 void
 test_parse_header_v100(void **state)
 {
-    struct pio_bed_file_t bed_file;
+    struct pio_bed_file_t bed_file = {0};
     /**
      * v 1.00 file containing only a header.
      */
@@ -162,7 +162,7 @@ test_parse_header_v100(void **state)
 void
 test_parse_header_v099(void **state)
 {
-    struct pio_bed_file_t bed_file;
+    struct pio_bed_file_t bed_file = {0};
     /**
      * v 0.99 file containing only a header.
      */
@@ -180,7 +180,7 @@ test_parse_header_v099(void **state)
 void
 test_parse_header_bad(void **state)
 {
-    struct pio_bed_file_t bed_file;
+    struct pio_bed_file_t bed_file = {0};
     /**
      * File without a full header.
      */
@@ -196,7 +196,7 @@ test_parse_header_bad(void **state)
 void
 test_bed_open(void **state)
 {
-    struct pio_bed_file_t bed_file;
+    struct pio_bed_file_t bed_file = {0};
     /**
      * v 1.00 file containing only a header.
      */
@@ -218,7 +218,7 @@ test_bed_open(void **state)
 void
 test_bed_open2(void **state)
 {
-    struct pio_bed_file_t bed_file;
+    struct pio_bed_file_t bed_file = {0};
     /**
      * v 1.00 file containing only a header.
      */

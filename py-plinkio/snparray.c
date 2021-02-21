@@ -32,7 +32,7 @@ PyObject *
 snparray_str(PyObject *self)
 {   
     snp_array_t *snp_array = (snp_array_t *) self;
-    int i;
+    size_t i;
     size_t string_length = 3 * snp_array->length + 3;
     char *as_string = (char *) malloc( string_length );
     char *string_p = as_string;
@@ -71,7 +71,7 @@ snparray_allele_counts(PyObject *self, PyObject *none)
 {
     snp_array_t *snp_array = (snp_array_t *) self;
     long counts[4] = { 0 };
-    int i;
+    size_t i;
     PyObject *count_list;
 
     for(i = 0; i < snp_array->length; i++)
@@ -110,7 +110,7 @@ snparray_getitem(PyObject *self, Py_ssize_t index)
 {
     snp_array_t *snp_array = (snp_array_t *) self;
     
-    if( index >= snp_array->length )
+    if( index >= (ssize_t) snp_array->length )
     {
         PyErr_SetString( PyExc_IndexError, "snparray index out of range" );
         return NULL;
@@ -123,7 +123,7 @@ int
 snparray_contains(PyObject *self, PyObject *value)
 {
     snp_array_t *snp_array = (snp_array_t *) self;
-    int i;
+    size_t i;
 
     long value_as_long = PyLong_AsLong( value );
     snp_t value_to_look_for;

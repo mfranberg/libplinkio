@@ -89,7 +89,7 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
 pio_status_t
 fam_create(struct pio_fam_file_t *fam_file, const char *path, struct pio_sample_t *samples, size_t num_samples)
 {
-    int i;
+    size_t i;
     FILE *fam_fp;
     struct pio_sample_t sample_copy;
 
