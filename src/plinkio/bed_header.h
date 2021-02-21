@@ -124,7 +124,7 @@ void bed_header_from_bytes(struct bed_header_t *header, const unsigned char *hea
  * @param length Size of the packed header in bytes.
  *
  */
-void bed_header_to_bytes(struct bed_header_t *header, unsigned char *header_bytes, int *length);
+void bed_header_to_bytes(struct bed_header_t *header, unsigned char *header_bytes, size_t *length);
 
 /**
  * Returns the number of rows stored in the file.

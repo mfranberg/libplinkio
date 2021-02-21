@@ -169,7 +169,7 @@ bed_header_from_bytes(struct bed_header_t *header, const unsigned char *header_b
 }
 
 void
-bed_header_to_bytes(struct bed_header_t *header, unsigned char *header_bytes, int *length)
+bed_header_to_bytes(struct bed_header_t *header, unsigned char *header_bytes, size_t *length)
 {
     if( header->version == PIO_VERSION_100 )
     {

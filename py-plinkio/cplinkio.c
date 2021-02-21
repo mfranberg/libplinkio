@@ -241,10 +241,10 @@ int parse_sample(PyObject *py_sample, struct pio_sample_t *sample)
     }
     
     /* Assign strings and other values, these will be copied in libplinkio so we don't make a copy here */
-    sample->fid = PyString_AsString( fid_string ), PyString_Size( fid_string );
-    sample->iid = PyString_AsString( iid_string ), PyString_Size( iid_string );
-    sample->father_iid = PyString_AsString( father_iid_string );
-    sample->mother_iid = PyString_AsString( mother_iid_string );
+    sample->fid = (char *) PyString_AsString( fid_string ), PyString_Size( fid_string );
+    sample->iid = (char *) PyString_AsString( iid_string ), PyString_Size( iid_string );
+    sample->father_iid = (char *) PyString_AsString( father_iid_string );
+    sample->mother_iid = (char *) PyString_AsString( mother_iid_string );
     sample->phenotype = phenotype;
 
     if( sex == 0 )
@@ -448,12 +448,13 @@ int parse_locus(PyObject *py_locus, struct pio_locus_t *locus)
         goto locus_error;
     }
 
+    /* The strings wont get freed by plinkio so remove const qualifier */
     locus->chromosome = PyInt_AsLong( chromosome_object );
-    locus->name = PyString_AsString( name_string );
+    locus->name = (char *) PyString_AsString( name_string );
     locus->position = PyFloat_AsDouble( position_object );
     locus->bp_position = PyInt_AsLong( bp_position_object );
-    locus->allele1 = PyString_AsString( allele1_string );
-    locus->allele2 = PyString_AsString( allele2_string );
+    locus->allele1 = (char *) PyString_AsString( allele1_string );
+    locus->allele2 = (char *) PyString_AsString( allele2_string );
 
 locus_error:
     Py_DECREF( name_string );
@@ -489,7 +490,7 @@ plinkio_write_row(PyObject *self, PyObject *args)
     PyObject *i_object;
     PyObject *genotype_object;
     struct pio_locus_t locus;
-    int i;
+    size_t i;
     int write_status;
     
     if( !PyArg_ParseTuple( args, "O!OO", &c_plink_file_prototype, &plink_file, &locus_object, &genotypes ) )
@@ -498,7 +499,7 @@ plinkio_write_row(PyObject *self, PyObject *args)
     }
 
     c_plink_file = (c_plink_file_t *) plink_file;
-    if( PyObject_Size( genotypes ) != c_plink_file->row_length )
+    if( PyObject_Size( genotypes ) != (ssize_t) c_plink_file->row_length )
     {
         PyErr_SetString( PyExc_ValueError, "Error, wrong number of genotypes given." );
         return NULL;
@@ -609,7 +610,7 @@ plinkio_get_loci(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
     c_plink_file_t *c_plink_file;
-    int i;
+    size_t i;
     PyObject *module;
     PyObject *locusClass;
     PyObject *loci_list;
@@ -673,7 +674,8 @@ plinkio_get_samples(PyObject *self, PyObject *args)
 {
     PyObject *plink_file;
     c_plink_file_t *c_plink_file;
-    int i, sex, affection;
+    size_t i;
+    int sex, affection;
     PyObject *module;
     PyObject *sample_list;
     PyObject *sample_class;

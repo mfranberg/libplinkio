@@ -124,7 +124,7 @@ unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, size_t num_c
 void
 pack_snps(const snp_t *unpacked_snps, unsigned char *packed_snps, size_t num_cols)
 {
-    int i;
+    size_t i;
     int packed_index;
     int position_in_byte;
 
@@ -148,7 +148,7 @@ pack_snps(const snp_t *unpacked_snps, unsigned char *packed_snps, size_t num_col
 void
 transpose_rows(const unsigned char *rows, size_t num_rows, size_t num_cols, FILE *output_file)
 {
-    int i, j;
+    size_t i, j;
 
     int num_bytes_per_row = ( num_cols + 3 ) / 4;
     int num_bytes_per_col = ( num_rows + 3 ) / 4;
@@ -195,7 +195,7 @@ transpose_file(const unsigned char *mapped_file, size_t num_loci, size_t num_sam
     size_t original_num_rows = bed_header_num_rows( &header );
     size_t original_num_cols = bed_header_num_cols( &header );
     unsigned char byte_header[ BED_HEADER_MAX_SIZE ];
-    int byte_header_length = 0;
+    size_t byte_header_length = 0;
    
     FILE *output_file = fopen( output_path, "w" );
     if( output_file == NULL )
@@ -262,8 +262,8 @@ bed_create(struct pio_bed_file_t *bed_file, const char *path, size_t num_samples
 {
     FILE *bed_fp;
     unsigned char header_bytes[3];
-    int length;
-    int row_size_bytes;
+    size_t length;
+    size_t row_size_bytes;
    
     bzero( bed_file, sizeof( *bed_file ) );
     bed_fp = fopen( path, "w" );
@@ -345,7 +345,6 @@ pio_status_t
 bed_skip_row(struct pio_bed_file_t *bed_file)
 {
     size_t row_size_bytes;
-    size_t bytes_read;
 
     if( feof( bed_file->fp ) != 0 || bed_file->cur_row >= bed_header_num_rows( &bed_file->header ) )
     {
