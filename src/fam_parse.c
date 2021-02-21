@@ -25,7 +25,7 @@
     #define feof mock_feof
 #endif
 
-#ifdef WIN32
+#if defined(_WIN32) || defined(_WIN64)
     #define UNUSED(x) x
 #else
     #define UNUSED(x) __attribute__((unused)) x
