@@ -210,7 +210,7 @@ parse_phenotype(const char *field, size_t length, struct pio_sample_t *sample, p
  * @param data A state_t struct.
  */
 static void
-new_field(void *field, unsigned long int field_length, void *data)
+new_field(void *field, size_t field_length, void *data)
 {
     struct state_t *state = (struct state_t *) data;
     pio_status_t status;
