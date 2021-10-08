@@ -106,7 +106,7 @@ parse_str(const char *field, size_t length, pio_status_t *status)
  * @param length Length of the field.
  * @param status Status of the conversion.
  *
- * @return The parsed csv field, or 0 if it could
+ * @return The parsed csv field, or NULL if it could
  *         not be parsed. Caller is responsible for
  *         deallocating the memory.
  */
@@ -124,7 +124,7 @@ parse_chr(const char *field, size_t length, pio_status_t *status)
     else
     {
         *status = PIO_ERROR;
-        return 0;
+        return NULL;
     }
 }
 

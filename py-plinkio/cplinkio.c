@@ -640,7 +640,7 @@ plinkio_get_loci(PyObject *self, PyObject *args)
     {
         struct pio_locus_t *locus = pio_get_locus( &c_plink_file->file, i );
 
-        PyObject *args = Py_BuildValue( "BsfLss",
+        PyObject *args = Py_BuildValue( "ssfLss",
                                         locus->chromosome,
                                         locus->name,
                                         locus->position,
