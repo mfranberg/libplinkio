@@ -10,7 +10,7 @@ def test_read_write():
         plink_prefix = os.path.join(temp_dir, "test")
 
         samples = [Sample("fid1", "iid1", "0", "0", 0, 0), Sample("fid2", "iid2", "0", "0", 0, 1)]
-        loci = [Locus(1, "chr1:1", 1.0, 1, "A", "C"), Locus(2, "chr1:2", 2.0, 2, "G", "T")]
+        loci = [Locus("1", "chr1:1", 1.0, 1, "A", "C"), Locus("2", "chr1:2", 2.0, 2, "G", "T")]
         rows = [[0, 1], [1, 2]]
 
         writer = plinkfile.create(plink_prefix, samples)

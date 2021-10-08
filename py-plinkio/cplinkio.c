@@ -393,11 +393,11 @@ int parse_locus(PyObject *py_locus, struct pio_locus_t *locus)
     PyObject *allele1_object;
     PyObject *allele2_object;
     
+    PyObject *chromosome_string;
     PyObject *name_string;
     PyObject *allele1_string;
     PyObject *allele2_string;
 
-    int chromosome;
     float position;
     int bp_position;
 
@@ -410,16 +410,16 @@ int parse_locus(PyObject *py_locus, struct pio_locus_t *locus)
     allele1_object = PyObject_GetAttrString( py_locus, "allele1" );
     allele2_object = PyObject_GetAttrString( py_locus, "allele2" );
 
-    chromosome = PyInt_AsLong( chromosome_object );
+    chromosome_string = PyObject_Str( chromosome_object );
     name_string = PyObject_Str( name_object );
     position = PyFloat_AsDouble( position_object );
     bp_position = PyInt_AsLong( bp_position_object );
     allele1_string = PyObject_Str( allele1_object );
     allele2_string = PyObject_Str( allele2_object );
     
-    if( chromosome == -1 && PyErr_Occurred( ) )
+    if( chromosome_string == NULL )
     {
-        PyErr_SetString( PyExc_TypeError, "Error chromosome field must be an integer." );
+        PyErr_SetString( PyExc_TypeError, "Error chromosome field must be a string" );
         ret = 0;
     }
     else if( name_string == NULL )
@@ -449,7 +449,7 @@ int parse_locus(PyObject *py_locus, struct pio_locus_t *locus)
     }
 
     /* The strings wont get freed by plinkio so remove const qualifier */
-    locus->chromosome = PyInt_AsLong( chromosome_object );
+    locus->chromosome = (char *) PyString_AsString( chromosome_string );
     locus->name = (char *) PyString_AsString( name_string );
     locus->position = PyFloat_AsDouble( position_object );
     locus->bp_position = PyInt_AsLong( bp_position_object );
@@ -457,6 +457,7 @@ int parse_locus(PyObject *py_locus, struct pio_locus_t *locus)
     locus->allele2 = (char *) PyString_AsString( allele2_string );
 
 locus_error:
+    Py_DECREF( chromosome_string );
     Py_DECREF( name_string );
     Py_DECREF( allele1_string );
     Py_DECREF( allele2_string );
