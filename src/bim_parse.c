@@ -100,28 +100,32 @@ parse_str(const char *field, size_t length, pio_status_t *status)
 }
 
 /**
- * Parses a chromosome number and returns it.
+ * Parses a chromosome string and returns it.
  *
  * @param field Csv field.
  * @param length Length of the field.
  * @param status Status of the conversion.
  *
  * @return The parsed csv field, or 0 if it could
- *         not be parsed.
+ *         not be parsed. Caller is responsible for
+ *         deallocating the memory.
  */
-static unsigned char
+static char*
 parse_chr(const char *field, size_t length, pio_status_t *status)
 {
-    char *endptr;
-    unsigned char chr = (unsigned char) strtol( field, &endptr, 10 );
-    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
+    if( length > 0 )
     {
+        char *chr = (char *) malloc( sizeof( char ) * ( length + 1 ) );
+        strncpy( chr, field, length + 1 );
+
         *status = PIO_OK;
         return chr;
     }
-
-    *status = PIO_ERROR;
-    return 0;
+    else
+    {
+        *status = PIO_ERROR;
+        return 0;
+    }
 }
 
 /**
@@ -286,7 +290,7 @@ pio_status_t
 write_locus(FILE *bim_fp, struct pio_locus_t *locus)
 {
     int bytes_written = fprintf( bim_fp,
-                    "%d\t%s\t%f\t%lld\t%s\t%s\n",
+                    "%s\t%s\t%f\t%lld\t%s\t%s\n",
                     locus->chromosome,
                     locus->name,
                     locus->position,

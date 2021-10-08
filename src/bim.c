@@ -38,6 +38,10 @@ utarray_locus_dtor(void *element)
 {
     struct pio_locus_t *locus = (struct pio_locus_t *) element;
 
+    if( locus->chromosome != NULL )
+    {
+        free( locus->chromosome );
+    }
     if( locus->name != NULL )
     {
         free( locus->name );
@@ -103,7 +107,7 @@ bim_write(struct pio_bim_file_t *bim_file, struct pio_locus_t *locus)
     if( write_locus( bim_file->fp, locus ) == PIO_OK )
     {
         locus_copy.pio_id = bim_num_loci( bim_file );
-        locus_copy.chromosome = locus->chromosome;
+        locus_copy.chromosome = strdup( locus->chromosome );
         locus_copy.name = strdup( locus->name );
         locus_copy.position = locus->position;
         locus_copy.bp_position = locus->bp_position;

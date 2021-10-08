@@ -27,9 +27,9 @@ struct pio_locus_t
     size_t pio_id;
 
     /**
-     * Chromosome number starting from 1.
+     * Chromosome as strings.
      */
-    unsigned char chromosome;
+    char *chromosome;
 
     /**
      * Name of the SNP.
