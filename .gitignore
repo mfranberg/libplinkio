@@ -11,4 +11,33 @@ html/
 *.egg-info
 __pycache__
 dist
+
+# editor settings
 .vscode/
+.spyproject/
+
+# cmake output files from CMake.gitignore
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# Additional CMake files
+CPackConfig.cmake
+CPackSourceConfig.cmake
+
+# file objects
+*.a
+
+# compiled binaries
+tests/bed_test
+tests/bim_test
+tests/fam_test
+tests/plinkio_test
