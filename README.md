@@ -20,25 +20,43 @@ Project rationales:
 
 Installing this library is easy, just **configure** and **make**. This will also install Python bindings for the active interpeter.
 
-*NEWS* The python extension can now be installed by
+*NEWS* The python extension can now be installed 
+[from pypi](https://pypi.org/project/plinkio/) by:
 
     pip install plinkio
 
+To compile and install from source code:
+
+    python setup.py build
+    python setup.py install
+
+You require [tox](https://pypi.org/project/tox/) to test plinkio properly. 
+By calling:
+
+    tox
+
+in your project directory, you will download dependencies, compile the library 
+and run tests. If you get stuck with compiled libraries, adding `-r` option
+will reset the test environment (this means wiping out the testing environment 
+and re-initialize it from scratch by downloading dependencies and compiling again)
+
 ### Installing to a standard location
 
-    mkdir build
-    cd build
-    ../configure
-    make && make check && sudo make install
+[CMake](https://cmake.org/) is required in order to compile the C libraries (mind
+to the final `.` after *CMake*, which stands for your current *project* local 
+directory):
 
-You can also pass the --disable-tests flag to **configure** to avoid building the unit tests and the dependency to libcmockery. Note howerver, in this case **make check** will not do anything.
+    cmake .
+    make
+    make test
+    make install
 
 ### Installing to a custom location
 
-    mkdir build
-    cd build
-    ../configure --prefix=/path/to/plinkio
-    make && make check && make install
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/path/to/plinkio .
+    make
+    make test
+    make install
 
 ### Linking to your program
 
@@ -56,7 +74,7 @@ The genotypes are coded 0, 1, 2, and 3. The numbers 0-2 represent the number of 
 
 ## Using in C
 
-For specific information look at http://mfranberg.github.com/libplinkio/index.html
+For specific information look at https://mfranberg.github.io/libplinkio/index.html
 
 The following C program prints the genotypes of all individuals. Note, that it is not recommended to run this program on a big plink file since it will fill your screen with data.
 
@@ -175,9 +193,9 @@ struct pio_locus_t
     size_t pio_id;
 
     /**
-     * Chromosome number starting from 1.
+     * Chromosome as strings.
      */
-    unsigned char chromosome;
+    char *chromosome;
 
     /**
      * Name of the SNP.
@@ -302,7 +320,7 @@ class Sample:
 class Locus:
     def __init__(self, chromosome, name, position, bp_position, allele1, allele2):
         ##
-        # Chromosome number starting from 1
+        # Chromosome string
         #
         self.chromosome = chromosome
 
