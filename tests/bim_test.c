@@ -39,7 +39,7 @@ test_parse_chr(void **state)
     const char *TEST_STRING1 = "16";
     pio_status_t status;
     
-    char *chrom1 = parse_chr( TEST_STRING1, strlen( TEST_STRING1 ), &status );
+    char *chrom1 = parse_str( TEST_STRING1, strlen( TEST_STRING1 ), &status );
 
     assert_string_equal( chrom1, TEST_STRING1 );
     assert_int_equal( status, PIO_OK );
@@ -47,7 +47,7 @@ test_parse_chr(void **state)
 
     const char *TEST_STRING2 = "X";
 
-    char *chrom2 = parse_chr( TEST_STRING2, strlen( TEST_STRING2 ), &status );
+    char *chrom2 = parse_str( TEST_STRING2, strlen( TEST_STRING2 ), &status );
     
     assert_string_equal( chrom2, TEST_STRING2 );
     assert_int_equal( status, PIO_OK );
@@ -55,7 +55,7 @@ test_parse_chr(void **state)
 
     const char *TEST_STRING3 = "Contig123456";
 
-    char *chrom3 = parse_chr( TEST_STRING3, strlen( TEST_STRING3 ), &status );
+    char *chrom3 = parse_str( TEST_STRING3, strlen( TEST_STRING3 ), &status );
     
     assert_string_equal( chrom3, "Contig123456" );
     assert_int_equal( status, PIO_OK );
