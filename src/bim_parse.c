@@ -100,31 +100,6 @@ parse_str(const char *field, size_t length, pio_status_t *status)
 }
 
 /**
- * Parses a chromosome number and returns it.
- *
- * @param field Csv field.
- * @param length Length of the field.
- * @param status Status of the conversion.
- *
- * @return The parsed csv field, or 0 if it could
- *         not be parsed.
- */
-static unsigned char
-parse_chr(const char *field, size_t length, pio_status_t *status)
-{
-    char *endptr;
-    unsigned char chr = (unsigned char) strtol( field, &endptr, 10 );
-    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
-    {
-        *status = PIO_OK;
-        return chr;
-    }
-
-    *status = PIO_ERROR;
-    return 0;
-}
-
-/**
  * Parses a genetic distance (float).
  *
  * @param field Csv field.
@@ -204,7 +179,7 @@ new_field(void *field, size_t field_length, void *data)
     switch( state->field )
     {
         case 0:
-            state->cur_locus.chromosome = parse_chr( buffer, field_length, &status );
+            state->cur_locus.chromosome = parse_str( buffer, field_length, &status );
             break;
         case 1:
             state->cur_locus.name = parse_str( buffer, field_length, &status );
@@ -286,7 +261,7 @@ pio_status_t
 write_locus(FILE *bim_fp, struct pio_locus_t *locus)
 {
     int bytes_written = fprintf( bim_fp,
-                    "%d\t%s\t%f\t%lld\t%s\t%s\n",
+                    "%s\t%s\t%f\t%lld\t%s\t%s\n",
                     locus->chromosome,
                     locus->name,
                     locus->position,

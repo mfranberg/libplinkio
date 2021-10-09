@@ -36,11 +36,30 @@ test_parse_position(void **state)
 void
 test_parse_chr(void **state)
 {
-    const char *TEST_STRING = "16";
+    const char *TEST_STRING1 = "16";
     pio_status_t status;
     
-    assert_int_equal( parse_chr( TEST_STRING, strlen( TEST_STRING ), &status ), 16 );
+    char *chrom1 = parse_str( TEST_STRING1, strlen( TEST_STRING1 ), &status );
+
+    assert_string_equal( chrom1, TEST_STRING1 );
     assert_int_equal( status, PIO_OK );
+    free(chrom1);
+
+    const char *TEST_STRING2 = "X";
+
+    char *chrom2 = parse_str( TEST_STRING2, strlen( TEST_STRING2 ), &status );
+    
+    assert_string_equal( chrom2, TEST_STRING2 );
+    assert_int_equal( status, PIO_OK );
+    free(chrom2);
+
+    const char *TEST_STRING3 = "Contig123456";
+
+    char *chrom3 = parse_str( TEST_STRING3, strlen( TEST_STRING3 ), &status );
+    
+    assert_string_equal( chrom3, "Contig123456" );
+    assert_int_equal( status, PIO_OK );
+    free(chrom3);
 }
 
 /**
@@ -58,7 +77,7 @@ test_parse_multiple_loci(void **state)
     assert_int_equal( bim_num_loci( &bim_file ), 2 );
 
     locus = *bim_get_locus( &bim_file, 0 );
-    assert_int_equal( locus.chromosome, 1 ); 
+    assert_string_equal( locus.chromosome, "1" ); 
     assert_string_equal( locus.name, "rs1" );
     assert_true( fabs( locus.position - 0.0 ) <= 1e-6 );
     assert_int_equal( locus.bp_position, 1234567 );
@@ -66,7 +85,7 @@ test_parse_multiple_loci(void **state)
     assert_string_equal( locus.allele2, "C" );
 
     locus = *bim_get_locus( &bim_file, 1 );
-    assert_int_equal( locus.chromosome, 1 ); 
+    assert_string_equal( locus.chromosome, "1" ); 
     assert_string_equal( locus.name, "rs2" );
     assert_true( fabs( locus.position - 0.23 ) <= 1e-6 );
     assert_int_equal( locus.bp_position, 7654321 );

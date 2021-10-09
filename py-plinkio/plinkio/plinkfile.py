@@ -206,7 +206,7 @@ class Locus:
     def __init__(self, chromosome, name, position, bp_position, allele1, allele2):
         # pylint: disable = too-many-arguments
         ##
-        # Chromosome number starting from 1
+        # Chromosome string
         #
         self.chromosome = chromosome
 
