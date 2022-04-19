@@ -28,8 +28,8 @@ Installing this library is easy, just **configure** and **make**. This will also
 
     mkdir build
     cd build
-    ../configure
-    make && make check && sudo make install
+    cmake ../
+    make && make test && sudo make install
 
 You can also pass the --disable-tests flag to **configure** to avoid building the unit tests and the dependency to libcmockery. Note howerver, in this case **make check** will not do anything.
 
@@ -37,8 +37,8 @@ You can also pass the --disable-tests flag to **configure** to avoid building th
 
     mkdir build
     cd build
-    ../configure --prefix=/path/to/plinkio
-    make && make check && make install
+    cmake -D CMAKE_INSTALL_PREFIX=/path/to/plinkio ../
+    make && make test && make install
 
 ### Linking to your program
 
