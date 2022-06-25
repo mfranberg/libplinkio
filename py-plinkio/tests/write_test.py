@@ -23,6 +23,7 @@ def test_read_write():
         reader = plinkfile.open(plink_prefix)
         assert samples == reader.get_samples()
         assert loci == reader.get_loci()
-
         for row, reader_row in zip(rows, reader):
             assert row == list(reader_row)
+
+        reader.close()

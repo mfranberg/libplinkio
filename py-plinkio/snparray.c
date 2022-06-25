@@ -110,7 +110,7 @@ snparray_getitem(PyObject *self, Py_ssize_t index)
 {
     snp_array_t *snp_array = (snp_array_t *) self;
     
-    if( index >= (ssize_t) snp_array->length )
+    if( index >= (Py_ssize_t) snp_array->length )
     {
         PyErr_SetString( PyExc_IndexError, "snparray index out of range" );
         return NULL;

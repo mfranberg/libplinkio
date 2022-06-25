@@ -499,7 +499,7 @@ plinkio_write_row(PyObject *self, PyObject *args)
     }
 
     c_plink_file = (c_plink_file_t *) plink_file;
-    if( PyObject_Size( genotypes ) != (ssize_t) c_plink_file->row_length )
+    if( PyObject_Size( genotypes ) != (Py_ssize_t) c_plink_file->row_length )
     {
         PyErr_SetString( PyExc_ValueError, "Error, wrong number of genotypes given." );
         return NULL;
