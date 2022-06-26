@@ -19,4 +19,4 @@ extern "C" {
 }
 #endif
 
-#endif /* End of __STATUS_H__ */
+#endif /* End of __PLINKIO_PRIVATE_H__ */
