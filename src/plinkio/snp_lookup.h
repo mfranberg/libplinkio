@@ -13,13 +13,7 @@
 extern "C" {
 #endif
 
-#if HAVE_ENDIAN_H
-#include <endian.h>
-#elif HAVE_MACHINE_ENDIAN_H
-#include <machine/endian.h>
-#elif HAVE_SYS_ENDIAN_H
-#include <sys/endian.h>
-#endif
+#include <plinkio/endian.h>
 
 /**
  * Maps an unpacked snp to its corresponding bits.

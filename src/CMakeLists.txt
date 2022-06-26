@@ -1,8 +1,18 @@
+INCLUDE (CheckIncludeFiles)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+CHECK_INCLUDE_FILES (endian.h HAVE_ENDIAN_H)
+CHECK_INCLUDE_FILES (machine/endian.h HAVE_MACHINE_ENDIAN_H)
+CHECK_INCLUDE_FILES (sys/endian.h HAVE_SYS_ENDIAN_H)
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/plinkio/endian.h.in" "${CMAKE_CURRENT_BINARY_DIR}/plinkio/endian.h")
+set( AG_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/plinkio/endian.h" )
+
 include_directories( "." )
 include_directories( ${LIBCSV_INCLUDE_DIR} )
 
-file( GLOB_RECURSE SRC_LIST "*.c" "." )
-file( GLOB_RECURSE HEADERS "*.h" "plinkio/" )
+file( GLOB_RECURSE SRC_LIST "*.c" )
+file( GLOB_RECURSE HEADERS "plinkio/*.h" )
+list( APPEND HEADERS ${AG_HEADERS} )
 
 if( NOT DISABLE_SHARED_LIBRARY )
     add_library( libplinkio SHARED ${SRC_LIST} )
