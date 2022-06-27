@@ -7,11 +7,18 @@ import tempfile
 import sys
 import shutil
 
-here = path.abspath(path.dirname(__file__))
+def copytree_dot_in(src, dst):
+    def copyfile_dot_in(src, dst):
+        if src.endswith('.in'):
+            shutil.copyfile(src, dst[:-3])
+    shutil.copytree(
+      src,
+      dst,
+      copy_function = copyfile_dot_in,
+      dirs_exist_ok=True
+    )
 
-def copyfile_dot_in(src, dst):
-    if src.endswith('.in'):
-        shutil.copyfile(src, dst[:-3])
+here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
@@ -32,12 +39,7 @@ pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 
 with tempfile.TemporaryDirectory() as tmp_include_dir:
     # Remove ".in" from the file name and copy
-    shutil.copytree(
-      libplinkio_src_dir,
-      tmp_include_dir,
-      copy_function = copyfile_dot_in,
-      dirs_exist_ok=True
-    )
+    copytree_dot_in(libplinkio_src_dir, tmp_include_dir)
     
     # Check byte order
     if sys.byteorder == "little":
