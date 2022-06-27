@@ -13,7 +13,9 @@
 extern "C" {
 #endif
 
-#include <plinkio/endian.h>
+#cmakedefine PLINKIO_BYTEORDER @PLINKIO_BYTEORDER@
+#define PLINKIO_LITTLE_ENDIAN 1234
+#define PLINKIO_BIG_ENDIAN 4321
 
 /**
  * Maps an unpacked snp to its corresponding bits.
@@ -38,7 +40,7 @@ union snp_lookup_t
     int32_t snp_block;
 };
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if PLINKIO_BYTE_ORDER == PLINKIO_LITTLE_ENDIAN
 #include <plinkio/snp_lookup_little.h>
 #else
 #include <plinkio/snp_lookup_big.h>

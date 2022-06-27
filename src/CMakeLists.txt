@@ -1,11 +1,16 @@
 INCLUDE (CheckIncludeFiles)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-CHECK_INCLUDE_FILES (endian.h HAVE_ENDIAN_H)
-CHECK_INCLUDE_FILES (machine/endian.h HAVE_MACHINE_ENDIAN_H)
-CHECK_INCLUDE_FILES (sys/endian.h HAVE_SYS_ENDIAN_H)
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/plinkio/endian.h.in" "${CMAKE_CURRENT_BINARY_DIR}/plinkio/endian.h")
-set( AG_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/plinkio/endian.h" )
+if( "${CMAKE_C_BYTE_ORDER}" STREQUAL "LITTLE_ENDIAN" )
+    set( PLINKIO_BYTEORDER 1234 )
+elseif( "${CMAKE_C_BYTE_ORDER}" STREQUAL "BIG_ENDIAN" )
+    set( PLINKIO_BYTEORDER 4321 )
+else()
+    message(FATAL_ERROR "Unsupported byte order")
+endif()
+
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/plinkio/snp_lookup.h.in" "${CMAKE_CURRENT_BINARY_DIR}/plinkio/snp_lookup.h" @ONLY)
+set( AG_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/plinkio/snp_lookup.h" )
 
 include_directories( "." )
 include_directories( ${LIBCSV_INCLUDE_DIR} )

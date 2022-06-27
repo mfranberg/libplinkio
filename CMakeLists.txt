@@ -1,5 +1,5 @@
 project( libplinkio )
-cmake_minimum_required( VERSION 2.8.9 )
+cmake_minimum_required( VERSION 3.20.0 )
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set( LIBPLINKIO_VERSION_MAJOR 0 )
