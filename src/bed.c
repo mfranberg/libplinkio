@@ -8,16 +8,19 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 #include <assert.h>
 
 #include <fcntl.h>
+#ifdef _MSC_VER
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 #include <sys/stat.h>
 #if defined(_WIN32) || defined(_WIN64)
 #include <inttypes.h>
 #include <windows.h>
-#define bzero(s, n) memset((s), 0, (n))
 #define MAP_FAILED NULL
 #else
 #include <sys/mman.h>
@@ -135,7 +138,7 @@ pack_snps(const snp_t *unpacked_snps, unsigned char *packed_snps, size_t num_col
     int packed_index;
     int position_in_byte;
 
-    bzero( packed_snps, (num_cols + 3) / 4 );
+    memset( packed_snps, 0, (num_cols + 3) / 4 );
     for(i = 0; i < num_cols; i++)
     {
         /* Genotypes are stored backwards. */
@@ -162,7 +165,7 @@ transpose_rows(const unsigned char *rows, size_t num_rows, size_t num_cols, FILE
     unsigned char *row_buffer = (unsigned char *) malloc( num_bytes_per_col );
     for(j = 0; j < num_cols; j++)
     {
-        bzero( row_buffer, num_bytes_per_col );
+        memset( row_buffer, 0, num_bytes_per_col );
         for(i = 0; i < num_rows; i++)
         {
             /* Index in the byte array */
@@ -211,7 +214,11 @@ transpose_file(const unsigned char *mapped_file, size_t num_loci, size_t num_sam
     }
     
     /* Clear size of file, otherwise we might have trailing bytes */
+#ifdef _MSC_VER
+    if( _chsize_s( fileno( output_file ), 0 ) != 0)
+#else
     if( ftruncate( fileno( output_file ), 0 ) == - 1)
+#endif
     {
         return PIO_ERROR;
     }
@@ -243,7 +250,7 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, siz
     size_t row_size_bytes;
     FILE *bed_fp;
    
-    bzero( bed_file, sizeof( *bed_file ) );
+    memset( bed_file, 0, sizeof( *bed_file ) );
     bed_fp = fopen( path, "r" );
     if( bed_fp == NULL )
     {
@@ -272,7 +279,7 @@ bed_create(struct pio_bed_file_t *bed_file, const char *path, size_t num_samples
     size_t length;
     size_t row_size_bytes;
    
-    bzero( bed_file, sizeof( *bed_file ) );
+    memset( bed_file, 0, sizeof( *bed_file ) );
     bed_fp = fopen( path, "w" );
     if( bed_fp == NULL )
     {

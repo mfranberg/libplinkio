@@ -7,9 +7,6 @@
  */
 
 #include <stdio.h>
-#if defined(_WIN32) || defined(_WIN64)
-#define bzero(s, n) memset((s), 0, (n))
-#endif
 
 #include <plinkio/utarray.h>
 #include <plinkio/bim.h>
@@ -62,7 +59,7 @@ bim_open(struct pio_bim_file_t *bim_file, const char *path)
 {
     int status;
     FILE *bim_fp;
-    bzero( bim_file, sizeof( *bim_file ) );
+    memset( bim_file, 0, sizeof( *bim_file ) );
     bim_fp = fopen( path, "r" );
     if( bim_fp == NULL )
     {
@@ -83,7 +80,7 @@ pio_status_t
 bim_create(struct pio_bim_file_t *bim_file, const char *path)
 {
     FILE *bim_fp;
-    bzero( bim_file, sizeof( *bim_file ) );
+    memset( bim_file, 0, sizeof( *bim_file ) );
     bim_fp = fopen( path, "w" );
     if( bim_fp == NULL )
     {

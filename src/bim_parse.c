@@ -15,6 +15,8 @@
 #include <plinkio/bim.h>
 #include <plinkio/bim_parse.h>
 
+#include "plinkio_private.h"
+
 /**
  * Creates mock versions of IO functions to allow unit testing.
  */
@@ -247,8 +249,9 @@ new_field(void *field, size_t field_length, void *data)
  * @param data A state_t struct.
  */
 static void
-new_row(__attribute__((unused)) int number, void *data)
+new_row(int number, void *data)
 {
+    UNUSED_PARAM(number);
     struct state_t *state = (struct state_t *) data;
 
     if( state->field != -1 )

@@ -14,27 +14,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        compiler: [ g++-10 ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        compiler: [gcc]
         include:
-          - os: ubuntu-latest
-            compiler: g++-10
-            target: Linux
-          - os: macos-latest
-            compiler: g++-10
-            target: Macos
           - os: windows-latest
-            compiler: g++-10
-            target: Windows
+            compiler: cl
 
     steps:
     - uses: actions/checkout@v2
-    
-    - name: Setup MinGW64 (Windows)
-      uses: msys2/setup-msys2@v2
-      with:
-        install: mingw-w64-x86_64-gcc mingw-w64-x86_64-make mingw-w64-x86_64-cmake
-      if: "contains( matrix.os, 'windows')"
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -42,14 +29,14 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-      if: "!contains( matrix.os, 'windows')"
-    
-    - name: Configure CMake (MinGW64)
-      shell: msys2 {0}
+      run: cmake -G"Unix Makefiles" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      if: "!(contains( matrix.os, 'windows') && contains( matrix.compiler, 'cl'))"
+      
+    - name: Configure CMake (MSVC)
+      shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake -G"MinGW Makefiles" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-      if: "contains( matrix.os, 'windows')"
+      run: cmake -G"Visual Studio 17 2022" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      if: "contains( matrix.os, 'windows') && contains( matrix.compiler, 'cl')"
 
     - name: Build
       working-directory: ${{github.workspace}}/build

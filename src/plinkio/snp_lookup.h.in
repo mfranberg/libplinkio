@@ -13,13 +13,11 @@
 extern "C" {
 #endif
 
-#if HAVE_ENDIAN_H
-#include <endian.h>
-#elif HAVE_MACHINE_ENDIAN_H
-#include <machine/endian.h>
-#elif HAVE_SYS_ENDIAN_H
-#include <sys/endian.h>
+#ifndef PLINKIO_BYTE_ORDER
+#  cmakedefine PLINKIO_BYTE_ORDER @PLINKIO_BYTE_ORDER@
 #endif
+#define PLINKIO_LITTLE_ENDIAN 1234
+#define PLINKIO_BIG_ENDIAN 4321
 
 /**
  * Maps an unpacked snp to its corresponding bits.
@@ -44,10 +42,12 @@ union snp_lookup_t
     int32_t snp_block;
 };
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#include <plinkio/snp_lookup_little.h>
+#if PLINKIO_BYTE_ORDER == PLINKIO_LITTLE_ENDIAN
+#  include <plinkio/snp_lookup_little.h>
+#elif PLINKIO_BYTE_ORDER == PLINKIO_BIG_ENDIAN
+#  include <plinkio/snp_lookup_big.h>
 #else
-#include <plinkio/snp_lookup_big.h>
+#  error Unsupported byte order
 #endif /* End test endianess */
 
 #ifdef __cplusplus

@@ -7,9 +7,6 @@
  */
 
 #include <stdio.h>
-#if defined(_WIN32) || defined(_WIN64)
-#define bzero(s, n) memset((s), 0, (n))
-#endif
 
 #include <plinkio/utarray.h>
 #include <plinkio/fam.h>
@@ -72,7 +69,7 @@ fam_open(struct pio_fam_file_t *fam_file, const char *path)
     pio_status_t status;
     FILE *fam_fp;
 
-    bzero( fam_file, sizeof( *fam_file ) );
+    memset( fam_file, 0, sizeof( *fam_file ) );
     fam_fp = fopen( path, "r" );
     if( fam_fp == NULL )
     {
@@ -96,7 +93,7 @@ fam_create(struct pio_fam_file_t *fam_file, const char *path, struct pio_sample_
     FILE *fam_fp;
     struct pio_sample_t sample_copy;
 
-    bzero( fam_file, sizeof( *fam_file ) );
+    memset( fam_file, 0, sizeof( *fam_file ) );
     fam_fp = fopen( path, "w" );
     if( fam_fp == NULL )
     {
