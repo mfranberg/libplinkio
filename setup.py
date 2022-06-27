@@ -5,9 +5,13 @@ import os
 import glob
 import tempfile
 import sys
-import re
+import shutil
 
 here = path.abspath(path.dirname(__file__))
+
+def copyfile_dot_in(src, dst):
+    if src.endswith('.in'):
+        shutil.copyfile(src, dst[:-3])
 
 # Get the long description from the relevant file
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
@@ -27,21 +31,21 @@ pyplinkio_include_dir = pyplinkio_src_dir
 pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 
 with tempfile.TemporaryDirectory() as tmp_include_dir:
-    os.makedirs(os.path.join(tmp_include_dir, "plinkio"))
-    with open(os.path.join(libplinkio_src_dir, "plinkio/snp_lookup.h.in"), "r") as f_in, \
-         open(os.path.join(tmp_include_dir, "plinkio/snp_lookup.h"), "w") as f_out:
-        for line_in in f_in:
-            if sys.byteorder == "little":
-                macro_str = '#define PLINKIO_BYTE_ORDER 1234'
-            elif sys.byteorder == "big":
-                macro_str = '#define PLINKIO_BYTE_ORDER 4321'
-            else:
-                raise NotImplementedError('Unsupported byte order')
-            line_out = re.sub(r'#cmakedefine\s+PLINKIO_BYTE_ORDER\s+@PLINKIO_BYTE_ORDER@',
-               macro_str,
-               line_in
-            )
-            f_out.write(line_out)
+    # Remove ".in" from the file name and copy
+    shutil.copytree(
+      libplinkio_src_dir,
+      tmp_include_dir,
+      copy_function = copyfile_dot_in,
+      dirs_exist_ok=True
+    )
+    
+    # Check byte order
+    if sys.byteorder == "little":
+        plink_byte_order = '1234'
+    elif sys.byteorder == "big":
+        plink_byte_order = '4321'
+    else:
+        raise NotImplementedError('Unsupported byte order')
 
     cplinkio = Extension(
         "plinkio.cplinkio",
@@ -51,7 +55,7 @@ with tempfile.TemporaryDirectory() as tmp_include_dir:
         libraries=[],
         language="c",
         extra_compile_args=[],
-        define_macros=[],
+        define_macros=[("PLINKIO_BYTE_ORDER", plink_byte_order)],
     )
 
     setup(
