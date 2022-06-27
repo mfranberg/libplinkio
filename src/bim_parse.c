@@ -15,7 +15,7 @@
 #include <plinkio/bim.h>
 #include <plinkio/bim_parse.h>
 
-#include "./plinkio_private.h"
+#include "plinkio_private.h"
 
 /**
  * Creates mock versions of IO functions to allow unit testing.
