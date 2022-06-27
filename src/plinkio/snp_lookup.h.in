@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#cmakedefine PLINKIO_BYTEORDER @PLINKIO_BYTEORDER@
+#cmakedefine PLINKIO_BYTE_ORDER @PLINKIO_BYTE_ORDER@
 #define PLINKIO_LITTLE_ENDIAN 1234
 #define PLINKIO_BIG_ENDIAN 4321
 
@@ -41,9 +41,11 @@ union snp_lookup_t
 };
 
 #if PLINKIO_BYTE_ORDER == PLINKIO_LITTLE_ENDIAN
-#include <plinkio/snp_lookup_little.h>
+#  include <plinkio/snp_lookup_little.h>
+#elif PLINKIO_BYTE_ORDER == PLINKIO_BIG_ENDIAN
+#  include <plinkio/snp_lookup_big.h>
 #else
-#include <plinkio/snp_lookup_big.h>
+#  error Unsupported byte order
 #endif /* End test endianess */
 
 #ifdef __cplusplus
