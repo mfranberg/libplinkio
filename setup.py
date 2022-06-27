@@ -4,7 +4,8 @@ from os import path
 import os
 import glob
 import tempfile
-from sys import byteorder
+import sys
+import re
 
 here = path.abspath(path.dirname(__file__))
 
@@ -27,12 +28,20 @@ pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 
 with tempfile.TemporaryDirectory() as tmp_include_dir:
     os.makedirs(os.path.join(tmp_include_dir, "plinkio"))
-    with open(os.path.join(tmp_include_dir, "plinkio/endian.h"), "w") as f:
-        print("#define __LITTLE_ENDIAN 1234 \n#define __BIG_ENDIAN 4321\n", file=f)
-        if sys.byteorder == "big":
-            print("#define __BYTE_ORDER __BIG_ENDIAN", file=f)
-        else:
-            print("#define __BYTE_ORDER __LITTLE_ENDIAN", file=f)
+    with open(os.path.join(libplinkio_src_dir, "plinkio/snp_lookup.h.in"), "r") as f_in, \
+         open(os.path.join(tmp_include_dir, "plinkio/snp_lookup.h"), "w") as f_out:
+        for line_in in f_in:
+            if sys.byteorder == "little":
+                macro_str = '#define PLINKIO_BYTE_ORDER 1234'
+            elif sys.byteorder == "big":
+                macro_str = '#define PLINKIO_BYTE_ORDER 4321'
+            else:
+                raise NotImplementedError('Unsupported byte order')
+            line_out = re.sub(r'#cmakedefine\s+PLINKIO_BYTE_ORDER\s+@PLINKIO_BYTE_ORDER@',
+               macro_str,
+               line_in
+            )
+            f_out.write(line_out)
 
     cplinkio = Extension(
         "plinkio.cplinkio",
