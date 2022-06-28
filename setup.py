@@ -7,16 +7,14 @@ import tempfile
 import sys
 import shutil
 
+
 def copytree_dot_in(src, dst):
     def copyfile_dot_in(src, dst):
-        if src.endswith('.in'):
+        if src.endswith(".in"):
             shutil.copyfile(src, dst[:-3])
-    shutil.copytree(
-      src,
-      dst,
-      copy_function = copyfile_dot_in,
-      dirs_exist_ok=True
-    )
+
+    shutil.copytree(src, dst, copy_function=copyfile_dot_in, dirs_exist_ok=True)
+
 
 here = path.abspath(path.dirname(__file__))
 
@@ -40,20 +38,25 @@ pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 with tempfile.TemporaryDirectory() as tmp_include_dir:
     # Remove ".in" from the file name and copy
     copytree_dot_in(libplinkio_src_dir, tmp_include_dir)
-    
+
     # Check byte order
     if sys.byteorder == "little":
-        plink_byte_order = '1234'
+        plink_byte_order = "1234"
     elif sys.byteorder == "big":
-        plink_byte_order = '4321'
+        plink_byte_order = "4321"
     else:
-        raise NotImplementedError('Unsupported byte order')
+        raise NotImplementedError("Unsupported byte order")
 
     cplinkio = Extension(
         "plinkio.cplinkio",
         libplinkio_src_files + libcsv_src_files + pyplinkio_src_files,
         library_dirs=[],
-        include_dirs=[libplinkio_include_dir, libcsv_include_dir, pyplinkio_include_dir, tmp_include_dir],
+        include_dirs=[
+            libplinkio_include_dir,
+            libcsv_include_dir,
+            pyplinkio_include_dir,
+            tmp_include_dir,
+        ],
         libraries=[],
         language="c",
         extra_compile_args=[],
@@ -65,7 +68,7 @@ with tempfile.TemporaryDirectory() as tmp_include_dir:
         # Versions should comply with PEP440.  For a discussion on single-sourcing
         # the version across setup.py and the project code, see
         # https://packaging.python.org/en/latest/single_source_version.html
-        version="0.9.8",
+        version="0.9.9",
         description="A library for parsing plink genotype files",
         long_description=long_description,
         # The project's main homepage.
