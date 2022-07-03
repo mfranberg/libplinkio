@@ -7,7 +7,6 @@ import tempfile
 import sys
 import shutil
 
-
 def copytree_dot_in(src, dst):
     def copyfile_dot_in(src, dst):
         if src.endswith(".in"):
@@ -15,15 +14,15 @@ def copytree_dot_in(src, dst):
 
     shutil.copytree(src, dst, copy_function=copyfile_dot_in)
 
-
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
+long_description = long_description.replace('\r\n', '\n')
 
 libplinkio_src_dir = "src"
-libplinkio_include_dir = os.path.join(libplinkio_src_dir)
+libplinkio_include_dir = libplinkio_src_dir
 libplinkio_src_files = glob.glob(os.path.join(libplinkio_src_dir, "*.c"))
 
 libcsv_root_dir = os.path.join("libs", "libcsv")
@@ -31,7 +30,7 @@ libcsv_src_dir = os.path.join(libcsv_root_dir, "src")
 libcsv_include_dir = os.path.join(libcsv_root_dir, "inc")
 libcsv_src_files = glob.glob(os.path.join(libcsv_src_dir, "*.c"))
 
-pyplinkio_src_dir = "py-plinkio"
+pyplinkio_src_dir = "py-plinkio/src/plinkio/cplinkio"
 pyplinkio_include_dir = pyplinkio_src_dir
 pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 
@@ -61,16 +60,20 @@ with tempfile.TemporaryDirectory() as tmp_build_dir:
         libraries=[],
         language="c",
         extra_compile_args=[],
-        define_macros=[("PLINKIO_BYTE_ORDER", plink_byte_order)],
+        define_macros=[
+          ("PLINKIO_BYTE_ORDER", plink_byte_order),
+        ],
     )
 
     setup(
         name="plinkio",
+        python_requires='>3.7',
         # Versions should comply with PEP440.  For a discussion on single-sourcing
         # the version across setup.py and the project code, see
         # https://packaging.python.org/en/latest/single_source_version.html
         version="0.9.9",
         description="A library for parsing plink genotype files",
+        long_description_content_type="text/x-rst",
         long_description=long_description,
         # The project's main homepage.
         url="https://github.com/mfranberg/libplinkio",
@@ -93,18 +96,17 @@ with tempfile.TemporaryDirectory() as tmp_build_dir:
             "License :: OSI Approved :: BSD License",
             # Specify the Python versions you support here. In particular, ensure
             # that you indicate whether you support Python 2, Python 3 or both.
-            "Programming Language :: Python :: 2",
-            "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.2",
-            "Programming Language :: Python :: 3.3",
-            "Programming Language :: Python :: 3.4",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
         ],
         # What does your project relate to?
         keywords="plinkio bioinformatics genetics",
         # You can just specify the packages manually here if your project is
         # simple. Or you can use find_packages().
-        packages=find_packages("py-plinkio"),
+        packages=find_packages("py-plinkio/src"),
         # List run-time dependencies here.  These will be installed by pip when your
         # project is installed. For an analysis of "install_requires" vs pip's
         # requirements files see:
@@ -119,7 +121,7 @@ with tempfile.TemporaryDirectory() as tmp_build_dir:
         # installed, specify them here.  If using Python 2.6 or less, then these
         # have to be included in MANIFEST.in as well.
         package_data={},
-        package_dir={"": "py-plinkio"},
+        package_dir={"": "py-plinkio/src"},
         # Although 'package_data' is the preferred approach, in some case you may
         # need to place data files outside of your packages.
         # see http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files

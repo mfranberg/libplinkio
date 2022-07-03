@@ -12,3 +12,4 @@ html/
 __pycache__
 dist
 *.pyd
+.tox/
