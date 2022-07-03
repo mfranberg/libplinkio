@@ -1,0 +1,37 @@
+name: (EXPERIMENTAL) Publish sdist and wheel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-dist:
+    uses: ./.github/workflows/build_dist.yml
+  
+  publish:
+    needs: build-dist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load dist
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install twine
+      
+      - name: Publish
+        env:
+          TWINE_USERNAME: __token__
+          #TWINE_PASSWORD: ${{ secrets.PLINKIO_TEST_PYPI_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PLINKIO_PYPI_TOKEN }}
+        run: |
+          #twine upload --repository testpypi dist/*
+          twine upload dist/*
