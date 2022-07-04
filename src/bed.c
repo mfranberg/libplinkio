@@ -207,7 +207,7 @@ transpose_file(const unsigned char *mapped_file, size_t num_loci, size_t num_sam
     unsigned char byte_header[ BED_HEADER_MAX_SIZE ];
     size_t byte_header_length = 0;
    
-    FILE *output_file = fopen( output_path, "w" );
+    FILE *output_file = fopen( output_path, "wb" );
     if( output_file == NULL )
     {
         return PIO_ERROR;
@@ -251,7 +251,7 @@ bed_open(struct pio_bed_file_t *bed_file, const char *path, size_t num_loci, siz
     FILE *bed_fp;
    
     memset( bed_file, 0, sizeof( *bed_file ) );
-    bed_fp = fopen( path, "r" );
+    bed_fp = fopen( path, "rb" );
     if( bed_fp == NULL )
     {
         return PIO_ERROR;
@@ -280,7 +280,7 @@ bed_create(struct pio_bed_file_t *bed_file, const char *path, size_t num_samples
     size_t row_size_bytes;
    
     memset( bed_file, 0, sizeof( *bed_file ) );
-    bed_fp = fopen( path, "w" );
+    bed_fp = fopen( path, "wb" );
     if( bed_fp == NULL )
     {
         return PIO_ERROR;
