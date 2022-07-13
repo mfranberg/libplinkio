@@ -13,7 +13,7 @@ def copytree_dot_in(src, dst):
         if src.endswith(".in"):
             shutil.copyfile(src, dst[:-3])
 
-    shutil.copytree(src, dst, copy_function=copyfile_dot_in, dirs_exist_ok=True)
+    shutil.copytree(src, dst, copy_function=copyfile_dot_in)
 
 
 here = path.abspath(path.dirname(__file__))
@@ -35,7 +35,8 @@ pyplinkio_src_dir = "py-plinkio"
 pyplinkio_include_dir = pyplinkio_src_dir
 pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 
-with tempfile.TemporaryDirectory() as tmp_include_dir:
+with tempfile.TemporaryDirectory() as tmp_build_dir:
+    tmp_include_dir = os.path.join(tmp_build_dir, "include")
     # Remove ".in" from the file name and copy
     copytree_dot_in(libplinkio_src_dir, tmp_include_dir)
 
