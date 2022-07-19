@@ -5,24 +5,53 @@ on:
     branches:
       - master
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  static-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
+    
+    - name: Static Check with tox
+      run: tox --skip-missing-interpreter=false -e flake8,black,pylint
+  
+  test:
     runs-on: ${{ matrix.os }}
+    needs: static-check
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.8]
         compiler: [gcc]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
         include:
           - os: windows-latest
-            python-version: 3.8
             compiler: cl
+            python-version: "3.7"
+          - os: windows-latest
+            compiler: cl
+            python-version: "3.8"
+          - os: windows-latest
+            compiler: cl
+            python-version: "3.9"
+          - os: windows-latest
+            compiler: cl
+            python-version: "3.10"
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     
@@ -49,7 +78,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install tox
+        pip install tox tox-gh-actions
     
     - name: Test with tox
-      run: tox
+      run: tox --skip-missing-interpreter=false
+      env:
+        TOX_DEVELOP: false

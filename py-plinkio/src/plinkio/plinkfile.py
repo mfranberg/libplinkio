@@ -184,7 +184,7 @@ class Sample:
         self.phenotype = phenotype
 
     def __str__(self):
-        return "{0} {1} {2} {3}".format(self.fid, self.iid, self.sex, self.affection)
+        return f"{self.fid} {self.iid} {self.sex} {self.affection}"
 
     def __eq__(self, other):
         return (
@@ -237,7 +237,7 @@ class Locus:
         self.allele2 = allele2
 
     def __str__(self):
-        return "{0} {1}".format(self.chromosome, self.name)
+        return f"{self.chromosome} {self.name}"
 
     def __eq__(self, other):
         return (
