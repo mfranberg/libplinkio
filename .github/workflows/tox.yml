@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     
     - name: Install dependencies
       run: |
@@ -33,7 +33,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         compiler: [gcc]
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
         include:
           - os: windows-latest
             compiler: cl
@@ -47,6 +47,9 @@ jobs:
           - os: windows-latest
             compiler: cl
             python-version: "3.10"
+          - os: windows-latest
+            compiler: cl
+            python-version: "3.11"
     steps:
     - uses: actions/checkout@v3
     
