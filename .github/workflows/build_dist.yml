@@ -64,7 +64,7 @@ jobs:
           CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_LINUX: "x86_64 aarch64"
           CIBW_ARCHS_WINDOWS: "AMD64 x86"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_MUSLLINUX_X86_64_IMAGE: musllinux_1_1
           CIBW_MUSLLINUX_AARCH64_IMAGE: musllinux_1_1
