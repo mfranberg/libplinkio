@@ -11,6 +11,7 @@
 #include <bim.h>
 #include <bim.c>
 #include <bim_parse.c>
+#include "plink_txt_parse.c"
 #include "mock.h"
 
 /**
@@ -23,10 +24,10 @@ test_parse_position(void **state)
     const char *TEST_STRING2 = "-1";
     pio_status_t status;
     
-    assert_int_equal( parse_bp_position( TEST_STRING1, strlen( TEST_STRING1 ), &status ), 123456LL );
+    assert_int_equal( pio_parse_bp_position( TEST_STRING1, strlen( TEST_STRING1 ), &status ), 123456LL );
     assert_int_equal( status, PIO_OK );
     
-    assert_int_equal( parse_bp_position( TEST_STRING2, strlen( TEST_STRING2 ), &status ), -1LL );
+    assert_int_equal( pio_parse_bp_position( TEST_STRING2, strlen( TEST_STRING2 ), &status ), -1LL );
     assert_int_equal( status, PIO_OK );
 }
 
@@ -39,7 +40,7 @@ test_parse_chr(void **state)
     const char *TEST_STRING = "16";
     pio_status_t status;
     
-    assert_int_equal( parse_chr( TEST_STRING, strlen( TEST_STRING ), &status ), 16 );
+    assert_int_equal( pio_parse_chr( TEST_STRING, strlen( TEST_STRING ), &status ), 16 );
     assert_int_equal( status, PIO_OK );
 }
 

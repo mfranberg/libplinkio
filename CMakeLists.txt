@@ -12,7 +12,6 @@ set( CPACK_SOURCE_PACKAGE_FILE_NAME
 set( CPACK_SOURCE_IGNORE_FILES "build*;/.git/;log$;gitignore$;/autom4te.cache/;~$;${CPACK_SOURCE_IGNORE_FILES}" )
 include( CPack )
 
-set( LIBCSV_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/libcsv/inc/" )
 set( LIBCMOCKERY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/cmockery/src/google/" )
 set( LIBPLINKIO_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/src/plinkio/" "${PROJECT_BINARY_DIR}/src/plinkio/" "${PROJECT_BINARY_DIR}/src/" )
 set( LIBPLINKIO_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src/" )

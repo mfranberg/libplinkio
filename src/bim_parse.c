@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <csv.h>
+#include "plink_txt_parse.h"
 
 #include <plinkio/utarray.h>
 #include <plinkio/bim.h>
@@ -59,124 +59,6 @@ struct state_t
 };
 
 /**
- * Libcsv delimiter function, fields are delimited by
- * any amount of white space.
- *
- * @param c Character.
- *
- * @return True if c is white space, false otherwise.
- */
-int
-bim_is_delim(unsigned char c)
-{
-    return c == '\t' || c == ' ';
-}
-
-/**
- * Parses an string from a csv field.
- *
- * @param field Csv field.
- * @param length Length of the field.
- * @param status Status of the conversion.
- *
- * @return The parsed csv field, or NULL if it could
- *         not be parsed. Caller is responsible for 
- *         deallocating the memory.
- */
-static char *
-parse_str(const char *field, size_t length, pio_status_t *status)
-{
-    if( length > 0 )
-    {
-        char *iid = (char *) malloc( sizeof( char ) * ( length + 1 ) );
-        strncpy( iid, field, length + 1 );
-
-        *status = PIO_OK;
-        return iid;
-    }
-    else
-    {
-        *status = PIO_ERROR;
-        return NULL;
-    }
-}
-
-/**
- * Parses a chromosome number and returns it.
- *
- * @param field Csv field.
- * @param length Length of the field.
- * @param status Status of the conversion.
- *
- * @return The parsed csv field, or 0 if it could
- *         not be parsed.
- */
-static unsigned char
-parse_chr(const char *field, size_t length, pio_status_t *status)
-{
-    char *endptr;
-    unsigned char chr = (unsigned char) strtol( field, &endptr, 10 );
-    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
-    {
-        *status = PIO_OK;
-        return chr;
-    }
-
-    *status = PIO_ERROR;
-    return 0;
-}
-
-/**
- * Parses a genetic distance (float).
- *
- * @param field Csv field.
- * @param length Length of the field.
- * @param status Status of the conversion.
- *
- * @return The parsed csv field, or -1 if it could
- *         not be parsed.
- */
-static float
-parse_genetic_position(const char *field, size_t length, pio_status_t *status)
-{
-    char *endptr;
-    float position = (float) strtod( field, &endptr );
-    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
-    {
-        *status = PIO_OK;
-        return position;
-    }
-
-    *status = PIO_ERROR;
-    return -1.0f;
-}
-
-/**
- * Parses a bp distance.
- *
- * @param field Csv field.
- * @param length Length of the field.
- * @param status Status of the conversion.
- *
- * @return The parsed csv field, or -1 if it could
- *         not be parsed.
- */
-static long long
-parse_bp_position(const char *field, size_t length, pio_status_t *status)
-{
-    char *endptr;
-    long long int position = strtoll( field, &endptr, 10 );
-    if( length > 0 && ( endptr == NULL || *endptr == '\0' ) )
-    {
-        *status = PIO_OK;
-        return position;
-    }
-
-    *status = PIO_ERROR;
-    return -1;
-}
-
-/**
  * Function that is called each time a new csv
  * field has been found. It is responsible for
  * determining which field is being parsed, and
@@ -187,8 +69,9 @@ parse_bp_position(const char *field, size_t length, pio_status_t *status)
  * @param data A state_t struct.
  */
 static void
-new_field(void *field, size_t field_length, void *data)
+new_field(char *field, size_t field_length, size_t field_num, void *data)
 {
+    UNUSED_PARAM(field_num);
     struct state_t *state = (struct state_t *) data;
     pio_status_t status;
     char *buffer;
@@ -206,22 +89,22 @@ new_field(void *field, size_t field_length, void *data)
     switch( state->field )
     {
         case 0:
-            state->cur_locus.chromosome = parse_chr( buffer, field_length, &status );
+            state->cur_locus.chromosome = pio_parse_chr( buffer, field_length, &status );
             break;
         case 1:
-            state->cur_locus.name = parse_str( buffer, field_length, &status );
+            state->cur_locus.name = pio_parse_str( buffer, field_length, &status );
             break;
         case 2:
-            state->cur_locus.position = parse_genetic_position( buffer, field_length, &status );
+            state->cur_locus.position = pio_parse_genetic_position( buffer, field_length, &status );
             break;
         case 3:
-            state->cur_locus.bp_position = parse_bp_position( buffer, field_length, &status );
+            state->cur_locus.bp_position = pio_parse_bp_position( buffer, field_length, &status );
             break;
         case 4:
-            state->cur_locus.allele1 = parse_str( buffer, field_length, &status );
+            state->cur_locus.allele1 = pio_parse_str( buffer, field_length, &status );
             break;
         case 5:
-            state->cur_locus.allele2 = parse_str( buffer, field_length, &status );
+            state->cur_locus.allele2 = pio_parse_str( buffer, field_length, &status );
             break;
         default:
             status = PIO_ERROR;
@@ -249,12 +132,12 @@ new_field(void *field, size_t field_length, void *data)
  * @param data A state_t struct.
  */
 static void
-new_row(int number, void *data)
+new_row(size_t number, void *data)
 {
     UNUSED_PARAM(number);
     struct state_t *state = (struct state_t *) data;
 
-    if( state->field != -1 )
+    if( state->field == 6 )
     {
         state->cur_locus.pio_id = utarray_len( state->locus );
         utarray_push_back( state->locus, &state->cur_locus );
@@ -267,20 +150,20 @@ parse_loci(FILE *bim_fp, UT_array *locus)
 {
     char read_buffer[ BUFFER_SIZE ];
     struct state_t state = { 0 };
-    struct csv_parser parser;
+    pio_txt_parser_t parser = { 0 };
 
     state.locus = locus;
 
-    csv_init( &parser, 0 );
-    csv_set_delim_func( &parser, bim_is_delim );
+    pio_txt_parser_init( &parser, PIO_SIMPLE_PARSER );
     while( !feof( bim_fp ) )
     {
-        int bytes_read = fread( &read_buffer[ 0 ], sizeof( char ), BUFFER_SIZE, bim_fp );
-        csv_parse( &parser, read_buffer, bytes_read, &new_field, &new_row, (void *) &state );
+        size_t bytes_read = fread( read_buffer, sizeof( char ), BUFFER_SIZE - 1, bim_fp );
+        read_buffer[bytes_read] = '\0';
+        pio_txt_parse( &parser, read_buffer, bytes_read, &new_field, &new_row, (void *) &state );
     }
 
-    csv_fini( &parser, new_field, new_row, (void *) &state );
-    csv_free( &parser );
+    pio_txt_parse_fini( &parser, &new_field, &new_row, (void *) &state );
+    pio_txt_parser_free( &parser );
     
     return ( state.any_error == 0 ) ? PIO_OK : PIO_ERROR;
 }

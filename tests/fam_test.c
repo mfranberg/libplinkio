@@ -11,6 +11,7 @@
 #include <fam.h>
 #include <fam.c>
 #include <fam_parse.c>
+#include "plink_txt_parse.c"
 
 #include "mock.h"
 
@@ -22,7 +23,7 @@ test_parse_iid(void **state)
 {
     const char *TEST_STRING = "F1";
     pio_status_t status;
-    char *iid = parse_iid( TEST_STRING, strlen( TEST_STRING ), &status );
+    char *iid = pio_parse_str( TEST_STRING, strlen( TEST_STRING ), &status );
 
     assert_int_equal( status, PIO_OK );
     assert_string_equal( iid, TEST_STRING );
@@ -41,15 +42,15 @@ test_parse_sex(void **state)
     pio_status_t status;
     enum sex_t sex;
 
-    sex = parse_sex( TEST_STRING_MALE, strlen( TEST_STRING_MALE ), &status );
+    sex = pio_parse_sex( TEST_STRING_MALE, strlen( TEST_STRING_MALE ), &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sex, PIO_MALE );
 
-    sex = parse_sex( TEST_STRING_FEMALE, strlen( TEST_STRING_FEMALE ), &status );
+    sex = pio_parse_sex( TEST_STRING_FEMALE, strlen( TEST_STRING_FEMALE ), &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sex, PIO_FEMALE );
 
-    sex = parse_sex( TEST_STRING_UNKNOWN, strlen( TEST_STRING_UNKNOWN ), &status );
+    sex = pio_parse_sex( TEST_STRING_UNKNOWN, strlen( TEST_STRING_UNKNOWN ), &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sex, PIO_UNKNOWN );
 }
@@ -68,25 +69,25 @@ test_parse_phenotype(void **state)
     struct pio_sample_t sample;
     pio_status_t status;
 
-    parse_phenotype( TEST_STRING_CONTROL, strlen( TEST_STRING_CONTROL ), &sample, &status );
+    pio_parse_phenotype( TEST_STRING_CONTROL, strlen( TEST_STRING_CONTROL ), &sample, &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sample.affection, PIO_CONTROL );
 
-    parse_phenotype( TEST_STRING_CASE, strlen( TEST_STRING_CASE ), &sample, &status );
+    pio_parse_phenotype( TEST_STRING_CASE, strlen( TEST_STRING_CASE ), &sample, &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sample.affection, PIO_CASE );
     
-    parse_phenotype( TEST_STRING_PHENOTYPE, strlen( TEST_STRING_PHENOTYPE ), &sample, &status );
+    pio_parse_phenotype( TEST_STRING_PHENOTYPE, strlen( TEST_STRING_PHENOTYPE ), &sample, &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sample.affection, PIO_CONTINUOUS );
     assert_true( fabs( sample.phenotype - 1.0 ) <= 1e-6 );
 
-    parse_phenotype( TEST_STRING_MISSING, strlen( TEST_STRING_MISSING ), &sample, &status );
+    pio_parse_phenotype( TEST_STRING_MISSING, strlen( TEST_STRING_MISSING ), &sample, &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sample.affection, PIO_MISSING );
     assert_true( fabs( sample.phenotype - (-9.0) ) <= 1e-6 );
     
-    parse_phenotype( TEST_STRING_MISSING_NA, strlen( TEST_STRING_MISSING_NA ), &sample, &status );
+    pio_parse_phenotype( TEST_STRING_MISSING_NA, strlen( TEST_STRING_MISSING_NA ), &sample, &status );
     assert_int_equal( status, PIO_OK );
     assert_int_equal( sample.affection, PIO_MISSING );
     assert_true( fabs( sample.phenotype - (-9.0) ) <= 1e-6 );
