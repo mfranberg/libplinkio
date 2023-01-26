@@ -32,24 +32,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        compiler: [gcc]
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-        include:
-          - os: windows-latest
-            compiler: cl
-            python-version: "3.7"
-          - os: windows-latest
-            compiler: cl
-            python-version: "3.8"
-          - os: windows-latest
-            compiler: cl
-            python-version: "3.9"
-          - os: windows-latest
-            compiler: cl
-            python-version: "3.10"
-          - os: windows-latest
-            compiler: cl
-            python-version: "3.11"
     steps:
     - uses: actions/checkout@v3
     
@@ -57,26 +40,6 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
-    - name: Generate setup.cfg (MinGW)
-      run: |
-        echo "
-        [build]
-        compiler=mingw32
-        [build_ext]
-        compiler=mingw32
-        " >> setup.cfg
-      if: "contains( matrix.os, 'windows') && contains( matrix.compiler, 'gcc')"
-    
-    - name: Generate setup.cfg (MSVC)
-      run: |
-        echo "
-        [build]
-        compiler=msvc
-        [build_ext]
-        compiler=msvc
-        " >> setup.cfg
-      if: "contains( matrix.os, 'windows') && contains( matrix.compiler, 'cl')"
     
     - name: Install dependencies
       run: |
