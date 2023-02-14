@@ -1,5 +1,6 @@
 from . import cplinkio
 
+experimental_mode = False
 
 class PlinkFile:
     ##
@@ -10,9 +11,18 @@ class PlinkFile:
     #             /plink/myfile.bim, /plink/myfile.bed use the path
     #             /plink/myfile
     #
-    def __init__(self, path):
+    def __init__(self, path, **kwargs):
+        is_txt = False
+        if ((experimental_mode == True) and ("is_txt" in kwargs.keys())):
+            is_txt = kwargs["is_txt"]
+        elif (len(kwargs) != 0):
+            raise TypeError("__init__() got an unexpected keyword argument")
+        
         self.path = path
-        self.handle = cplinkio.open(path)
+        if (is_txt):
+            self.handle = cplinkio.open_txt(path)
+        else:
+            self.handle = cplinkio.open(path)
         self.loci = cplinkio.get_loci(self.handle)
         self.samples = cplinkio.get_samples(self.handle)
 
@@ -258,9 +268,9 @@ class Locus:
 #             /plink/myfile.bim, /plink/myfile.bed use the path
 #             /plink/myfile
 #
-def open(path):
-    # pylint: disable = redefined-builtin
-    return PlinkFile(path)
+def open(path, **kwargs):
+    # pylint: disable = redefined-builtin    
+    return PlinkFile(path, **kwargs)
 
 
 ##

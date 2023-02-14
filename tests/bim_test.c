@@ -20,14 +20,15 @@
 void
 test_parse_position(void **state)
 {
+    UNUSED_PARAM(state);
     const char *TEST_STRING1 = "123456";
     const char *TEST_STRING2 = "-1";
     pio_status_t status;
     
-    assert_int_equal( pio_parse_bp_position( TEST_STRING1, strlen( TEST_STRING1 ), &status ), 123456LL );
+    assert_int_equal( libplinkio_parse_bp_position_( TEST_STRING1, strlen( TEST_STRING1 ), &status ), 123456LL );
     assert_int_equal( status, PIO_OK );
     
-    assert_int_equal( pio_parse_bp_position( TEST_STRING2, strlen( TEST_STRING2 ), &status ), -1LL );
+    assert_int_equal( libplinkio_parse_bp_position_( TEST_STRING2, strlen( TEST_STRING2 ), &status ), -1LL );
     assert_int_equal( status, PIO_OK );
 }
 
@@ -37,10 +38,11 @@ test_parse_position(void **state)
 void
 test_parse_chr(void **state)
 {
+    UNUSED_PARAM(state);
     const char *TEST_STRING = "16";
     pio_status_t status;
     
-    assert_int_equal( pio_parse_chr( TEST_STRING, strlen( TEST_STRING ), &status ), 16 );
+    assert_int_equal( libplinkio_parse_chr_( TEST_STRING, strlen( TEST_STRING ), &status ), 16 );
     assert_int_equal( status, PIO_OK );
 }
 
@@ -51,6 +53,7 @@ test_parse_chr(void **state)
 void
 test_parse_multiple_loci(void **state)
 {
+    UNUSED_PARAM(state);
     struct pio_locus_t locus;
     struct pio_bim_file_t bim_file;
 
@@ -79,6 +82,8 @@ test_parse_multiple_loci(void **state)
 
 int main(int argc, char* argv[])
 {
+    UNUSED_PARAM(argc);
+    UNUSED_PARAM(argv);
     const UnitTest tests[] = {
         unit_test( test_parse_position ),
         unit_test( test_parse_chr ),

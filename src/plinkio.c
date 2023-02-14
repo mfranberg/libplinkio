@@ -7,10 +7,21 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include <fcntl.h>
 
 #include <plinkio/plinkio.h>
 #include <plinkio/file.h>
+
+#include "private/plinkio.h"
+#include "private/packed_snp.h"
+#include "private/map.h"
+#include "private/ped.h"
+#include "private/bed.h"
+#include "private/bim.h"
+#include "private/fam.h"
+#include "private/utility.h"
 
 /**
  * Concatenates the given strings and returns the concatenated
@@ -55,8 +66,8 @@ pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix)
 pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, const char *bim_path, const char *bed_path)
 {
     int error = 0;
-    int num_samples = 0;
-    int num_loci = 0;
+    size_t num_samples = 0;
+    size_t num_loci = 0;
 
     if( fam_open( &plink_file->fam_file, fam_path ) == PIO_OK )
     {
@@ -93,6 +104,95 @@ pio_status_t pio_open_ex(struct pio_file_t *plink_file, const char *fam_path, co
 
         return error;
     }
+}
+
+pio_status_t
+libplinkio_open_txt_(struct pio_file_t *plink_file, const char *plink_file_prefix)
+{
+    char *ped_path = concatenate( plink_file_prefix, ".ped" );
+    char *map_path = concatenate( plink_file_prefix, ".map" );
+    char *fam_path = concatenate( plink_file_prefix, ".fam" );
+    char *bim_path = concatenate( plink_file_prefix, ".bim" );
+    char *bed_path = concatenate( plink_file_prefix, ".bed" );
+
+    pio_status_t status = libplinkio_open_txt_ex_( plink_file, ped_path, map_path, fam_path, bim_path, bed_path, true );
+
+    free( ped_path );
+    free( map_path );
+    free( fam_path );
+    free( bim_path );
+    free( bed_path );
+
+    return status;
+}
+
+pio_status_t
+libplinkio_open_txt(struct pio_file_t *plink_file, const char *plink_file_prefix)
+{
+    return libplinkio_open_txt_(plink_file, plink_file_prefix);
+}
+
+pio_status_t libplinkio_open_txt_ex_(struct pio_file_t *plink_file, const char *ped_path, const char *map_path, const char *fam_path, const char *bim_path, const char *bed_path, _Bool is_tmp)
+{
+    pio_status_t error = PIO_OK;
+    size_t num_samples = 0;
+    size_t num_loci = 0;
+    libplinkio_loci_private_t loci;
+    libplinkio_samples_private_t samples;
+
+    *plink_file = (struct pio_file_t) { 0 };
+
+    if(libplinkio_map_open_(&loci, map_path) == PIO_OK) {
+        num_loci = libplinkio_get_num_loci_(loci);
+    } else {
+        error = PIO_ERROR;
+        goto error;
+    }
+
+    if( libplinkio_bed_tmp_transposed_create_(&plink_file->bed_file, bed_path, num_loci) != PIO_OK ) {
+        error = P_BED_IO_ERROR;
+        goto error;
+    }
+
+    if(libplinkio_ped_open_(&samples, &loci, &plink_file->bed_file, ped_path) != PIO_OK ) {
+        error = PIO_ERROR;
+        goto error;
+    }
+
+    num_samples = libplinkio_get_num_samples_(samples);
+    if (libplinkio_bed_transpose_pio_bed_file_(&plink_file->bed_file, bed_path, num_loci, num_samples, is_tmp) != PIO_OK) {
+        error = P_BED_IO_ERROR;
+        goto error;
+    }
+
+    if (libplinkio_flip_alleles_(loci, &plink_file->bed_file, num_samples) != PIO_OK) {
+        error = P_BED_IO_ERROR;
+        goto error;
+    }
+
+    if (libplinkio_change_bed_read_only_(&plink_file->bed_file) != PIO_OK) goto error;
+
+    if (libplinkio_bim_link_loci_to_file_(loci, &plink_file->bim_file, bim_path, is_tmp) != PIO_OK) {
+        error = P_BIM_IO_ERROR;
+        goto error;
+    }
+
+    if (libplinkio_fam_link_samples_to_file_(samples, &plink_file->fam_file, fam_path, is_tmp) != PIO_OK) {
+        error = P_FAM_IO_ERROR;
+        goto error;
+    }
+
+    if( error == PIO_OK ) {
+        return PIO_OK;
+    } else {
+        goto error;
+    }
+
+error:
+    fam_close( &plink_file->fam_file );
+    bim_close( &plink_file->bim_file );
+    bed_close( &plink_file->bed_file );
+    return error;
 }
 
 pio_status_t

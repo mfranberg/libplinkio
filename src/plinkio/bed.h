@@ -15,6 +15,12 @@ extern "C" {
 
 #include <stdio.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <io.h>
+#elif
+#include <unistd.h>
+#endif
+
 #include <plinkio/status.h>
 #include <plinkio/bed_header.h>
 
@@ -81,7 +87,7 @@ pio_status_t bed_create(struct pio_bed_file_t *bed_file, const char *path, size_
  * @param bed_file Bed file.
  * @param buffer List of SNPs to write to file.
  */
-pio_status_t bed_write_row(struct pio_bed_file_t *bed_file, snp_t *buffer);
+pio_status_t bed_write_row(struct pio_bed_file_t *bed_file, const snp_t *buffer);
 
 /**
  * Reads a single row from the given bed_file. Each element in the buffer

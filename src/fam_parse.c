@@ -9,12 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "plink_txt_parse.h"
+#include "private/utility.h"
+#include "private/plink_txt_parse.h"
 
 #include <plinkio/utarray.h>
 #include <plinkio/fam_parse.h>
-
-#include "plinkio_private.h"
 
 /**
  * Creates mock versions of IO functions to allow unit testing.
@@ -30,9 +29,9 @@
 /**
  * Buffer size for reading CSV file.
  */
-#define BUFFER_SIZE 4096
+#define LIBPLINKIO_FAM_PARSE_BUFFER_SIZE_ 4096
 
-struct state_t
+struct fam_state_t
 {
     /**
      * The next field to parse.
@@ -65,13 +64,13 @@ struct state_t
  *
  * @param field Csv field.
  * @param field_length Length of the field.
- * @param data A state_t struct.
+ * @param data A fam_state_t struct.
  */
 static void
-new_field(char *field, size_t field_length, size_t field_num, void *data)
+fam_new_field(char *field, size_t field_length, size_t field_num, void *data)
 {
     UNUSED_PARAM(field_num);
-    struct state_t *state = (struct state_t *) data;
+    struct fam_state_t *state = (struct fam_state_t *) data;
     pio_status_t status;
     char *buffer;
 
@@ -88,22 +87,22 @@ new_field(char *field, size_t field_length, size_t field_num, void *data)
     switch( state->field )
     {
         case 0:
-            state->cur_sample.fid = pio_parse_str( buffer, field_length, &status );
+            state->cur_sample.fid = libplinkio_parse_str_( buffer, field_length, &status );
             break;
         case 1:
-            state->cur_sample.iid = pio_parse_str( buffer, field_length, &status );
+            state->cur_sample.iid = libplinkio_parse_str_( buffer, field_length, &status );
             break;
         case 2:
-            state->cur_sample.father_iid = pio_parse_str( buffer, field_length, &status );
+            state->cur_sample.father_iid = libplinkio_parse_str_( buffer, field_length, &status );
             break;
         case 3:
-            state->cur_sample.mother_iid = pio_parse_str( buffer, field_length, &status );
+            state->cur_sample.mother_iid = libplinkio_parse_str_( buffer, field_length, &status );
             break;
         case 4:
-            state->cur_sample.sex = pio_parse_sex( buffer, field_length, &status );
+            state->cur_sample.sex = libplinkio_parse_sex_( buffer, field_length, &status );
             break;
         case 5:
-            pio_parse_phenotype( buffer, field_length, &state->cur_sample, &status );
+            libplinkio_parse_phenotype_( buffer, field_length, &state->cur_sample, &status );
             break;
         default:
             status = PIO_ERROR;
@@ -128,13 +127,13 @@ new_field(char *field, size_t field_length, size_t field_num, void *data)
  * has been found.
  *
  * @param number The row number.
- * @param data A state_t struct.
+ * @param data A fam_state_t struct.
  */
 static void
-new_row(size_t number, void *data)
+fam_new_row(size_t number, void *data)
 {
     UNUSED_PARAM(number);
-    struct state_t *state = (struct state_t *) data;
+    struct fam_state_t *state = (struct fam_state_t *) data;
 
     if( state->field == 6 )
     {
@@ -147,24 +146,28 @@ new_row(size_t number, void *data)
 pio_status_t
 parse_samples(FILE *fam_fp, UT_array *sample)
 {
-    char read_buffer[ BUFFER_SIZE ];
-    struct state_t state = { 0 };
-    pio_txt_parser_t parser = { 0 };
+    char read_buffer[ LIBPLINKIO_FAM_PARSE_BUFFER_SIZE_ ];
+    struct fam_state_t state = { 0 };
+    libplinkio_txt_parser_private_t parser = { 0 };
 
     state.samples = sample;
 
-    pio_txt_parser_init( &parser, PIO_SIMPLE_PARSER );
-    while( !feof( fam_fp ) )
-    {
-        size_t bytes_read = fread( read_buffer, sizeof( char ), BUFFER_SIZE - 1, fam_fp );
+    libplinkio_txt_parser_init_( &parser );
+    do {
+        size_t bytes_read = fread( read_buffer, sizeof( char ), LIBPLINKIO_FAM_PARSE_BUFFER_SIZE_ - 1, fam_fp );
+        if (ferror(fam_fp)) goto error;
         read_buffer[bytes_read] = '\0';
-        pio_txt_parse( &parser, read_buffer, bytes_read, &new_field, &new_row, (void *) &state );
-    }
+        libplinkio_txt_parse_( &parser, read_buffer, bytes_read, &fam_new_field, &fam_new_row, (void *) &state );
+    } while( !feof( fam_fp ) );
 
-    pio_txt_parse_fini( &parser, &new_field, &new_row, (void *) &state );
-    pio_txt_parser_free( &parser );
+    libplinkio_txt_parse_fini_( &parser, &fam_new_field, &fam_new_row, (void *) &state );
+    libplinkio_txt_parser_free_( &parser );
     
-    return ( state.any_error == 0 ) ? PIO_OK : PIO_ERROR;
+    if ( state.any_error != 0 ) goto error;
+    return PIO_OK;
+
+error:
+    return PIO_ERROR;
 }
 
 

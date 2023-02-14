@@ -6,6 +6,7 @@ import contextlib
 
 from plinkio import plinkfile
 from plinkio.plinkfile import Sample, Locus
+plinkfile.experimental_mode = True
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -107,6 +108,69 @@ def test_read_existing_data():
         compare_bed_files(test_data_prefix, write_data_prefix)
         compare_bim_files(test_data_prefix, write_data_prefix)
         compare_fam_files(test_data_prefix, write_data_prefix)
+
+##
+# Tests reading existing plink text files.
+# The test bed file contains CR + LF (0x0D 0x0A).
+#
+def test_read_existing_txt_data():
+    test_data_prefix = os.path.join(HERE, "./data/crlf")
+    test_pf = plinkfile.open(test_data_prefix, is_txt = True)
+    samples = test_pf.get_samples()
+    loci = test_pf.get_loci()
+
+    correct_samples = [
+        Sample("fid1", "iid1", "0", "0", 0, 0),
+        Sample("fid2", "iid2", "0", "0", 0, 1),
+        Sample("fid3", "iid3", "0", "0", 0, 0),
+        Sample("fid4", "iid4", "0", "0", 0, 1),
+    ]
+    correct_loci = [
+        Locus(1, "chr1:1", 1.0, 1, "C", "A"),
+        Locus(2, "chr1:2", 2.0, 2, "T", "G"),
+    ]
+    correct_rows = [
+        [3, 0, 2, 2],
+        [1, 1, 2, 2],
+    ]
+
+    assert samples == correct_samples
+    assert loci == correct_loci
+
+    for row, correct_row, locus in zip(test_pf, correct_rows, loci):
+        assert list(row) == correct_row
+
+
+##
+# Tests reading existing plink text files.
+# The test bed file contains CR + LF (0x0D 0x0A).
+#
+def test_read_existing_compound_txt_data():
+    test_data_prefix = os.path.join(HERE, "./data/crlf_compound")
+    test_pf = plinkfile.open(test_data_prefix, is_txt = True)
+    samples = test_pf.get_samples()
+    loci = test_pf.get_loci()
+
+    correct_samples = [
+        Sample("fid1", "iid1", "0", "0", 0, 0),
+        Sample("fid2", "iid2", "0", "0", 0, 1),
+        Sample("fid3", "iid3", "0", "0", 0, 0),
+        Sample("fid4", "iid4", "0", "0", 0, 1),
+    ]
+    correct_loci = [
+        Locus(1, "chr1:1", 1.0, 1, "C", "A"),
+        Locus(2, "chr1:2", 2.0, 2, "T", "G"),
+    ]
+    correct_rows = [
+        [3, 0, 2, 2],
+        [1, 1, 2, 2],
+    ]
+
+    assert samples == correct_samples
+    assert loci == correct_loci
+
+    for row, correct_row, locus in zip(test_pf, correct_rows, loci):
+        assert list(row) == correct_row
 
 
 ##

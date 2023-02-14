@@ -1,5 +1,6 @@
 #include <Python.h>
 
+#define LIBPLINKIO_EXPERIMENTAL
 #include <plinkio/plinkio.h>
 
 #include "snparray.h"
@@ -134,6 +135,61 @@ plinkio_open(PyObject *self, PyObject *args)
         return NULL;
     }
     pio_open_status = pio_open( &plink_file, path );
+    if( pio_open_status != PIO_OK )
+    {
+        if( pio_open_status == P_FAM_IO_ERROR )
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to open the FAM plink file." );
+        }
+        else if( pio_open_status == P_BIM_IO_ERROR )
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to open the BIM plink file." );
+        }
+        else if( pio_open_status == P_BED_IO_ERROR )
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to open the BED plink file." );
+        }
+        else
+        {
+            PyErr_SetString( PyExc_IOError, "Error while trying to open plink file." );
+        } 
+        return NULL;
+    }
+
+    c_plink_file = (c_plink_file_t *) c_plink_file_prototype.tp_alloc( &c_plink_file_prototype, 0 );
+    c_plink_file->file = plink_file;
+    c_plink_file->row  = (snp_t *) malloc( pio_row_size( &plink_file ) );
+    c_plink_file->row_length = pio_num_samples( &plink_file );
+    if( !pio_one_locus_per_row( &plink_file ) )
+    {
+        c_plink_file->row_length = pio_num_loci( &plink_file );
+    }
+
+
+    return (PyObject *) c_plink_file;
+}
+
+/**
+ * Opens a plink file and returns a handle to it.
+ *
+ * @param self -
+ * @param args First argument is a path to the plink file.
+ *
+ * @return A handle to the plink file, or throws an IOError.
+ */
+static PyObject *
+plinkio_open_txt(PyObject *self, PyObject *args)
+{
+    const char *path;
+    struct pio_file_t plink_file;
+    c_plink_file_t *c_plink_file;
+    int pio_open_status;
+    
+    if( !PyArg_ParseTuple( args, "s", &path ) )
+    {
+        return NULL;
+    }
+    pio_open_status = libplinkio_open_txt_( &plink_file, path );
     if( pio_open_status != PIO_OK )
     {
         if( pio_open_status == P_FAM_IO_ERROR )
@@ -824,6 +880,7 @@ plinkio_transpose(PyObject *self, PyObject *args)
 static PyMethodDef plinkio_methods[] =
 {
     { "open", plinkio_open, METH_VARARGS, "Opens a plink file." },
+    { "open_txt", plinkio_open_txt, METH_VARARGS, "Opens a plink text file." },
     { "next_row", plinkio_next_row, METH_VARARGS, "Reads the next row of a plink file." },
     { "reset_row", plinkio_reset_row, METH_VARARGS, "Resets reading of the plink file to the first row." },
     { "get_loci", plinkio_get_loci, METH_VARARGS, "Returns the list of loci." },

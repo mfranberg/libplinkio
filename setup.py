@@ -3,9 +3,7 @@ from codecs import open
 from os import path
 import os
 import glob
-import tempfile
 import sys
-import shutil
 
 here = path.abspath(path.dirname(__file__))
 
@@ -22,6 +20,10 @@ pyplinkio_src_dir = "py-plinkio/src/plinkio/cplinkio"
 pyplinkio_include_dir = pyplinkio_src_dir
 pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 
+libraries = []
+if sys.platform == 'win32':
+    libraries.append("Bcrypt")
+
 cplinkio = Extension(
     "plinkio.cplinkio",
     libplinkio_src_files + pyplinkio_src_files,
@@ -30,7 +32,7 @@ cplinkio = Extension(
         libplinkio_include_dir,
         pyplinkio_include_dir,
     ],
-    libraries=[],
+    libraries=libraries,
     language="c",
     extra_compile_args=[],
     define_macros=[],

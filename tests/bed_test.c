@@ -7,12 +7,15 @@
 #include <string.h>
 #include <math.h>
 
+#include <stdint.h>
+
 #include <cmockery.h>
 
 #include <bed.h>
 #include <bed_header.c>
 #include <bed.c>
 #include <file.c>
+#include <utility.c>
 
 /**
  * Mock functions.
@@ -34,12 +37,12 @@ struct
     /**
      * Length of data.
      */
-    int data_length;
+    size_t data_length;
 
     /**
      * Current read position in the data.
      */
-    int cur_pos;
+    size_t cur_pos;
 } g_mock_data;
 
 /**
@@ -63,6 +66,7 @@ mock_init(unsigned char *data, int data_length)
 int
 mock_feof(FILE *stream)
 {
+    UNUSED_PARAM(stream);
     return g_mock_data.cur_pos >= g_mock_data.data_length;
 }
 
@@ -72,8 +76,9 @@ mock_feof(FILE *stream)
 size_t
 mock_fread(void *ptr, size_t size, size_t nitems, FILE *stream)
 {
-    int bytes_left = g_mock_data.data_length - g_mock_data.cur_pos;
-    int bytes_to_read = size * nitems;
+    UNUSED_PARAM(stream);
+    size_t bytes_left = g_mock_data.data_length - g_mock_data.cur_pos;
+    size_t bytes_to_read = size * nitems;
     if( bytes_to_read > bytes_left )
     {
         return 0;
@@ -91,7 +96,9 @@ mock_fread(void *ptr, size_t size, size_t nitems, FILE *stream)
 FILE *
 mock_fopen(const char *filename, const char *mode)
 {
-    return (FILE *) 0xdeadbeef;
+    UNUSED_PARAM(filename);
+    UNUSED_PARAM(mode);
+    return (FILE *)(uintptr_t)0xdeadbeef;
 }
 
 /**
@@ -100,9 +107,10 @@ mock_fopen(const char *filename, const char *mode)
 int
 mock_fseek(FILE *stream, long offset, int whence)
 {
+    UNUSED_PARAM(stream);
     if( whence == SEEK_SET )
     {
-        if( offset < g_mock_data.data_length )
+        if( (size_t)offset < g_mock_data.data_length )
         {
             g_mock_data.cur_pos = offset;
             return 0;
@@ -135,6 +143,7 @@ mock_fseek(FILE *stream, long offset, int whence)
  */
 int mock_fclose(FILE *stream)
 {
+    UNUSED_PARAM(stream);
     return 0;
 }
 
@@ -144,6 +153,7 @@ int mock_fclose(FILE *stream)
 void
 test_parse_header_v100(void **state)
 {
+    UNUSED_PARAM(state);
     struct pio_bed_file_t bed_file = {0};
     /**
      * v 1.00 file containing only a header.
@@ -162,6 +172,7 @@ test_parse_header_v100(void **state)
 void
 test_parse_header_v099(void **state)
 {
+    UNUSED_PARAM(state);
     struct pio_bed_file_t bed_file = {0};
     /**
      * v 0.99 file containing only a header.
@@ -180,6 +191,7 @@ test_parse_header_v099(void **state)
 void
 test_parse_header_bad(void **state)
 {
+    UNUSED_PARAM(state);
     struct pio_bed_file_t bed_file = {0};
     /**
      * File without a full header.
@@ -196,6 +208,7 @@ test_parse_header_bad(void **state)
 void
 test_bed_open(void **state)
 {
+    UNUSED_PARAM(state);
     struct pio_bed_file_t bed_file = {0};
     /**
      * v 1.00 file containing only a header.
@@ -218,6 +231,7 @@ test_bed_open(void **state)
 void
 test_bed_open2(void **state)
 {
+    UNUSED_PARAM(state);
     struct pio_bed_file_t bed_file = {0};
     /**
      * v 1.00 file containing only a header.
@@ -237,6 +251,7 @@ test_bed_open2(void **state)
 void
 test_unpack_snps(void **state)
 {
+    UNUSED_PARAM(state);
     int i;
     /* packed_snps = [0, 1, 2, 3] */
     unsigned char packed_snps[] = { 0x78 };
@@ -252,6 +267,7 @@ test_unpack_snps(void **state)
 void
 test_bed_row_size(void **state)
 {
+    UNUSED_PARAM(state);
     struct pio_bed_file_t bed_file;
     bed_file.header.snp_order = BED_ONE_LOCUS_PER_ROW;
     bed_file.header.num_loci = 1;
@@ -268,6 +284,7 @@ test_bed_row_size(void **state)
 void
 test_bed_read_row(void **state)
 {
+    UNUSED_PARAM(state);
     int i, j;
     struct pio_bed_file_t bed_file;
     /**
@@ -297,6 +314,7 @@ test_bed_read_row(void **state)
 void
 test_bed_skip_row(void **state)
 {
+    UNUSED_PARAM(state);
     int i, j;
     struct pio_bed_file_t bed_file;
     /**
@@ -330,6 +348,8 @@ test_bed_skip_row(void **state)
 
 int main(int argc, char* argv[])
 {
+    UNUSED_PARAM(argc);
+    UNUSED_PARAM(argv);
     const UnitTest tests[] = {
         unit_test( test_parse_header_v100 ),
         unit_test( test_parse_header_v099 ),
