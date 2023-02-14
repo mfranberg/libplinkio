@@ -6,6 +6,41 @@
  * for details.
  */
 
+#ifndef __SNP_LOOKUP_H__
+#define __SNP_LOOKUP_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdint.h>
+
+/**
+ * Maps an unpacked snp to its corresponding bits.
+ */
+unsigned char snp_to_bits[] = { 0, 2, 3, 1 };
+
+/**
+ * This files contains a lookup table that maps
+ * SNPs packed in a single byte into an array of
+ * four bytes.
+ */
+union snp_lookup_t
+{
+    /**
+     * Accessible as an array.
+     */
+    uint8_t snp_array[4];
+
+    /**
+     * @deprecated
+	 * Accessible as a block of bytes.
+	 * This field is left for compatibility and alignment adjustments.
+     */
+    int32_t snp_block;
+};
+
+
 union snp_lookup_t snp_lookup[256] =
 {
 	{{0, 0, 0, 0}},
@@ -265,3 +300,9 @@ union snp_lookup_t snp_lookup[256] =
 	{{1, 2, 2, 2}},
 	{{2, 2, 2, 2}},
 };
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* End of __SNP_LOOKUP_H__ */

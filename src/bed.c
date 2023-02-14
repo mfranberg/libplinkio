@@ -99,26 +99,39 @@ parse_header(struct pio_bed_file_t *bed_file)
  * @param num_cols The number of SNPs. 
  */
 void
-unpack_snps(const snp_t *packed_snps, unsigned char *unpacked_snps, size_t num_cols)
+unpack_snps(const snp_t *packed_snps, uint8_t *unpacked_snps, size_t num_cols)
 {
-    int index;
-    int packed_left;
-
+    size_t packed_length = num_cols / 4;
     /* Unpack SNPs in pairs of 4. */
-    int32_t *unpacked_snps_p = (int32_t *) unpacked_snps;
-    int i;
-    int packed_length = num_cols / 4;
-    for(i = 0; i < packed_length; i++)
-    { 
-        *unpacked_snps_p = snp_lookup[ packed_snps[ i ] ].snp_block;
-        unpacked_snps_p += 1;
+    uint8_t* p = unpacked_snps;
+    if (((uintptr_t)unpacked_snps & 0b11) == 0) {
+        // 4 bytes aligned
+        for (size_t i = 0; i < packed_length; i++) {
+            *((uint32_t*)p) = *((uint32_t*)(snp_lookup[ packed_snps[ i ] ].snp_array));
+            p += 4;
+        }
+    } else if (((uintptr_t)unpacked_snps & 0b1) == 0) {
+        // 2 byte aligned
+        for (size_t i = 0; i < packed_length; i++) {
+            *((uint16_t*)p) = *((uint16_t*)(snp_lookup[ packed_snps[ i ] ].snp_array));
+            *((uint16_t*)(p + 2)) = *((uint16_t*)(snp_lookup[ packed_snps[ i ] ].snp_array + 2));
+            p += 4;
+        }
+    } else {
+        // Unaligned
+        for (size_t i = 0; i < packed_length; i++) {
+            *(p) = *(snp_lookup[ packed_snps[ i ] ].snp_array);
+            *(p + 1) = *(snp_lookup[ packed_snps[ i ] ].snp_array + 1);
+            *(p + 2) = *(snp_lookup[ packed_snps[ i ] ].snp_array + 2);
+            *(p + 3) = *(snp_lookup[ packed_snps[ i ] ].snp_array + 3);
+            p += 4;
+        }
     }
 
     /* Unpack the trailing SNPs */
-    index = packed_length * 4;
-    packed_left = num_cols % 4;
-    for(i = 0; i < packed_left; i++)
-    {
+    size_t index = packed_length * 4;
+    size_t packed_left = num_cols % 4;
+    for(size_t i = 0; i < packed_left; i++) {
         unpacked_snps[ index + i ] = snp_lookup[ packed_snps[ packed_length ] ].snp_array[ i ];
     }
 }
