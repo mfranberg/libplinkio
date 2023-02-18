@@ -12,6 +12,7 @@
 #include <bcrypt.h>
 #include <share.h>
 #else
+#include <stdio.h>
 #include <sys/random.h>
 #include <unistd.h>
 #include <errno.h>
@@ -49,7 +50,7 @@ int libplinkio_get_random_(uint8_t* buffer, size_t length)
     || defined(__FreeBSD__) \
     || defined (__NetBSD__) \
     || defined (__DragonFly__)
-    if (getrandom(buffer, length, 0) != length) goto error;
+    if (getrandom(buffer, length, 0) != (ssize_t)length) goto error;
 #elif (__unix__)
     do {
         FILE* fp = fopen("/dev/urandom", "rb");
