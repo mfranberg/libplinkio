@@ -3,16 +3,7 @@ from codecs import open
 from os import path
 import os
 import glob
-import tempfile
 import sys
-import shutil
-
-def copytree_dot_in(src, dst):
-    def copyfile_dot_in(src, dst):
-        if src.endswith(".in"):
-            shutil.copyfile(src, dst[:-3])
-
-    shutil.copytree(src, dst, copy_function=copyfile_dot_in)
 
 here = path.abspath(path.dirname(__file__))
 
@@ -25,25 +16,23 @@ libplinkio_src_dir = "src"
 libplinkio_include_dir = libplinkio_src_dir
 libplinkio_src_files = glob.glob(os.path.join(libplinkio_src_dir, "*.c"))
 
-libcsv_root_dir = os.path.join("libs", "libcsv")
-libcsv_src_dir = os.path.join(libcsv_root_dir, "src")
-libcsv_include_dir = os.path.join(libcsv_root_dir, "inc")
-libcsv_src_files = glob.glob(os.path.join(libcsv_src_dir, "*.c"))
-
 pyplinkio_src_dir = "py-plinkio/src/plinkio/cplinkio"
 pyplinkio_include_dir = pyplinkio_src_dir
 pyplinkio_src_files = glob.glob(os.path.join(pyplinkio_src_dir, "*.c"))
 
+libraries = []
+if sys.platform == 'win32':
+    libraries.append("Bcrypt")
+
 cplinkio = Extension(
     "plinkio.cplinkio",
-    libplinkio_src_files + libcsv_src_files + pyplinkio_src_files,
+    libplinkio_src_files + pyplinkio_src_files,
     library_dirs=[],
     include_dirs=[
         libplinkio_include_dir,
-        libcsv_include_dir,
         pyplinkio_include_dir,
     ],
-    libraries=[],
+    libraries=libraries,
     language="c",
     extra_compile_args=[],
     define_macros=[],
@@ -116,3 +105,4 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={},
 )
+

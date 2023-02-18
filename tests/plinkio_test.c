@@ -12,7 +12,7 @@
 int
 main(int argc, char *argv[])
 {
-    int num_rows;
+    size_t num_rows;
     snp_t *snp_buffer;
     struct pio_file_t plink_file;
 

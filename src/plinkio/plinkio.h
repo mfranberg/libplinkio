@@ -57,6 +57,23 @@ struct pio_file_t
  */
 pio_status_t pio_open(struct pio_file_t *plink_file, const char *plink_file_prefix);
 
+#ifdef LIBPLINKIO_EXPERIMENTAL
+/**
+ * Opens the given plink text file. Parses the fam and bim files.
+ * @warning function can be used only if LIBPLINKIO_EXPERIMENTAL is define.
+ *
+ * @param plink_file Plink file.
+ * @param plink_file_prefix Path to the plink files, without the extension.
+ *
+ * @return PIO_OK, if all files existed and could be read. PIO_ERROR otherwise.
+ */
+inline pio_status_t
+libplinkio_open_txt(
+    struct pio_file_t *plink_file,
+    const char *plink_file_prefix
+);
+#endif
+
 /**
  * Creates a new binary plink file.
  *

@@ -39,7 +39,6 @@ The following pieces of software have additional or alternate copyrights,
 licenses, and/or restrictions:
 
 Directory/File              License
-libs/csv                    GNU Lesser General Public
 libs/cmockery               Apache License, Version 2.0
 src/plinkio/utarray.h       Revised BSD License
 
