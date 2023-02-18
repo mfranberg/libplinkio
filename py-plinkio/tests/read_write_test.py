@@ -6,7 +6,6 @@ import contextlib
 
 from plinkio import plinkfile
 from plinkio.plinkfile import Sample, Locus
-plinkfile.experimental_mode = True
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -109,13 +108,14 @@ def test_read_existing_data():
         compare_bim_files(test_data_prefix, write_data_prefix)
         compare_fam_files(test_data_prefix, write_data_prefix)
 
+
 ##
 # Tests reading existing plink text files.
 # The test bed file contains CR + LF (0x0D 0x0A).
 #
 def test_read_existing_txt_data():
     test_data_prefix = os.path.join(HERE, "./data/crlf")
-    test_pf = plinkfile.open(test_data_prefix, is_txt = True)
+    test_pf = plinkfile.open(test_data_prefix, is_txt=True, experimental_mode=True)
     samples = test_pf.get_samples()
     loci = test_pf.get_loci()
 
@@ -137,7 +137,7 @@ def test_read_existing_txt_data():
     assert samples == correct_samples
     assert loci == correct_loci
 
-    for row, correct_row, locus in zip(test_pf, correct_rows, loci):
+    for row, correct_row in zip(test_pf, correct_rows):
         assert list(row) == correct_row
 
 
@@ -147,7 +147,7 @@ def test_read_existing_txt_data():
 #
 def test_read_existing_compound_txt_data():
     test_data_prefix = os.path.join(HERE, "./data/crlf_compound")
-    test_pf = plinkfile.open(test_data_prefix, is_txt = True)
+    test_pf = plinkfile.open(test_data_prefix, is_txt=True, experimental_mode=True)
     samples = test_pf.get_samples()
     loci = test_pf.get_loci()
 
@@ -169,7 +169,7 @@ def test_read_existing_compound_txt_data():
     assert samples == correct_samples
     assert loci == correct_loci
 
-    for row, correct_row, locus in zip(test_pf, correct_rows, loci):
+    for row, correct_row in zip(test_pf, correct_rows):
         assert list(row) == correct_row
 
 
