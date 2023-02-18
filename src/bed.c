@@ -13,6 +13,12 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <plinkio/bed.h>
 #include <plinkio/bed_header.h>
 #include <plinkio/status.h>

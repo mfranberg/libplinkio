@@ -15,12 +15,6 @@ extern "C" {
 
 #include <stdio.h>
 
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
-
 #include <plinkio/status.h>
 #include <plinkio/bed_header.h>
 
