@@ -11,7 +11,7 @@
 #include <string.h>
 #include <assert.h>
 #include <fcntl.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 
 #include <plinkio/bed.h>
 #include <plinkio/bed_header.h>
