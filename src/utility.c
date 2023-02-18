@@ -117,7 +117,7 @@ int libplinkio_tmp_open_(const char* filename_prefix, const size_t filename_pref
             if (err_open != EEXIST) goto error;
             continue;
         }
-#elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#else
         fd = open(
             filename,
             O_CREAT | O_EXCL | O_RDWR,
