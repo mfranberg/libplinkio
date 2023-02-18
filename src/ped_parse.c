@@ -102,6 +102,11 @@ ped_new_field(char *field, size_t field_length, size_t field_num, void *data)
     pio_status_t status = PIO_OK;
     char *buffer;
 
+    size_t locus_length = 0;
+    size_t idx = 0;
+    size_t locus_idx = 0;
+    size_t allele_idx = 0;
+
     if( state->field == -1 )
     {
         return;
@@ -133,10 +138,10 @@ ped_new_field(char *field, size_t field_length, size_t field_num, void *data)
             libplinkio_parse_phenotype_( buffer, field_length, &state->cur_sample, &status );
             break;
         default:
-            size_t locus_length = libplinkio_get_num_loci_(state->loci);
-            size_t idx = state->field - 6;
-            size_t locus_idx = 0;
-            size_t allele_idx = 0;
+            locus_length = libplinkio_get_num_loci_(state->loci);
+            idx = state->field - 6;
+            locus_idx = 0;
+            allele_idx = 0;
 
             switch (state->format) {
                 case LIBPLINKIO_PED_SIMPLE_:
