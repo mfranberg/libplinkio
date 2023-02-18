@@ -189,7 +189,7 @@ plinkio_open_txt(PyObject *self, PyObject *args)
     {
         return NULL;
     }
-    pio_open_status = libplinkio_open_txt_( &plink_file, path );
+    pio_open_status = libplinkio_open_txt( &plink_file, path );
     if( pio_open_status != PIO_OK )
     {
         if( pio_open_status == P_FAM_IO_ERROR )

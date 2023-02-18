@@ -255,25 +255,7 @@ int libplinkio_change_mode_and_open_(int fd, int flags) {
     };
     return _open_osfhandle((intptr_t)fhandle, flags);
 #else
-    char* fd_path = NULL;
-    const char format[] = "/dev/fd/%d";
-
-    int digits = 1;
-    int div_fd = fd;
-    while (1) {
-        div_fd /= 10;
-        if (div_fd == 0) break;
-        digits++;
-    }
-    const size_t length = strlen(format) - 2 + digits;
-
-    fd_path = calloc(length + 1, sizeof(char));
-    if (fd_path == NULL) return -1;
-    snprintf(fd_path, length, format, fd);
-    fd_path[length] = '\0';
-    int new_fd = open(fd_path, flags);
-    free(fd_path);
-
-    return new_fd;
+    UNUSED_PARAM(flags);
+    return dup(fd);
 #endif
 }
