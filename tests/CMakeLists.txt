@@ -5,7 +5,7 @@ include_directories( "." )
 
 add_definitions( -DUNIT_TESTING=1 )
 
-if(WIN32)
+if(MSVC)
     set(PLINKIO_TEST_COMPILE_OPTIONS /Wall /D_CRT_SECURE_NO_WARNINGS /wd4996 /wd5045 /wd4820 /wd4668 /wd4242 /wd4244 /wd4267 /wd4710 /wd4711)
 endif()
 
