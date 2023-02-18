@@ -170,7 +170,7 @@ pio_status_t libplinkio_open_txt_ex_(struct pio_file_t *plink_file, const char *
         goto error;
     }
 
-    if (libplinkio_change_bed_read_only_(&plink_file->bed_file) != PIO_OK) goto error;
+    //if (libplinkio_change_bed_read_only_(&plink_file->bed_file) != PIO_OK) goto error;
 
     if (libplinkio_bim_link_loci_to_file_(loci, &plink_file->bim_file, bim_path, is_tmp) != PIO_OK) {
         error = P_BIM_IO_ERROR;

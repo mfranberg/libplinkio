@@ -612,6 +612,7 @@ error:
 }
 
 pio_status_t libplinkio_change_bed_read_only_ (struct pio_bed_file_t* bed_file) {
+    fflush(bed_file->fp);
     int fd = libplinkio_change_mode_and_open_(fileno(bed_file->fp), O_RDONLY);
     if (fd < 0) goto error;
     fclose(bed_file->fp);
