@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 
 // libplinkio_get_random_()
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
 #include <windows.h>
 #include <bcrypt.h>
 #include <share.h>
@@ -25,7 +25,7 @@
 #include <unistd.h>
 #endif
 #include <sys/stat.h>
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
 #include <inttypes.h>
 #include <windows.h>
 #else
@@ -36,7 +36,7 @@
 int libplinkio_get_random_(uint8_t* buffer, size_t length)
 {
     if (length > 256) goto error;
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
     if (
         FAILED(HRESULT_FROM_NT(BCryptGenRandom(
             NULL, (PUCHAR)buffer, (ULONG)length, BCRYPT_USE_SYSTEM_PREFERRED_RNG
@@ -104,7 +104,7 @@ int libplinkio_tmp_open_(const char* filename_prefix, const size_t filename_pref
         }
         filename[filename_length] = '\0';
 
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
         errno_t err_open = _sopen_s(
             &fd,
             filename,
@@ -119,7 +119,7 @@ int libplinkio_tmp_open_(const char* filename_prefix, const size_t filename_pref
 #elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
         fd = open(
             filename,
-            O_BINARY | O_CREAT | O_EXCL | O_RDWR,
+            O_CREAT | O_EXCL | O_RDWR,
             S_IRUSR | S_IWUSR
         );
         if (fd == -1) {
@@ -146,7 +146,7 @@ void* libplinkio_mmap_(int fd, libplinkio_mmap_mode_private_t mode, libplinkio_m
     libplinkio_mmap_state_private_t state_init = { 0 };
     *state = state_init;
     if( fstat( fd, &file_stats ) == -1 ) goto error;
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
     DWORD page_protect_mode = PAGE_NOACCESS;
     DWORD desired_access = FILE_MAP_READ;
     if (mode == LIBPLINKIO_MMAP_READONLY_) {
@@ -196,7 +196,7 @@ void* libplinkio_mmap_(int fd, libplinkio_mmap_mode_private_t mode, libplinkio_m
     return mapped_file;
 
 error:
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
     if (mapped_file != NULL) UnmapViewOfFile(mapped_file);
     if (state->file_mapping_handle != NULL) CloseHandle(state->file_mapping_handle);
 #else
@@ -206,7 +206,7 @@ error:
 }
 
 int libplinkio_munmap_(void* mapped_file, libplinkio_mmap_state_private_t* state) {
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
     if (UnmapViewOfFile(mapped_file) == 0) goto error;
     if (CloseHandle(state->file_mapping_handle) == 0) goto error;
 #else

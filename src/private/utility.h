@@ -8,9 +8,9 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
 #include <windows.h>
-#endif // defined(_WIN32) || defined(_WIN64)
+#endif
 
 #include <limits.h>
 #include <stdlib.h>
@@ -48,7 +48,7 @@ typedef enum {
 } libplinkio_mmap_mode_private_t;
 
 typedef struct {
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
     HANDLE file_mapping_handle;
 #else
     size_t st_size;

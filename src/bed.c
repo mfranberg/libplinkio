@@ -486,10 +486,18 @@ bed_transpose(const char *original_path, const char *transposed_path, size_t num
     int original_fd = -1;
     int transposed_fd = -1;
 
+#ifdef _WIN32
     original_fd = open( original_path, O_RDONLY | O_BINARY );
+#else
+    original_fd = open( original_path, O_RDONLY );
+#endif
     if( original_fd == -1 ) goto error;
 
+#ifdef _WIN32
     transposed_fd = open( transposed_path, O_WRONLY | O_BINARY );
+#else
+    transposed_fd = open( transposed_path, O_WRONLY );
+#endif
     if( transposed_fd == -1 ) goto error;
 
     /* Transpose */
@@ -522,7 +530,11 @@ libplinkio_bed_transpose_pio_bed_file_(struct pio_bed_file_t *bed_file, const ch
     if (is_tmp) {
         transposed_fd = libplinkio_tmp_open_(transposed_path, strlen(transposed_path));
     } else {
+#ifdef _WIN32
         transposed_fd = open( transposed_path, O_CREAT | O_TRUNC | O_RDWR | O_BINARY, S_IREAD | S_IWRITE );
+#else
+        transposed_fd = open( transposed_path, O_CREAT | O_TRUNC | O_RDWR, S_IREAD | S_IWRITE );
+#endif
     }
     if( transposed_fd == -1 ) goto error;
 
