@@ -34,6 +34,10 @@
 #endif
 #include <sys/types.h>
 
+#ifndef _WIN32
+#define LIBPLINKIO_FD_STR_MAX_LENGTH_ 20
+#endif
+
 int libplinkio_get_random_(uint8_t* buffer, size_t length)
 {
     if (length > 256) goto error;
@@ -255,7 +259,19 @@ int libplinkio_change_mode_and_open_(int fd, int flags) {
     };
     return _open_osfhandle((intptr_t)fhandle, flags);
 #else
-    UNUSED_PARAM(flags);
-    return dup(fd);
+    const char format[] = "/dev/fd/";
+    char fd_str_buffer[LIBPLINKIO_FD_STR_MAX_LENGTH_ + 1] = "\0";
+    char fd_path[sizeof(format) + LIBPLINKIO_FD_STR_MAX_LENGTH_] = "\0";
+
+    ssize_t actual_length = snprintf(fd_str_buffer, sizeof(fd_str_buffer), "%d", fd);
+    if ((actual_length <= 0) || (actual_length - LIBPLINKIO_FD_STR_MAX_LENGTH_ > 0)) return -1;
+    fd_str_buffer[actual_length] = '\0';
+
+    strcat(fd_path, format);
+    strcat(fd_path, fd_str_buffer);
+
+    int new_fd = open(fd_path, flags);
+
+    return new_fd;
 #endif
 }
