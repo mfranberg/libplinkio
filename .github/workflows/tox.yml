@@ -48,5 +48,4 @@ jobs:
     
     - name: Test with tox
       run: tox --skip-missing-interpreter=false
-      env:
-        TOX_DEVELOP: false
+

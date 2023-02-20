@@ -1,5 +1,4 @@
-include src/*.h
 include src/private/*.h
 include src/plinkio/*.h
-include py-plinkio/src/plinkio/cplinkio/*.h
+include py-plinkio/src/cplinkio/*.h
 include README.rst
