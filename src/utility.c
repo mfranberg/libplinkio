@@ -13,7 +13,6 @@
 #include <share.h>
 #else
 #include <stdio.h>
-#include <sys/random.h>
 #include <unistd.h>
 #include <errno.h>
 #endif
@@ -47,15 +46,7 @@ int libplinkio_get_random_(uint8_t* buffer, size_t length)
             NULL, (PUCHAR)buffer, (ULONG)length, BCRYPT_USE_SYSTEM_PREFERRED_RNG
         )))
     ) goto error;
-#elif (defined(__APPLE__) && defined(__MACH__)) \
-    || defined (__OpenBSD__)
-    if (getentropy(buffer, length) != 0) goto error;
-#elif defined(__linux__) \
-    || defined(__FreeBSD__) \
-    || defined (__NetBSD__) \
-    || defined (__DragonFly__)
-    if (getrandom(buffer, length, 0) != (ssize_t)length) goto error;
-#elif (__unix__)
+#elif (__unix__) || (defined(__APPLE__) && defined(__MACH__))
     do {
         FILE* fp = fopen("/dev/urandom", "rb");
         if (fp == NULL) goto other_unix_error;
