@@ -13,7 +13,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       
       - name: Install dependencies
         run: |
@@ -34,10 +34,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         include:
-          - python-version: "3.7"
-            python-identifier: "cp37-*"
           - python-version: "3.8"
             python-identifier: "cp38-*"
           - python-version: "3.9"
@@ -46,6 +44,8 @@ jobs:
             python-identifier: "cp310-*"
           - python-version: "3.11"
             python-identifier: "cp311-*"
+          - python-version: "3.12"
+            python-identifier: "cp312-*"
     steps:
       - uses: actions/checkout@v3
       
@@ -56,7 +56,7 @@ jobs:
         if: runner.os == 'Linux'
       
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.12.0
+        uses: pypa/cibuildwheel@v2.16.2
         env:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest {project}/py-plinkio/tests"
@@ -89,7 +89,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       
       - name: Install dependencies
         run: |
